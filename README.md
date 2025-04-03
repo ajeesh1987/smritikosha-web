@@ -1,4 +1,4 @@
-# MemoryBox (SmritiKoshaApp)
+#  SmritiKoshaApp
 
 A web application for families to collaboratively build a digital legacy box, preserving photos, stories, and memories across generations.
 
@@ -31,8 +31,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/SmritiKoshaApp/MemoryBox.git](https://github.com/SmritiKoshaApp/MemoryBox.git)
-    cd MemoryBox
+    git clone [
     ```
 2.  **Install dependencies:**
     ```bash
@@ -41,7 +40,7 @@ These instructions will get you a copy of the project up and running on your loc
     yarn install
     ```
 3.  **Set up Supabase:**
-    * Link your project (run this inside the `MemoryBox` folder):
+    * Link your project (run this inside the `` folder):
         ```bash
         supabase login
         supabase link --project-ref <your-project-ref>
@@ -80,7 +79,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ## Roadmap (Planned Features)
 
-* Memory Box creation and management
+* Web creation and management
 * Content contribution (Photo upload, Story submission)
 * Collaboration features (Inviting family members)
 * Content viewing and organization
