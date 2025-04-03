@@ -84,7 +84,7 @@ These instructions will get you a copy of the project up and running on your loc
 * Content contribution (Photo upload, Story submission)
 * Collaboration features (Inviting family members)
 * Content viewing and organization
-* [Add other key features you plan]
+
 
 ## License
 
