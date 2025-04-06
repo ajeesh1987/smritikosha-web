@@ -1,16 +1,18 @@
-// Handle login form submission
-document.getElementById("login-form").addEventListener("submit", function(event) {
-    event.preventDefault();
+// script.js (or your main entry file)
+import { supabase } from './lib/supabaseClient.js';
 
-    // Get form data
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+document.addEventListener('DOMContentLoaded', async () => {
+  // Handle tokens in URL automatically
+  const { data, error } = await supabase.auth.getSession();
 
-    // Basic validation (you can expand this with real API calls)
-    if (email && password) {
-        alert("Login successful!");
-        console.log("User logged in:", email);
-    } else {
-        alert("Please fill in both fields.");
-    }
+  // Clear tokens from URL
+  if (window.location.hash && window.location.hash.includes('access_token')) {
+    history.replaceState({}, document.title, window.location.pathname);
+  }
+
+  if (data.session) {
+    console.log('User is logged in:', data.session.user.email);
+    // You could redirect user here to dashboard or login page directly
+    window.location.href = './login.html';
+  }
 });

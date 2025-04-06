@@ -90,3 +90,10 @@ body {
 .signup-link a:hover {
     text-decoration: underline;
 }
+.message {
+    margin-top: 1rem;
+    color: red;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  

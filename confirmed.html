@@ -1,0 +1,76 @@
+<!-- confirmed.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Verified | SmritiKosha</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="styles.css"/>
+    <style>
+      body {
+        font-family: sans-serif;
+        background-color: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .card {
+        background: #ffffff;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+      }
+      .checkmark {
+        font-size: 3rem;
+        color: #22c55e;
+      }
+      h2 {
+        margin: 1rem 0;
+        color: #111827;
+      }
+      p {
+        color: #374151;
+        margin-bottom: 1.5rem;
+      }
+      .btn {
+        padding: 0.75rem 1rem;
+        background-color: #4f46e5;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.2s;
+      }
+      .btn:hover {
+        background-color: #4338ca;
+      }
+    </style>
+</head>
+<body>
+  <div class="card">
+    <div class="checkmark">✔️</div>
+    <h2>Email Verified!</h2>
+    <p>Your email has been successfully verified.</p>
+    <button class="btn" onclick="location.href='./login.html'">Proceed to Login</button>
+  </div>
+
+  <!-- Handle Supabase session and clean URL -->
+  <script type="module">
+    import { supabase } from './lib/supabaseClient.js';
+    
+    async function handleSession() {
+      await supabase.auth.getSession();
+      if (window.location.hash.includes('access_token')) {
+        history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+    handleSession();
+  </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!-- verify-email.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Your Email | SmritiKosha</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="styles.css"/>
+    <style>
+      body {
+        font-family: sans-serif;
+        background-color: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .card {
+        background: #ffffff;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+      }
+      h2 {
+        margin-bottom: 1rem;
+        color: #111827;
+      }
+      p {
+        color: #374151;
+        margin-bottom: 1.5rem;
+      }
+      .btn {
+        padding: 0.75rem 1rem;
+        background-color: #4f46e5;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.2s;
+      }
+      .btn:hover {
+        background-color: #4338ca;
+      }
+    </style>
+</head>
+<body>
+  <div class="card">
+    <h2>📧 Verify Your Email</h2>
+    <p>We've sent a verification link to your email. Please check your inbox (and spam folder!) and click the link to activate your account.</p>
+    <button class="btn" onclick="location.href='./login.html'">Back to Login</button>
+  </div>
+</body>
+</html>

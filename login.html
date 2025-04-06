@@ -1,12 +1,72 @@
+<!-- login.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - SmritiKosha</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        background-color: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .login-container {
+        background-color: #ffffff;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 400px;
+      }
+      .login-title {
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+      .input-group {
+        margin-bottom: 1rem;
+      }
+      .input-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+      .input-group input {
+        width: 100%;
+        padding: 0.6rem;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+      }
+      .login-btn {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .login-btn:hover {
+        background-color: #1d4ed8;
+      }
+      .signup-link {
+        text-align: center;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+      }
+      .message {
+        text-align: center;
+        margin-top: 1rem;
+        color: red;
+        font-size: 0.9rem;
+      }
+    </style>
 </head>
 <body>
     <div class="login-container">
@@ -22,7 +82,10 @@
             </div>
             <button type="submit" class="login-btn">Login</button>
         </form>
-        <p class="signup-link">Don't have an account? <a href="#">Sign Up</a></p>
+        <div class="message" id="login-message"></div>
+        <p class="signup-link">Don't have an account? <a href="./signup.html">Sign Up</a></p>
     </div>
+
+    <script type="module" src="./src/auth/login.js"></script>
 </body>
 </html>
