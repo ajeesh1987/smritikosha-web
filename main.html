@@ -160,16 +160,33 @@ console.log('File path:', filePath);
 console.log('File:', file.name, file.size, file.type);
 console.log('Metadata:', { user_id: user.id });
 
-      const { error: uploadError } = await supabase.storage
-        .from('memory-images')
-        .upload(filePath, file, {
-          upsert: false,
-          cacheControl: '3600',
-          contentType: file.type,
-          metadata: {
-            user_id: user.id
-          }
-        });
+     // Step 1: Get a signed upload URL
+const { data: signedData, error: signedError } = await supabase.storage
+  .from('memory-images')
+  .createSignedUploadUrl(filePath);
+
+if (signedError) {
+  alert('Failed to get signed upload URL.');
+  console.error(signedError);
+  return;
+}
+
+// Step 2: Upload the file using signed URL + metadata header
+const uploadHeaders = new Headers();
+uploadHeaders.append('x-amz-meta-user_id', user.id);
+
+const uploadResponse = await fetch(signedData.uploadUrl, {
+  method: 'PUT',
+  headers: uploadHeaders,
+  body: file
+});
+
+if (!uploadResponse.ok) {
+  alert('Image upload failed.');
+  console.error(await uploadResponse.text());
+  return;
+}
+
 
       if (uploadError) {
         alert('Image upload failed.');
