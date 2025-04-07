@@ -1,141 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login / Sign Up - SmritiKosha</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmritiKosha – Your Memory Sanctuary</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .slide-fade {
+      transition: opacity 1s ease-in-out;
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .slide-fade.active {
+      opacity: 1;
+      position: relative;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800">
 
-    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+  <!-- Hero Section -->
+  <section class="min-h-screen flex items-center justify-center text-center px-4 md:px-0 relative overflow-hidden">
+    <div class="z-10">
+      <h1 class="text-5xl md:text-7xl font-bold text-indigo-900 leading-tight">SmritiKosha</h1>
+      <p class="mt-6 text-lg md:text-xl max-w-xl mx-auto text-gray-600">
+        Your sanctuary of memories. Written, remembered, rediscovered.
+      </p>
+      <button onclick="location.href='./login.html'" class="mt-8 px-6 py-3 bg-indigo-600 text-white rounded-xl text-lg font-medium shadow-lg hover:bg-indigo-700 transition">
+        Start Remembering
+      </button>
+    </div>
+    <div class="absolute w-[600px] h-[600px] bg-indigo-300 opacity-20 blur-3xl rounded-full top-20 left-1/2 transform -translate-x-1/2 animate-pulse"></div>
+  </section>
 
-        <div id="view-container">
+  <!-- Nostalgia Slideshow Section -->
+  <section class="relative h-[500px] bg-white flex items-center justify-center overflow-hidden">
+    <div class="relative w-full max-w-md h-full">
+      <div class="slide-fade active" id="slide-1">
+        <img src="./assets/img1.jpg" class="rounded-xl shadow-lg w-full h-auto mb-4" alt="India 90s">
+        <p class="text-lg text-center text-gray-700">Monsoons, Doordarshan, school diaries – India, 1990s</p>
+      </div>
+      <div class="slide-fade" id="slide-2">
+        <img src="./assets/img2.jpg" class="rounded-xl shadow-lg w-full h-auto mb-4" alt="US 90s">
+        <p class="text-lg text-center text-gray-700">Rollerblades, arcades, cassette tapes – US, 1990s</p>
+      </div>
+      <div class="slide-fade" id="slide-3">
+        <img src="./assets/img3.jpg" class="rounded-xl shadow-lg w-full h-auto mb-4" alt="Shared Vibes">
+        <p class="text-lg text-center text-gray-700">Memories we didn't know we missed. Now, remembered.</p>
+      </div>
+    </div>
+  </section>
 
-            <div id="login-view" class="view active">
-                <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Welcome Back!</h2>
-                <form id="login-form" method="POST" onsubmit="handleLogin(event)">
-                    <div class="mb-4">
-                        <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input type="email" id="login-email" name="email" placeholder="Enter your email address" required
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                    <div class="mb-4">
-                        <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                        <input type="password" id="login-password" name="password" placeholder="Enter your password" required
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                    <div class="text-right mb-4">
-                        <a href="#" class="text-sm text-indigo-600 hover:text-indigo-500">Forgot Password?</a>
-                    </div>
-                    <button type="submit"
-                            class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
-                        Login
-                    </button>
-                     <p id="login-error" class="text-red-500 text-sm mt-2 text-center"></p>
-                </form>
-                <p class="mt-6 text-center text-sm text-gray-600">
-                    Don't have an account?
-                    <button onclick="showView('signup-view')" class="font-medium text-indigo-600 hover:text-indigo-500">
-                        Sign Up
-                    </button>
-                </p>
-            </div>
+  <script>
+    const slides = [
+      document.getElementById('slide-1'),
+      document.getElementById('slide-2'),
+      document.getElementById('slide-3')
+    ];
+    let current = 0;
 
-            <div id="signup-view" class="view">
-                <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Create Your Account</h2>
-                <form id="signup-form" method="POST" onsubmit="handleSignup(event)">
-                    <div class="mb-4">
-                        <label for="signup-name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                        <input type="text" id="signup-name" name="name" placeholder="Enter your full name" required
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                    <div class="mb-4">
-                        <label for="signup-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input type="email" id="signup-email" name="email" placeholder="Enter your email address" required
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                    <div class="mb-4">
-                        <label for="signup-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                        <input type="password" id="signup-password" name="password" placeholder="Create a password (min. 8 characters)" required minlength="8"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                    <div class="mb-4">
-                        <label for="signup-confirm-password" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                        <input type="password" id="signup-confirm-password" name="confirmPassword" placeholder="Confirm your password" required
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                        <p id="password-match-error" class="text-red-500 text-sm mt-1"></p>
-                         <p id="signup-error" class="text-red-500 text-sm mt-1"></p>
-                    </div>
-                    <div class="mb-4 flex items-start">
-                         <input id="terms" name="terms" type="checkbox" required class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1 mr-2">
-                         <label for="terms" class="text-sm text-gray-700">
-                            By signing up, you agree to our
-                            <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Terms of Service</a> and
-                            <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Privacy Policy</a>.
-                        </label>
-                    </div>
-                    <button type="submit"
-                            class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
-                        Create Account
-                    </button>
-                </form>
-                <p class="mt-6 text-center text-sm text-gray-600">
-                    Already have an account?
-                    <button onclick="showView('login-view')" class="font-medium text-indigo-600 hover:text-indigo-500">
-                        Login
-                    </button>
-                </p>
-            </div>
+    setInterval(() => {
+      slides[current].classList.remove('active');
+      current = (current + 1) % slides.length;
+      slides[current].classList.add('active');
+    }, 3500);
+  </script>
 
-            <div id="check-email-view" class="view text-center">
-                 <svg class="mx-auto h-12 w-12 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                <h2 class="text-2xl font-bold text-gray-800 mt-4 mb-2">Verify Your Email</h2>
-                <p class="text-gray-600 mb-4">
-                    We've sent a verification link to <strong id="submitted-email">your email</strong>.
-                    Please check your inbox (and spam folder!) and click the link to activate your account.
-                </p>
-                <button onclick="resendVerification()" class="text-sm text-indigo-600 hover:text-indigo-500 mb-4">
-                    Didn't receive the email? Resend verification email
-                </button>
-                 <p id="resend-message" class="text-green-600 text-sm mt-1"></p>
-                 <button onclick="showView('login-view')" class="mt-4 w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition duration-150 ease-in-out">
-                    Back to Login
-                </button>
-                 </div>
+  <!-- Story Section -->
+  <section class="py-24 px-6 md:px-20 bg-white text-center">
+    <h2 class="text-3xl md:text-4xl font-semibold mb-8">What is SmritiKosha?</h2>
+    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+      SmritiKosha is your personal vault of memories. A calm, elegant space to preserve your thoughts, journal your experiences, and reflect on the journey of your life.
+    </p>
+    <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div class="p-6 rounded-xl shadow-md bg-indigo-50">
+        <h3 class="text-xl font-bold mb-2">📝 Write</h3>
+        <p class="text-gray-600">Capture your thoughts, moments, and reflections — from the mundane to the meaningful.</p>
+      </div>
+      <div class="p-6 rounded-xl shadow-md bg-blue-50">
+        <h3 class="text-xl font-bold mb-2">📦 Keep</h3>
+        <p class="text-gray-600">Every memory is safe and secure, beautifully organized in a digital sanctuary.</p>
+      </div>
+      <div class="p-6 rounded-xl shadow-md bg-indigo-50">
+        <h3 class="text-xl font-bold mb-2">🔁 Revisit</h3>
+        <p class="text-gray-600">Scroll back through your journey. See how far you've come. Remember what matters.</p>
+      </div>
+    </div>
+  </section>
 
-             <div id="verified-view" class="view text-center">
-                 <svg class="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <h2 class="text-2xl font-bold text-gray-800 mt-4 mb-2">Email Verified!</h2>
-                <p class="text-gray-600 mb-6">
-                    Success! Your email address has been successfully verified.
-                </p>
-                <button onclick="showView('login-view')"
-                        class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
-                    Proceed to Login
-                </button>
-            </div>
+  <!-- Quote Section -->
+  <section class="py-32 px-6 bg-gradient-to-br from-indigo-100 to-blue-200 text-center">
+    <blockquote class="text-2xl md:text-3xl italic font-medium text-gray-800 max-w-3xl mx-auto">
+      “We do not remember days, we remember moments.” <br/><span class="block mt-4 text-sm font-normal text-gray-600">— Cesare Pavese</span>
+    </blockquote>
+  </section>
 
-        </div> </div>
+  <!-- Photo Credits -->
+  <section class="py-4 px-6 bg-white text-center text-sm text-gray-500">
+    Photo by <a href="https://unsplash.com/@karthikchandrasekar?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" class="underline hover:text-indigo-600">Karthik Chandran</a> on <a href="https://unsplash.com/photos/selective-focus-photography-of-yellow-auto-rickshaw-on-road-4e0PvfHClnI?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" class="underline hover:text-indigo-600">Unsplash</a>
+  </section>
 
-    <script src="script.js" type="module" defer></script>
+  <!-- Footer -->
+  <footer class="bg-white py-6 text-center text-sm text-gray-500">
+    &copy; 2025 SmritiKosha. Built for those who remember.
+  </footer>
+
 </body>
 </html>

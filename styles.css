@@ -1,99 +1,57 @@
-/* Basic Reset */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* === Global Reset (still useful) === */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+/* === Base Body Styling === */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f7f7f7;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+  @apply bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 min-h-screen flex items-center justify-center;
 }
 
-/* Login Form Container */
+/* === Card Container Styling === */
 .login-container {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
+  @apply bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center;
 }
 
-/* Title */
+/* === Titles === */
 .login-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 20px;
+  @apply text-2xl font-bold mb-6 text-gray-800;
 }
 
-/* Input Fields */
+/* === Input Groups === */
 .input-group {
-    margin-bottom: 15px;
-    text-align: left;
+  @apply mb-4 text-left;
 }
 
 .input-group label {
-    display: block;
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 5px;
+  @apply block text-sm font-medium text-gray-700 mb-1;
 }
 
 .input-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500;
 }
 
-.input-group input:focus {
-    outline: none;
-    border-color: #6C63FF;
-}
-
-/* Button */
+/* === Button Styling === */
 .login-btn {
-    width: 100%;
-    padding: 12px;
-    background-color: #6C63FF;
-    color: white;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  @apply w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out font-medium;
 }
 
-.login-btn:hover {
-    background-color: #5747e6;
-}
-
-/* Sign-up link */
+/* === Sign-up Link === */
 .signup-link {
-    margin-top: 20px;
-    font-size: 14px;
+  @apply mt-6 text-sm text-gray-600;
 }
 
 .signup-link a {
-    color: #6C63FF;
-    text-decoration: none;
+  @apply text-indigo-600 hover:text-indigo-500;
 }
 
-.signup-link a:hover {
-    text-decoration: underline;
-}
+/* === Error/Message Styling === */
 .message {
-    margin-top: 1rem;
-    color: red;
-    text-align: center;
-    font-size: 0.9rem;
-  }
-  
+  @apply text-red-500 text-sm mt-2 text-center;
+}

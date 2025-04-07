@@ -1,94 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Sign Up | SmritiKosha</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <style>
-      body {
-        font-family: sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        background-color: #f3f4f6;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign Up | SmritiKosha</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-white to-blue-100 min-h-screen flex items-center justify-center font-sans text-gray-800">
+  <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+    <h2 class="text-2xl font-bold text-center mb-6">Sign Up</h2>
+    <form id="signup-form">
+      <input type="email" id="email" placeholder="Email" required class="mb-4 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      <input type="password" id="password" placeholder="Password" required minlength="6" class="mb-4 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      <input type="password" id="confirm-password" placeholder="Confirm Password" required minlength="6" class="mb-4 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 font-medium transition">Create Account</button>
+    </form>
+    <div id="signup-message" class="text-red-500 text-sm mt-4 text-center"></div>
+  </div>
 
-      .container {
-        background: white;
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 400px;
-      }
-
-      h2 {
-        text-align: center;
-        margin-bottom: 1.5rem;
-      }
-
-      input[type="email"],
-      input[type="password"] {
-        width: 100%;
-        padding: 0.75rem;
-        margin-bottom: 1rem;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-      }
-
-      button {
-        width: 100%;
-        padding: 0.75rem;
-        background-color: #2563eb;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-weight: bold;
-        cursor: pointer;
-      }
-
-      button:hover {
-        background-color: #1d4ed8;
-      }
-
-      .message {
-        margin-top: 1rem;
-        text-align: center;
-        color: red;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h2>Sign Up</h2>
-      <form id="signup-form">
-        <input
-          type="email"
-          id="email"
-          placeholder="Email"
-          required
-        />
-        <input
-          type="password"
-          id="password"
-          placeholder="Password"
-          required
-          minlength="6"
-        />
-        <input
-          type="password"
-          id="confirm-password"
-          placeholder="Confirm Password"
-          required
-          minlength="6"
-        />
-        <button type="submit">Create Account</button>
-      </form>
-      <div class="message" id="signup-message"></div>
-    </div>
-
-    <script type="module" src="./src/auth/signup.js"></script>
+  <script type="module" src="./src/auth/signup.js"></script>
 </body>
 </html>

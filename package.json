@@ -13,5 +13,10 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",
     "vite": "^4.0.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.3"
   }
 }

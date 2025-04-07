@@ -1,76 +1,66 @@
-<!-- confirmed.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Email Verified | SmritiKosha</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="styles.css"/>
-    <style>
-      body {
-        font-family: sans-serif;
-        background-color: #f3f4f6;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        margin: 0;
-      }
-      .card {
-        background: #ffffff;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-        width: 100%;
-        max-width: 400px;
-        text-align: center;
-      }
-      .checkmark {
-        font-size: 3rem;
-        color: #22c55e;
-      }
-      h2 {
-        margin: 1rem 0;
-        color: #111827;
-      }
-      p {
-        color: #374151;
-        margin-bottom: 1.5rem;
-      }
-      .btn {
-        padding: 0.75rem 1rem;
-        background-color: #4f46e5;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.2s;
-      }
-      .btn:hover {
-        background-color: #4338ca;
-      }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | SmritiKosha</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-  <div class="card">
-    <div class="checkmark">✔️</div>
-    <h2>Email Verified!</h2>
-    <p>Your email has been successfully verified.</p>
-    <button class="btn" onclick="location.href='./login.html'">Proceed to Login</button>
+<body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 min-h-screen flex items-center justify-center px-4">
+  <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
+    <h1 class="text-2xl font-bold text-center mb-6 text-indigo-700">Login to SmritiKosha</h1>
+    <form id="login-form" method="POST" novalidate class="space-y-4">
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+        <input type="email" id="email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      </div>
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" id="password" name="password" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      </div>
+      <p id="error-msg" class="text-red-500 text-sm text-center"></p>
+      <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition font-medium">Login</button>
+    </form>
   </div>
 
-  <!-- Handle Supabase session and clean URL -->
   <script type="module">
     import { supabase } from './lib/supabaseClient.js';
-    
-    async function handleSession() {
-      await supabase.auth.getSession();
-      if (window.location.hash.includes('access_token')) {
-        history.replaceState({}, document.title, window.location.pathname);
+
+    const form = document.getElementById('login-form');
+    const errorMsg = document.getElementById('error-msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = form.email.value.trim();
+      const password = form.password.value.trim();
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        errorMsg.textContent = error.message;
+        return;
       }
-    }
-    handleSession();
+
+      window.location.href = './main.html';
+    });
   </script>
 </body>
 </html>
