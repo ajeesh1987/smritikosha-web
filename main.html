@@ -27,9 +27,10 @@
 
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-xl font-semibold">Your Memories</h2>
-      <button onclick="openModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+      <button id="add-memory-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
         + Add Memory
       </button>
+      
     </div>
 
     <div id="memory-list" class="space-y-4 text-center text-gray-600">
@@ -152,6 +153,12 @@
       const file = imageInput.files[0];
       const safeName = file.name.replace(/\s+/g, '-').replace(/[^\w.-]/g, '');
       const filePath = `${user.id}/${Date.now()}_${safeName}`;
+      console.log('✅ Preparing to upload...');
+console.log('User ID:', user.id);
+console.log('Safe filename:', safeName);
+console.log('File path:', filePath);
+console.log('File:', file.name, file.size, file.type);
+console.log('Metadata:', { user_id: user.id });
 
       const { error: uploadError } = await supabase.storage
         .from('memory-images')
@@ -182,6 +189,8 @@
     });
 
     loadMemories();
+    document.getElementById('add-memory-btn').addEventListener('click', openModal);
+
   </script>
 </body>
 </html>
