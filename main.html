@@ -135,6 +135,12 @@
         return;
       }
 
+      const tagArray = tags.split(/\s+/).filter(t => t.trim() !== '');
+      if (tagArray.length > 5) {
+        alert('Please limit tags to 5 max.');
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       const existing = await supabase.from('memories').select('id').eq('user_id', user.id);
 
@@ -144,11 +150,19 @@
       }
 
       const file = imageInput.files[0];
-      const filePath = `${user.id}/${Date.now()}_${file.name}`;
+      const safeName = file.name.replace(/\s+/g, '-').replace(/[^\w.-]/g, '');
+      const filePath = `${user.id}/${Date.now()}_${safeName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('memory-images')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          upsert: false,
+          cacheControl: '3600',
+          contentType: file.type,
+          metadata: {
+            user_id: user.id
+          }
+        });
 
       if (uploadError) {
         alert('Image upload failed.');
