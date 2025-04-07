@@ -5,7 +5,7 @@ export default {
       outDir: 'dist', // The output folder for production build
     },
     server: {
-      open: '/login.html', // Automatically open the login page in the browser
+      open: '/index.html', // Automatically open the main page in the browser
     },
   };
   

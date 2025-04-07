@@ -16,23 +16,28 @@
       },
     };
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
 </head>
 <body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 min-h-screen flex items-center justify-center px-4">
+
   <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
     <h1 class="text-2xl font-bold text-center mb-6 text-indigo-700">Login to SmritiKosha</h1>
+    
     <form id="login-form" class="space-y-4">
       <div>
         <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
         <input type="email" id="email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
       </div>
+
       <div>
         <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
         <input type="password" id="password" name="password" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
       </div>
+
       <p id="error-msg" class="text-red-500 text-sm text-center"></p>
+
       <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition font-medium">Login</button>
     </form>
   </div>
@@ -48,6 +53,12 @@
 
       const email = form.email.value.trim();
       const password = form.password.value.trim();
+      errorMsg.textContent = '';
+
+      if (!email || !password) {
+        errorMsg.textContent = 'Both fields are required.';
+        return;
+      }
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -55,12 +66,15 @@
       });
 
       if (error) {
-        errorMsg.textContent = error.message;
+        errorMsg.textContent = `Login failed: ${error.message}`;
         return;
       }
 
-      // ✅ redirect to main on successful login
-      window.location.href = './main.html';
+      if (data.session) {
+        window.location.href = './main.html';
+      } else {
+        errorMsg.textContent = 'Unexpected login behavior. Please try again.';
+      }
     });
   </script>
 </body>
