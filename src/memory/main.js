@@ -1,10 +1,12 @@
-// src/memory/main.js
 import { supabase } from '../../lib/supabaseClient.js';
 console.log('✅ main.js loaded and running');
 
 const memoryList = document.getElementById('memory-list');
 const modal = document.getElementById('modal');
 const form = document.getElementById('memory-form');
+
+let modalImages = [];
+let currentImageIndex = 0;
 
 function openModal() {
   modal.classList.remove('hidden');
@@ -15,17 +17,32 @@ function closeModal() {
   form.reset();
 }
 
-function showImageModal(src) {
+function showImageModal(urls, index) {
+  modalImages = urls;
+  currentImageIndex = index;
   const modal = document.getElementById('image-modal');
   const img = document.getElementById('modal-image');
-  img.src = src;
+  img.src = modalImages[currentImageIndex];
   modal.classList.remove('hidden');
 }
 
 function closeImageModal() {
   document.getElementById('image-modal').classList.add('hidden');
-  document.getElementById('modal-image').src = '';
 }
+
+document.getElementById('modal-prev').addEventListener('click', () => {
+  if (currentImageIndex > 0) {
+    currentImageIndex--;
+    document.getElementById('modal-image').src = modalImages[currentImageIndex];
+  }
+});
+
+document.getElementById('modal-next').addEventListener('click', () => {
+  if (currentImageIndex < modalImages.length - 1) {
+    currentImageIndex++;
+    document.getElementById('modal-image').src = modalImages[currentImageIndex];
+  }
+});
 
 async function loadMemories() {
   const { data: { user } } = await supabase.auth.getUser();
@@ -53,8 +70,10 @@ async function loadMemories() {
       .select('image_path')
       .eq('memory_id', memory.id);
 
+    if (!images || images.length === 0) continue; // skip empty memories
+
     const imageUrls = await Promise.all(
-      (images || []).map(async (img) => {
+      images.map(async (img) => {
         const { data: signed } = await supabase.storage
           .from('memory-images')
           .createSignedUrl(img.image_path, 3600);
@@ -66,12 +85,19 @@ async function loadMemories() {
     container.className = 'bg-white p-4 border border-gray-200 rounded-lg shadow-sm text-left';
 
     container.innerHTML = `
-      <h3 class='text-lg font-bold text-indigo-700 mb-2'>${memory.title}</h3>
+      <div class="flex justify-between items-start mb-2">
+        <h3 class='text-lg font-bold text-indigo-700'>${memory.title}</h3>
+        <div class="space-x-2 text-sm">
+          <button onclick="renameMemory('${memory.id}', '${memory.title}')" class="text-indigo-600 hover:underline">Rename</button>
+          <button onclick="deleteMemory('${memory.id}')" class="text-red-600 hover:underline">Delete</button>
+        </div>
+      </div>
       ${memory.location ? `<p class='text-sm text-gray-600 mb-2'>📍 ${memory.location}</p>` : ''}
       ${memory.tags ? `<div class="mb-2">${memory.tags.split(/[, ]+/).map(tag => `<span class="inline-block bg-indigo-100 text-indigo-700 text-xs font-medium mr-1 px-2 py-1 rounded-full">${tag}</span>`).join('')}</div>` : ''}
       <div class="flex flex-wrap gap-2">
-        ${imageUrls.map(url => `
-          <img src="${url}" class="w-28 h-28 object-cover rounded-lg cursor-pointer border hover:ring-2 hover:ring-indigo-300" onclick="showImageModal('${url}')" />
+        ${imageUrls.map((url, i) => `
+          <img src="${url}" class="w-28 h-28 object-cover rounded-lg cursor-pointer border hover:ring-2 hover:ring-indigo-300"
+            onclick="showImageModal(${JSON.stringify(imageUrls)}, ${i})" />
         `).join('')}
       </div>
     `;
@@ -79,6 +105,33 @@ async function loadMemories() {
     memoryList.appendChild(container);
   }
 }
+
+window.renameMemory = async (memoryId, currentTitle) => {
+  const newTitle = prompt('Enter new memory title:', currentTitle);
+  if (!newTitle || newTitle === currentTitle) return;
+
+  const { error } = await supabase
+    .from('memories')
+    .update({ title: newTitle })
+    .eq('id', memoryId);
+
+  if (error) {
+    alert('Failed to rename memory.');
+    console.error(error);
+    return;
+  }
+
+  loadMemories();
+};
+
+window.deleteMemory = async (memoryId) => {
+  if (!confirm('Are you sure you want to delete this memory and its images?')) return;
+
+  await supabase.from('memory_images').delete().eq('memory_id', memoryId);
+  await supabase.from('memories').delete().eq('id', memoryId);
+
+  loadMemories();
+};
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -98,18 +151,32 @@ form.addEventListener('submit', async (e) => {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  const { data: memoryData, error: createError } = await supabase
+  const { data: existingMemory, error: findError } = await supabase
     .from('memories')
-    .insert([{ user_id: user.id, title, location, tags: tagString }])
-    .select();
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('title', title)
+    .maybeSingle();
 
-  if (createError || !memoryData || memoryData.length === 0) {
-    alert('Failed to create memory.');
-    console.error(createError);
-    return;
+  let memoryId;
+  if (existingMemory) {
+    memoryId = existingMemory.id;
+  } else {
+    const { data: newMemory, error: createError } = await supabase
+      .from('memories')
+      .insert([{ user_id: user.id, title, location, tags: tagString }])
+      .select()
+      .single();
+
+    if (createError) {
+      alert('Failed to create memory.');
+      console.error(createError);
+      return;
+    }
+
+    memoryId = newMemory.id;
   }
 
-  const memoryId = memoryData[0].id;
   const file = imageInput.files[0];
   const safeName = file.name.replace(/\s+/g, '-').replace(/[^\w.-]/g, '');
   const filePath = `${user.id}/${Date.now()}_${safeName}`;
@@ -145,6 +212,3 @@ form.addEventListener('submit', async (e) => {
 });
 
 loadMemories();
-document.getElementById('add-memory-btn').addEventListener('click', openModal);
-window.showImageModal = showImageModal;
-window.closeImageModal = closeImageModal;
