@@ -1,5 +1,5 @@
-// src/main.js
-import { supabase } from '../lib/supabaseClient.js';
+// src/memory/main.js
+import { supabase } from '../../lib/supabaseClient.js';
 console.log('✅ main.js loaded and running');
 
 const memoryList = document.getElementById('memory-list');
@@ -30,17 +30,17 @@ function closeImageModal() {
 async function loadMemories() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    window.location.href = './login.html';
+    window.location.href = '/pages/login.html';
     return;
   }
 
-  const { data: memories, error } = await supabase.from('memories').select('*').eq('user_id', user.id);
-  if (error) {
-    memoryList.innerHTML = `<p class='text-red-500'>Something went wrong loading memories.</p>`;
-    return;
-  }
+  const { data: memories, error: memError } = await supabase
+    .from('memories')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
 
-  if (memories.length === 0) {
+  if (memError || !memories || memories.length === 0) {
     memoryList.innerHTML = `<p class='text-gray-600 text-center'>You don't have any memories yet. Create your first one and begin the journey.</p>`;
     return;
   }
@@ -53,28 +53,30 @@ async function loadMemories() {
       .select('image_path')
       .eq('memory_id', memory.id);
 
-    if (imgError || !images || images.length === 0) continue;
+    const imageUrls = await Promise.all(
+      (images || []).map(async (img) => {
+        const { data: signed } = await supabase.storage
+          .from('memory-images')
+          .createSignedUrl(img.image_path, 3600);
+        return signed?.signedUrl;
+      })
+    );
 
-    const imagePreviews = await Promise.all(images.map(async (img) => {
-      const { data: signedUrlData } = await supabase.storage
-        .from('memory-images')
-        .createSignedUrl(img.image_path, 3600);
-      return signedUrlData?.signedUrl;
-    }));
+    const container = document.createElement('div');
+    container.className = 'bg-white p-4 border border-gray-200 rounded-lg shadow-sm text-left';
 
-    const div = document.createElement('div');
-    div.className = 'bg-white p-4 border border-gray-200 rounded-lg shadow-sm text-left';
-
-    div.innerHTML = `
-      <h3 class='text-lg font-semibold text-indigo-700 mb-1'>${memory.title}</h3>
-      ${memory.location ? `<p class='text-sm text-gray-600'>📍 ${memory.location}</p>` : ''}
-      ${memory.tags ? `<p class='text-sm text-gray-500 mt-1'>${memory.tags.split(' ').map(t => `<span class="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full text-xs mr-1">${t}</span>`).join('')}</p>` : ''}
-      ${imagePreviews.map((url, i) => `
-        <p class='text-sm text-gray-600 mt-2'>🖼️ <span class="text-indigo-600 underline cursor-pointer" onclick="showImageModal('${url}')">View Image ${i + 1}</span></p>
-      `).join('')}
+    container.innerHTML = `
+      <h3 class='text-lg font-bold text-indigo-700 mb-2'>${memory.title}</h3>
+      ${memory.location ? `<p class='text-sm text-gray-600 mb-2'>📍 ${memory.location}</p>` : ''}
+      ${memory.tags ? `<div class="mb-2">${memory.tags.split(/[, ]+/).map(tag => `<span class="inline-block bg-indigo-100 text-indigo-700 text-xs font-medium mr-1 px-2 py-1 rounded-full">${tag}</span>`).join('')}</div>` : ''}
+      <div class="flex flex-wrap gap-2">
+        ${imageUrls.map(url => `
+          <img src="${url}" class="w-28 h-28 object-cover rounded-lg cursor-pointer border hover:ring-2 hover:ring-indigo-300" onclick="showImageModal('${url}')" />
+        `).join('')}
+      </div>
     `;
 
-    memoryList.appendChild(div);
+    memoryList.appendChild(container);
   }
 }
 
@@ -83,7 +85,7 @@ form.addEventListener('submit', async (e) => {
 
   const title = document.getElementById('memory-title').value.trim();
   const location = document.getElementById('memory-location').value.trim();
-  const tags = document.getElementById('memory-tags').value.trim();
+  const tagsRaw = document.getElementById('memory-tags').value.trim();
   const imageInput = document.getElementById('memory-image');
 
   if (!title || !imageInput.files.length) {
@@ -91,17 +93,14 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
-  const tagArray = tags.split(/\s+/).filter(t => t.trim() !== '');
-  if (tagArray.length > 5) {
-    alert('Please limit tags to 5 max.');
-    return;
-  }
+  const tagArray = tagsRaw.split(/[, ]+/).filter(Boolean).slice(0, 5);
+  const tagString = tagArray.join(' ');
 
   const { data: { user } } = await supabase.auth.getUser();
 
   const { data: memoryData, error: createError } = await supabase
     .from('memories')
-    .insert([{ user_id: user.id, title, location, tags }])
+    .insert([{ user_id: user.id, title, location, tags: tagString }])
     .select();
 
   if (createError || !memoryData || memoryData.length === 0) {

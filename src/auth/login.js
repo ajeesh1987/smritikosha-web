@@ -1,38 +1,30 @@
-// src/auth/login.js
 import { supabase } from '../../lib/supabaseClient.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-  const loginForm = document.getElementById('login-form');
-  const submitBtn = loginForm.querySelector('button[type="submit"]');
-  const message = document.getElementById('login-message');
+const form = document.getElementById('login-form');
+const errorMsg = document.getElementById('error-msg');
 
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
+  const email = form.email.value.trim();
+  const password = form.password.value.trim();
+  errorMsg.textContent = '';
 
-    // Clear previous messages
-    message.textContent = '';
-    message.style.color = 'red';
+  if (!email || !password) {
+    errorMsg.textContent = 'Both fields are required.';
+    return;
+  }
 
-    if (!email || !password) {
-      message.textContent = 'Both email and password are required.';
-      return;
-    }
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Logging in...';
+  if (error) {
+    errorMsg.textContent = `Login failed: ${error.message}`;
+    return;
+  }
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      message.textContent = `Login failed: ${error.message}`;
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Login';
-    } else {
-      // Redirect to main page after successful login
-      window.location.href = './main.html';
-    }
-  });
+  if (data.session) {
+    window.location.href = './main.html';
+  } else {
+    errorMsg.textContent = 'Unexpected login behavior. Please try again.';
+  }
 });

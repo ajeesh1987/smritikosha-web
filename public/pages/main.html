@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Main | SmritiKosha</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -16,24 +16,33 @@
       },
     };
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
 </head>
-<body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 min-h-screen flex flex-col items-center p-6">
+<body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 min-h-screen p-6">
 
-  <div class="w-full max-w-3xl bg-white rounded-xl shadow-lg p-8 mt-12">
-    <h1 class="text-3xl font-bold text-indigo-700 mb-6 text-center">Welcome back to SmritiKosha</h1>
+  <div class="max-w-5xl mx-auto">
+    <h1 class="text-3xl font-bold text-indigo-700 text-center mb-10">Your Memories</h1>
 
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-xl font-semibold">Your Memories</h2>
-      <button id="add-memory-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+    <div class="flex justify-end mb-6">
+      <button id="add-memory-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition">
         + Add Memory
       </button>
     </div>
 
-    <div id="memory-list" class="space-y-4 text-center text-gray-600">
-      <!-- Memories appear here -->
+    <div id="memory-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Memories will be injected here -->
+    </div>
+  </div>
+
+  <!-- Image Viewer Modal -->
+  <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50">
+    <div class="relative w-full max-w-4xl px-4">
+      <div class="flex justify-between items-center mb-4">
+        <button id="modal-prev" class="text-white text-3xl font-bold hover:text-indigo-400">&#10094;</button>
+        <button onclick="closeImageModal()" class="text-white text-3xl font-bold hover:text-red-400">&times;</button>
+        <button id="modal-next" class="text-white text-3xl font-bold hover:text-indigo-400">&#10095;</button>
+      </div>
+      <img id="modal-image" class="rounded-xl max-h-[80vh] mx-auto shadow-lg object-contain" />
     </div>
   </div>
 
@@ -45,27 +54,19 @@
         <div>
           <label class="block text-sm font-medium">Memory Name <span class="text-red-500">*</span></label>
           <input type="text" id="memory-title" maxlength="15" pattern="[a-zA-Z0-9 ]+" required class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none"/>
-          <p class="text-xs text-gray-500 mt-1">Max 15 letters/numbers.</p>
         </div>
-
         <div>
           <label class="block text-sm font-medium">Location</label>
           <input type="text" id="memory-location" maxlength="15" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none"/>
-          <p class="text-xs text-gray-500 mt-1">Optional. Max 15 characters.</p>
         </div>
-
         <div>
           <label class="block text-sm font-medium">Tags</label>
           <input type="text" id="memory-tags" placeholder="#family #childhood" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none"/>
-          <p class="text-xs text-gray-500 mt-1">Separate with spaces. Max 5 tags.</p>
         </div>
-
         <div>
           <label class="block text-sm font-medium">Upload Image <span class="text-red-500">*</span></label>
           <input type="file" id="memory-image" accept="image/*" required class="w-full"/>
-          <p class="text-xs text-gray-500 mt-1">Max 1 image per memory. Max total storage 100MB per user.</p>
         </div>
-
         <div class="flex justify-end gap-2 mt-6">
           <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Cancel</button>
           <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Save Memory</button>
@@ -74,17 +75,6 @@
     </div>
   </div>
 
-  <!-- Image Modal -->
-  <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
-    <div class="relative bg-white rounded-lg shadow-lg max-w-3xl w-full p-4">
-      <img id="modal-image" src="" class="w-full max-h-[80vh] object-contain rounded-md" />
-      <button onclick="closeImageModal()" class="absolute top-2 right-2 bg-gray-800 text-white rounded-full px-3 py-1 text-sm hover:bg-gray-700">
-        ✕
-      </button>
-    </div>
-  </div>
-
-  <!-- Connect to main logic -->
-  <script type="module" src="./src/main.js"></script>
+  <script type="module" src="/src/memory/main.js"></script>
 </body>
 </html>
