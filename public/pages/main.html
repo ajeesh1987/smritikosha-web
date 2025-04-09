@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Main | SmritiKosha</title>
+  <title>Your Memories | SmritiKosha</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -14,35 +14,58 @@
           },
         },
       },
-    };
+    }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
 </head>
 <body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 min-h-screen p-6">
 
   <div class="max-w-5xl mx-auto">
-    <h1 class="text-3xl font-bold text-indigo-700 text-center mb-10">Your Memories</h1>
-
-    <div class="flex justify-end mb-6">
-      <button id="add-memory-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-indigo-700">Your Memories</h1>
+      <button id="add-memory-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
         + Add Memory
       </button>
     </div>
 
     <div id="memory-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Memories will be injected here -->
     </div>
   </div>
+   <!-- Rename Modal -->
+<div id="rename-modal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center">
+    <h2 class="text-lg font-semibold text-indigo-700 mb-4">Rename Memory</h2>
+    <input id="rename-input" type="text" class="w-full px-3 py-2 border rounded-md mb-4" />
+    <div class="flex justify-end gap-2">
+      <button onclick="closeRenameModal()" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+      <button id="rename-save" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Save</button>
+    </div>
+  </div>
+</div>
 
-  <!-- Image Viewer Modal -->
-  <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50">
-    <div class="relative w-full max-w-4xl px-4">
+<!-- Delete Modal -->
+<div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center">
+    <h2 class="text-lg font-semibold text-red-700 mb-4">Delete Memory</h2>
+    <p class="mb-6 text-gray-600">Are you sure you want to delete this memory and all its images?</p>
+    <div class="flex justify-end gap-2">
+      <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+      <button id="delete-confirm" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
+    </div>
+  </div>
+</div>
+
+  
+  <!-- Image Modal -->
+  <div id="image-modal" class="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center hidden">
+    <div class="relative max-w-4xl max-h-[90vh] w-full px-4">
       <div class="flex justify-between items-center mb-4">
         <button id="modal-prev" class="text-white text-3xl font-bold hover:text-indigo-400">&#10094;</button>
         <button onclick="closeImageModal()" class="text-white text-3xl font-bold hover:text-red-400">&times;</button>
         <button id="modal-next" class="text-white text-3xl font-bold hover:text-indigo-400">&#10095;</button>
       </div>
-      <img id="modal-image" class="rounded-xl max-h-[80vh] mx-auto shadow-lg object-contain" />
+      <img id="modal-image" src="" alt="Full Preview" class="rounded-xl max-h-[80vh] mx-auto shadow-lg object-contain" />
     </div>
   </div>
 
@@ -53,19 +76,19 @@
       <form id="memory-form" class="space-y-4">
         <div>
           <label class="block text-sm font-medium">Memory Name <span class="text-red-500">*</span></label>
-          <input type="text" id="memory-title" maxlength="15" pattern="[a-zA-Z0-9 ]+" required class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none"/>
+          <input type="text" id="memory-title" maxlength="15" pattern="[a-zA-Z0-9 ]+" required class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none" />
         </div>
         <div>
           <label class="block text-sm font-medium">Location</label>
-          <input type="text" id="memory-location" maxlength="15" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none"/>
+          <input type="text" id="memory-location" maxlength="15" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none" />
         </div>
         <div>
           <label class="block text-sm font-medium">Tags</label>
-          <input type="text" id="memory-tags" placeholder="#family #childhood" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none"/>
+          <input type="text" id="memory-tags" placeholder="#family #childhood" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none" />
         </div>
         <div>
           <label class="block text-sm font-medium">Upload Image <span class="text-red-500">*</span></label>
-          <input type="file" id="memory-image" accept="image/*" required class="w-full"/>
+          <input type="file" id="memory-image" accept="image/*" required class="w-full" />
         </div>
         <div class="flex justify-end gap-2 mt-6">
           <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Cancel</button>
