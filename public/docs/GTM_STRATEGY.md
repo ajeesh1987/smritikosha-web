@@ -166,3 +166,81 @@ SmritiKosha is a digital sanctuary where users can preserve, reflect on, and sha
 - Implement tagging system
 - Prep public launch landing + waitlist
 - Upload this doc to repo
+
+## 📌 Future Arch outlook (proposal)
+
+                   ┌────────────────────────┐
+                   │     Frontend (Web)     │
+                   │ HTML + Tailwind + JS   │
+                   └──────────┬─────────────┘
+                              │
+                              ▼
+                ┌────────────────────────────┐
+                │        API Gateway         │◄────────┐
+                │(optional layer or Vercel FN)│        │
+                └──────────┬─────────────────┘        │
+                           │                          │
+        ┌──────────────────┼─────────────────┐        │
+        │                  │                 │        │
+        ▼                  ▼                 ▼        │
+┌────────────┐    ┌────────────────┐   ┌──────────────┐│
+│ Auth API   │    │ Memory API     │   │ Media API    ││
+│ (proxy to  │    │ (CRUD, tags,   │   │ (uploads,    ││
+│ Supabase)  │    │ descriptions)  │   │ dedup, resize)││
+└────────────┘    └────────────────┘   └──────────────┘│
+        │                  │                 │         │
+        ▼                  ▼                 ▼         │
+  ┌──────────────┐   ┌─────────────┐   ┌────────────┐   │
+  │ Supabase Auth│   │ Postgres DB │   │ Supabase   │   │
+  │ (RLS enabled)│   │ (memories,  │   │ Storage     │   │
+  └──────────────┘   │  tags, etc) │   └────────────┘   │
+                     └─────────────┘                    │
+                                                       ▼
+                                              ┌─────────────────┐
+                                              │ Optional Services│
+                                              │ - Email/Notif    │
+                                              │ - AI (tag gen)   │
+                                              │ - Activity Feed  │
+                                              └─────────────────┘
+# 💡 Bonus Ideas for SmritiKosha (Scalable Add-ons)
+
+## 1. AI Auto-tagging
+Automatically generate memory tags based on image content using Vision APIs (e.g. Google Vision, AWS Rekognition). 
+Trigger this as a background job after image upload.
+
+## 2. Background Jobs / Queue Support
+Use something like Supabase Edge Functions or a lightweight job queue (e.g. BullMQ) to process:
+- image metadata extraction  
+- deduplication hashing  
+- AI classification  
+- email sending
+
+## 3. Public Memory Sharing
+Allow users to make certain memories public (read-only) and generate shareable URLs:  
+`smritikosha.app/m/memory-title`  
+Optionally cache on CDN for speed.
+
+## 4. Highlights & Collections
+Let users group multiple memories into a “highlight” — similar to Instagram story highlights.
+
+## 5. Mobile App Support
+Use the same backend API and offer a PWA or native app via Capacitor or React Native.
+
+## 6. Analytics / Memory Stats
+Track memory views, shares, most used tags — and show personal insights.
+
+## 7. Friends & Collaboration
+Invite others to contribute to a memory (shared albums, stories, roadtrips).
+
+## 8. Privacy Controls
+Let users set visibility levels:
+- Private  
+- Friends-only  
+- Public
+
+## 9. Versioned Memories
+Let users restore a previous version of a memory (title, tags, photos).
+
+## 10. Commenting or Annotations (Optional)
+Allow memory collaborators to comment on specific images or memories.
+
