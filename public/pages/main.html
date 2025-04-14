@@ -9,9 +9,7 @@
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
           animation: {
             fadeInUp: 'fadeInUp 0.3s ease-out both',
           },
@@ -25,7 +23,7 @@
       },
     }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
 </head>
 <body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 min-h-screen p-6">
@@ -33,10 +31,18 @@
   <div class="max-w-5xl mx-auto">
     <div class="flex justify-between items-center mb-8">
       <h1 class="text-3xl font-bold text-indigo-700">Your Memories</h1>
-      <button onclick="openMemoryModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
-        + Add Memory
-      </button>
+      <div class="relative">
+        <button id="profile-btn" class="flex items-center gap-2 px-4 py-2 bg-white text-indigo-700 rounded-lg shadow hover:bg-indigo-100 text-sm">
+          <i class="fas fa-user-circle text-xl"></i>
+          <span class="hidden sm:inline">Profile</span>
+        </button>
+        <div id="profile-menu" class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg py-2 hidden z-50">
+          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+          <button id="logout-btn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100">Logout</button>
+        </div>
+      </div>
     </div>
+
     <div id="memory-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
   </div>
 
@@ -62,8 +68,8 @@
           <textarea id="memory-description" rows="3" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none"></textarea>
         </div>
         <div class="flex justify-end gap-3 pt-2">
-          <button type="button" onclick="closeMemoryModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 focus:outline-none">Cancel</button>
-          <button type="submit" id="memory-submit-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none">Create</button>
+          <button type="button" onclick="closeMemoryModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Cancel</button>
+          <button type="submit" id="memory-submit-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Create</button>
         </div>
       </form>
     </div>
@@ -78,9 +84,10 @@
           <label class="block text-sm font-medium">Upload Image <span class="text-red-500">*</span></label>
           <input type="file" id="upload-image" accept="image/*" required class="w-full" />
         </div>
-        <div>
+        <div class="relative">
           <label class="block text-sm font-medium">Location</label>
-          <input type="text" id="image-location" maxlength="30" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none" />
+          <input type="text" id="image-location" maxlength="50" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none" placeholder="Search for a location..." autocomplete="off" />
+          <ul id="location-suggestions" class="bg-white border border-gray-300 mt-1 rounded-md shadow-md absolute z-50 hidden max-h-60 overflow-y-auto"></ul>
         </div>
         <div>
           <label class="block text-sm font-medium">Tags</label>
@@ -91,45 +98,36 @@
           <textarea id="image-description" rows="3" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none"></textarea>
         </div>
         <div class="flex justify-end gap-3 pt-2">
-          <button type="button" onclick="closeImageUpload()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 focus:outline-none">Cancel</button>
-          <button type="submit" id="image-submit-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none">Upload</button>
+          <button type="button" onclick="closeImageUpload()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Cancel</button>
+          <button type="submit" id="image-submit-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Upload</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Toast -->
-  <div id="toast" class="fixed bottom-4 right-4 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 pointer-events-none transition duration-300 z-50"></div>
-
- <!-- Image Modal -->
-<div id="image-modal" class="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center hidden">
-  <div class="relative max-w-6xl max-h-[90vh] w-full px-6 flex gap-6 items-start">
-    <!-- Left: Image Section -->
-    <div class="flex-1 flex flex-col items-center">
-      <div class="flex justify-between items-center mb-4 w-full px-4">
-        <button id="modal-prev" class="text-white text-3xl font-bold hover:text-indigo-400">&#10094;</button>
-        <button onclick="closeImageModal()" class="text-white text-3xl font-bold hover:text-red-400">&times;</button>
-        <button id="modal-next" class="text-white text-3xl font-bold hover:text-indigo-400">&#10095;</button>
+  <!-- Image Modal -->
+  <div id="image-modal" class="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center hidden">
+    <div class="relative max-w-6xl max-h-[90vh] w-full px-6 flex gap-6 items-start">
+      <!-- Left Image -->
+      <div class="flex-1 flex flex-col items-center">
+        <div class="flex justify-between items-center mb-4 w-full px-4">
+          <button id="modal-prev" class="text-white text-3xl font-bold hover:text-indigo-400">&#10094;</button>
+          <button onclick="closeImageModal()" class="text-white text-3xl font-bold hover:text-red-400">&times;</button>
+          <button id="modal-next" class="text-white text-3xl font-bold hover:text-indigo-400">&#10095;</button>
+        </div>
+        <img id="modal-image" src="" alt="Full Preview" class="rounded-xl max-h-[80vh] mx-auto shadow-lg object-contain" />
       </div>
-      <img id="modal-image" src="" alt="Full Preview" class="rounded-xl max-h-[80vh] mx-auto shadow-lg object-contain" />
-    </div>
 
-    <!-- Right: Info Panel -->
-    <div class="hidden md:block bg-white bg-opacity-90 text-gray-800 p-4 rounded-lg max-w-xs shadow-md overflow-y-auto max-h-[80vh]">
-      <p id="modal-location" class="text-sm text-indigo-600 font-medium mb-3"></p>
-      <p id="modal-description" class="text-sm leading-relaxed whitespace-pre-line"></p>
-    </div>
-  </div>
-</div>
-
-
-      <!-- Description Panel -->
-      <div class="hidden md:block bg-white bg-opacity-90 text-gray-800 p-4 rounded-lg max-w-xs shadow-md overflow-y-auto">
+      <!-- Right Info Panel -->
+      <div id="modal-info-panel" class="hidden md:block bg-white bg-opacity-90 text-gray-800 p-4 rounded-lg max-w-xs shadow-md overflow-y-auto max-h-[80vh]">
+        <p id="modal-location" class="text-sm text-indigo-600 font-medium mb-3"></p>
         <p id="modal-description" class="text-sm leading-relaxed whitespace-pre-line"></p>
       </div>
     </div>
-  
   </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 pointer-events-none transition duration-300 z-50"></div>
 
   <script type="module" src="/src/memory/main.js"></script>
 </body>
