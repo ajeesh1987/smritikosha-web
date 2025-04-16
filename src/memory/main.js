@@ -23,6 +23,7 @@ const profileMenu = document.getElementById('profile-menu');
 const logoutBtn = document.getElementById('logout-btn');
 const locationInput = document.getElementById('image-location');
 const suggestionsBox = document.getElementById('location-suggestions');
+const addMemoryBtn = document.getElementById('add-memory-btn');
 
 let modalImages = [], modalLocations = [], modalDescriptions = [], modalIds = [];
 let currentImageIndex = 0;
@@ -141,7 +142,13 @@ document.addEventListener('click', e => {
 });
 
 // Memory modal helpers
-window.openMemoryModal = () => memoryModal.classList.remove('hidden');
+window.openMemoryModal = () => {
+  memoryModal.classList.remove('hidden');
+  memoryModal.classList.add('flex'); // ensure modal uses Flex layout
+  document.getElementById('memory-title').focus(); // optional: auto-focus input
+};
+
+addMemoryBtn?.addEventListener('click', openMemoryModal);
 window.closeMemoryModal = () => {
   memoryModal.classList.add('hidden');
   memoryForm.reset();
