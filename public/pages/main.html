@@ -113,30 +113,61 @@
     </div>
   </div>
 
-  <!-- Image Modal -->
-  <div id="image-modal" class="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center hidden">
-    <div class="relative max-w-6xl max-h-[90vh] w-full px-6 flex gap-6 items-start">
-      <!-- Left Image -->
-      <div class="flex-1 flex flex-col items-center">
-        <div class="flex justify-between items-center mb-4 w-full px-4">
-          <button id="modal-prev" class="text-white text-3xl font-bold hover:text-indigo-400">&#10094;</button>
-          <button onclick="closeImageModal()" class="text-white text-3xl font-bold hover:text-red-400">&times;</button>
-          <button id="modal-next" class="text-white text-3xl font-bold hover:text-indigo-400">&#10095;</button>
-        </div>
-        <img id="modal-image" src="" alt="Full Preview" class="rounded-xl max-h-[80vh] mx-auto shadow-lg object-contain" />
-      </div>
+<!-- Image Modal -->
+<div id="image-modal" class="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center hidden">
+  <div class="relative w-full max-w-6xl max-h-[90vh] flex items-center justify-center px-6">
 
-      <!-- Right Info Panel -->
-      <div id="modal-info-panel" class="hidden md:block bg-white bg-opacity-90 text-gray-800 p-4 rounded-lg max-w-xs shadow-md overflow-y-auto max-h-[80vh]">
-        <p id="modal-location" class="text-sm text-indigo-600 font-medium mb-3"></p>
-        <p id="modal-description" class="text-sm leading-relaxed whitespace-pre-line"></p>
+  <!-- Left -->
+<button id="modal-prev"
+class="fixed left-6 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black/50 hover:bg-black/70 rounded-full w-12 h-12 flex items-center justify-center z-50 shadow-lg backdrop-blur">
+&#10094;
+</button>
+
+<!-- Close -->
+<button onclick="closeImageModal()"
+class="fixed top-6 right-6 text-white text-2xl font-bold bg-black/50 hover:bg-red-600 rounded-full w-10 h-10 flex items-center justify-center z-50 shadow-lg backdrop-blur">
+&times;
+</button>
+
+<!-- Right -->
+<button id="modal-next"
+class="fixed right-6 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black/50 hover:bg-black/70 rounded-full w-12 h-12 flex items-center justify-center z-50 shadow-lg backdrop-blur">
+&#10095;
+</button>
+
+
+
+    <!-- Image + Info -->
+    <div class="flex flex-col md:flex-row items-center justify-center gap-6 w-full">
+      <div class="flex-1 flex items-center justify-center">
+        <img id="modal-image" src="" alt="Full Preview" class="rounded-xl max-h-[80vh] max-w-full shadow-lg object-contain z-10" />
       </div>
+      <div id="modal-info-panel" class="hidden md:block bg-white bg-opacity-90 text-gray-800 p-4 rounded-lg max-w-xs shadow-md z-10">
+        <p id="modal-location" class="text-sm text-indigo-600 font-medium mb-3"></p>
+        <p id="modal-description" class="text-sm leading-relaxed whitespace-pre-line break-words"></p>
+      </div>
+      
     </div>
   </div>
+</div>
+
+
+
 
   <!-- Toast -->
   <div id="toast" class="fixed bottom-4 right-4 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 pointer-events-none transition duration-300 z-50"></div>
 
   <script type="module" src="/src/memory/main.js"></script>
+  <!-- Custom Confirm Dialog -->
+<div id="confirm-dialog" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-xl p-6 shadow-xl w-full max-w-sm animate-fadeInUp">
+    <p id="confirm-message" class="text-gray-800 text-base mb-4">Are you sure?</p>
+    <div class="flex justify-end gap-3">
+      <button id="confirm-cancel" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Cancel</button>
+      <button id="confirm-ok" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

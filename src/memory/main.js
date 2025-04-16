@@ -32,8 +32,20 @@ let currentMemoryId = null;
 // TOAST
 function showToast(message, success = true) {
   toast.textContent = message;
-  toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-lg shadow-lg z-50 transition duration-300 ${success ? 'bg-green-600' : 'bg-red-600'} text-white opacity-100`;
-  setTimeout(() => toast.classList.remove('opacity-100'), 2500);
+  toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-500 ${
+    success ? 'bg-green-600' : 'bg-red-600'
+  } text-white opacity-100 pointer-events-auto`;
+
+  // Hide after delay
+  setTimeout(() => {
+    toast.classList.remove('opacity-100');
+    toast.classList.add('opacity-0');
+  }, 2500);
+
+  // Fully remove it from interaction after fade
+  setTimeout(() => {
+    toast.classList.add('pointer-events-none');
+  }, 2000);
 }
 
 // MODAL NAVIGATION
@@ -82,6 +94,11 @@ profileBtn?.addEventListener('click', () => profileMenu.classList.toggle('hidden
 logoutBtn?.addEventListener('click', async () => {
   await supabase.auth.signOut();
   window.location.href = '/index.html';
+});
+document.addEventListener('click', e => {
+  if (!profileBtn.contains(e.target) && !profileMenu.contains(e.target)) {
+    profileMenu.classList.add('hidden');
+  }
 });
 
 // AUTOCOMPLETE
@@ -198,6 +215,33 @@ memoryForm?.addEventListener('submit', async e => {
   btn.disabled = false;
   btn.textContent = 'Create';
 });
+// Custom Confirm Dialog Logic
+const confirmDialog = document.getElementById('confirm-dialog');
+const confirmMessage = document.getElementById('confirm-message');
+const confirmCancel = document.getElementById('confirm-cancel');
+const confirmOk = document.getElementById('confirm-ok');
+
+window.showConfirm = function (message) {
+  return new Promise(resolve => {
+    confirmMessage.textContent = message;
+    confirmDialog.classList.remove('hidden');
+    confirmDialog.classList.add('flex');
+
+    const close = () => {
+      confirmDialog.classList.add('hidden');
+      confirmDialog.classList.remove('flex');
+    };
+
+    confirmCancel.onclick = () => {
+      close();
+      resolve(false);
+    };
+    confirmOk.onclick = () => {
+      close();
+      resolve(true);
+    };
+  });
+};
 
 imageForm?.addEventListener('submit', async e => {
   e.preventDefault();
@@ -247,8 +291,9 @@ const lon = parseFloat(locationInput.dataset.lon);
 });
 
 window.deleteMemory = async id => {
-  const confirm = window.confirm('Delete memory and its images?');
-  if (!confirm) return;
+  const confirmed = await showConfirm('Delete memory and its images?');
+if (!confirmed) return;
+
   await supabase.from('memory_images').delete().eq('memory_id', id);
   const { error } = await supabase.from('memories').delete().eq('id', id);
   if (!error) {
@@ -260,8 +305,8 @@ window.deleteMemory = async id => {
 };
 
 window.deleteImage = async (id, btn) => {
-  const confirm = window.confirm('Delete this image?');
-  if (!confirm) return;
+  const confirmed = await window.showConfirm('Delete this image?');
+  if (!confirmed) return;
   const { error } = await supabase.from('memory_images').delete().eq('id', id);
   if (!error) {
     const card = btn.closest('.relative');
@@ -312,5 +357,14 @@ async function loadMemories() {
     memoryList.appendChild(card);
   }
 }
+// Close memory modal on Escape key or outside click
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !memoryModal.classList.contains('hidden')) {
+    closeMemoryModal();
+  }
+});
+memoryModal.addEventListener('click', e => {
+  if (e.target === memoryModal) closeMemoryModal();
+});
 
 loadMemories();
