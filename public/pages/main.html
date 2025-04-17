@@ -25,6 +25,8 @@
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
+
+  
 </head>
 <body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 min-h-screen p-6">
 
@@ -53,7 +55,21 @@
     <!-- Memory Grid -->
     <div id="memory-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
   </div>
-
+  <div id="map-feature-card" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 hidden w-[90%] max-w-md">
+    <a href="/pages/map.html" class="block bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-5 rounded-2xl shadow-2xl hover:shadow-xl transition duration-300">
+      <div class="flex items-center gap-4">
+        <div class="text-3xl">
+          <i class="fas fa-map-marked-alt"></i>
+        </div>
+        <div>
+          <h2 class="text-lg font-semibold">Explore Memories on a Map</h2>
+          <p class="text-sm opacity-90">Visualize your memories by location — immersive, premium, and delightful.</p>
+        </div>
+      </div>
+    </a>
+  </div>
+  
+  
   <!-- Memory Modal -->
   <div id="memory-modal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
     <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-lg animate-fadeInUp">

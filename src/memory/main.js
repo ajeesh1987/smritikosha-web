@@ -475,6 +475,8 @@ async function loadMemories() {
       </div>`;
     memoryList.appendChild(card);
   }
+  document.getElementById('map-feature-card')?.classList.remove('hidden');
+
 }
 // Close memory modal on Escape key or outside click
 document.addEventListener('keydown', e => {

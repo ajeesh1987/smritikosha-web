@@ -1,5 +1,11 @@
 import { supabase } from '../../lib/supabaseClient.js';
 
+supabase.auth.getSession().then(({ data: { session } }) => {
+  if (!session) {
+    window.location.href = '/login.html';
+  }
+});
+
 const urlParams = new URLSearchParams(window.location.search);
 const defaultLat = parseFloat(urlParams.get('lat')) || 49.57;
 const defaultLon = parseFloat(urlParams.get('lon')) || 11.01;
