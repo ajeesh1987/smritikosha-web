@@ -78,15 +78,39 @@ modalImg.addEventListener('touchend', e => {
   if (Math.abs(deltaX) > 50) deltaX < 0 ? modalNext.click() : modalPrev.click();
 });
 
-window.openImageModal = (urls, index, locations = [], descriptions = [], ids = []) => {
-  modalImages = urls;
-  modalLocations = locations;
-  modalDescriptions = descriptions;
-  modalIds = ids;
-  currentImageIndex = index;
+window.openImageModal = (clickedUrl, indexGuess = 0) => {
+  const memoryCard = event.target.closest('[data-memory-id]');
+  const allThumbs = memoryCard.querySelectorAll('img');
+
+  modalImages = [];
+  modalDescriptions = [];
+  modalLocations = [];
+  modalIds = [];
+
+  let matchedIndex = 0;
+
+  allThumbs.forEach((img, i) => {
+    const wrapper = img.closest('[data-image-id]');
+    if (!wrapper) return;
+
+    const id = wrapper.dataset.imageId;
+    const url = img.getAttribute('src');
+    const desc = img.getAttribute('data-description') || '';
+    const loc = img.getAttribute('data-location') || '';
+
+    modalImages.push(url);
+    modalDescriptions.push(desc);
+    modalLocations.push(loc);
+    modalIds.push(id);
+
+    if (url === clickedUrl) matchedIndex = i;
+  });
+
+  currentImageIndex = matchedIndex;
   updateImageModalContent();
   imageModal.classList.remove('hidden');
 };
+
 window.closeImageModal = () => imageModal.classList.add('hidden');
 
 // PROFILE
@@ -252,43 +276,69 @@ imageForm?.addEventListener('submit', async e => {
   const fileInput = document.getElementById('upload-image');
   const location = locationInput.value.trim();
   const lat = parseFloat(locationInput.dataset.lat);
-const lon = parseFloat(locationInput.dataset.lon);
-
+  const lon = parseFloat(locationInput.dataset.lon);
   const description = document.getElementById('image-description').value.trim();
   const tags = document.getElementById('image-tags').value.trim().split(/[, ]+/).filter(Boolean).join(' ');
-  
+
   if (!fileInput.files.length) {
     showToast('Select an image', false);
     btn.disabled = false;
     btn.textContent = 'Upload';
     return;
   }
+
   const file = fileInput.files[0];
   const safeName = file.name.replace(/\s+/g, '-').replace(/[^\w.-]/g, '');
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+
+  if (!user || userErr) {
+    console.error('User fetch failed:', userErr);
+    showToast('User not authenticated', false);
+    btn.disabled = false;
+    btn.textContent = 'Upload';
+    return;
+  }
+
   const filePath = `${user.id}/${Date.now()}_${safeName}`;
   const { error: uploadErr } = await supabase.storage.from('memory-images').upload(filePath, file);
-  if (!uploadErr) {
-    const { error: insertErr } = await supabase.from('memory_images').insert([{
-      memory_id: currentMemoryId,
-      image_path: filePath,
-      location,
-      description,
-      tags,
-      lat: isNaN(lat) ? null : lat,
-      lon: isNaN(lon) ? null : lon
-    }]);
-      if (!insertErr) showToast('Image uploaded!');
-    else showToast('Save failed', false);
-    loadMemories();
-  } else {
+
+  if (uploadErr) {
+    console.error('Storage upload error:', uploadErr);
     showToast('Upload failed', false);
+    btn.disabled = false;
+    btn.textContent = 'Upload';
+    return;
   }
+
+  const insertPayload = {
+    user_id: user.id,
+    memory_id: currentMemoryId,
+    image_path: filePath,
+    location,
+    description,
+    tags,
+    lat: isNaN(lat) ? null : lat,
+    lon: isNaN(lon) ? null : lon
+  };
+
+  console.log('Insert payload:', insertPayload);
+
+  const { error: insertErr } = await supabase.from('memory_images').insert([insertPayload]);
+
+  if (insertErr) {
+    console.error('Insert error:', insertErr);
+    showToast('Save failed', false);
+  } else {
+    showToast('Image uploaded!');
+    loadMemories();
+  }
+
   document.getElementById('image-upload-modal').classList.add('hidden');
   imageForm.reset();
   btn.disabled = false;
   btn.textContent = 'Upload';
 });
+
 
 window.deleteMemory = async id => {
   const confirmed = await showConfirm('Delete memory and its images?');
@@ -307,14 +357,76 @@ if (!confirmed) return;
 window.deleteImage = async (id, btn) => {
   const confirmed = await window.showConfirm('Delete this image?');
   if (!confirmed) return;
-  const { error } = await supabase.from('memory_images').delete().eq('id', id);
-  if (!error) {
-    const card = btn.closest('.relative');
-    card?.classList.add('opacity-0');
-    setTimeout(() => card?.remove(), 300);
-    showToast('Image deleted');
+
+  // Fetch image path before deletion
+  const { data: imageData, error: fetchError } = await supabase
+    .from('memory_images')
+    .select('image_path')
+    .eq('id', id)
+    .single();
+
+  if (fetchError || !imageData) {
+    console.error('Fetch error:', fetchError);
+    showToast('Could not find image path', false);
+    return;
+  }
+
+  // Delete from storage
+  const { error: storageError } = await supabase
+    .storage
+    .from('memory-images')
+    .remove([imageData.image_path]);
+
+  if (storageError) {
+    console.error('Storage delete error:', storageError);
+    showToast('Failed to delete from storage', false);
+    return;
+  }
+
+  // Delete from database
+  const { error: dbError } = await supabase
+    .from('memory_images')
+    .delete()
+    .eq('id', id);
+
+  if (dbError) {
+    console.error('Delete error:', dbError);
+    showToast('Failed to delete image from database', false);
+    return;
+  }
+
+  showToast('Image deleted');
+
+  // Remove thumbnail from DOM
+  const card = btn.closest('.relative');
+  card?.classList.add('opacity-0');
+  setTimeout(() => card?.remove(), 300);
+
+  // Remove from modal arrays
+  const deletedIndex = modalIds.findIndex(imgId => imgId === id);
+  if (deletedIndex !== -1) {
+    modalImages.splice(deletedIndex, 1);
+    modalDescriptions.splice(deletedIndex, 1);
+    modalLocations.splice(deletedIndex, 1);
+    modalIds.splice(deletedIndex, 1);
+
+    // Adjust current index
+    if (currentImageIndex > deletedIndex) {
+      currentImageIndex--;
+    }
+    if (currentImageIndex >= modalImages.length) {
+      currentImageIndex = modalImages.length - 1;
+    }
+
+    // Refresh modal or close
+    if (modalImages.length > 0 && currentImageIndex >= 0) {
+      updateImageModalContent();
+    } else {
+      closeImageModal();
+    }
   }
 };
+
 
 async function loadMemories() {
   const { data: { user } } = await supabase.auth.getUser();
@@ -348,7 +460,14 @@ async function loadMemories() {
       <div class="flex flex-wrap gap-2">
         ${valid.map((url, i) => `
           <div class="relative w-28 h-28">
-            <img src="${url}" class="w-full h-full object-cover rounded-lg cursor-pointer border hover:ring-2 hover:ring-indigo-300" onclick='openImageModal(${JSON.stringify(valid)}, ${i}, ${JSON.stringify(locations)}, ${JSON.stringify(descriptions)}, ${JSON.stringify(ids)})' />
+<img 
+  src="${url}" 
+  data-description="${descriptions[i] || ''}" 
+  data-location="${locations[i] || ''}" 
+  data-image-id="${ids[i]}" 
+  class="w-full h-full object-cover rounded-lg cursor-pointer border hover:ring-2 hover:ring-indigo-300"
+  onclick="openImageModal('${url}', ${i})"
+/>
             <button onclick="deleteImage('${ids[i]}', this)" class="absolute top-0 right-0 mt-1 mr-1 bg-white rounded-full p-1 shadow-md">
               <i class="fas fa-trash text-red-500 hover:text-red-700"></i>
             </button>
