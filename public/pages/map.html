@@ -4,17 +4,35 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Memory Map | SmritiKosha</title>
+
+  <!-- MapLibre -->
   <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet"/>
   <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
-  <script type="module" src="/src/memory/map.js"></script>
-  <div id="map" class="w-full h-screen"></div>
 
+  <!-- Tailwind & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"/>
+
+  <!-- Custom Style -->
   <style>
-    body, html { margin: 0; padding: 0; height: 100%; }
+    html, body { margin: 0; padding: 0; height: 100%; }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; }
   </style>
 </head>
-<body>
-  <div id="map"></div>
+<body class="relative font-sans">
+
+  <!-- Map Container -->
+  <div id="map" class="w-full h-full"></div>
+
+  <!-- Back Button -->
+  <a href="/pages/main.html"
+     class="fixed top-6 left-6 z-50 bg-white/90 text-indigo-700 px-4 py-2 rounded-full shadow-lg hover:bg-white hover:shadow-xl transition duration-200 flex items-center gap-2 text-sm font-semibold backdrop-blur-md">
+    <i class="fas fa-arrow-left"></i>
+    Back to Memories
+  </a>
+
+  <!-- Your map JS -->
+  <script type="module" src="/src/memory/map.js"></script>
+
 </body>
 </html>

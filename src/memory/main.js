@@ -484,6 +484,14 @@ document.addEventListener('keydown', e => {
     closeMemoryModal();
   }
 });
+// Close image modal if clicked outside the image
+document.getElementById('image-modal').addEventListener('click', e => {
+  // Only close if the backdrop itself is clicked (not the image or info panel)
+  if (e.target === e.currentTarget) {
+    closeImageModal();
+  }
+});
+
 memoryModal.addEventListener('click', e => {
   if (e.target === memoryModal) closeMemoryModal();
 });
