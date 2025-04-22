@@ -22,9 +22,6 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
-  if (data.session) {
-    window.location.href = './main.html';
-  } else {
-    errorMsg.textContent = 'Unexpected login behavior. Please try again.';
-  }
+  // ✅ Login succeeded
+  window.location.href = './main.html';
 });

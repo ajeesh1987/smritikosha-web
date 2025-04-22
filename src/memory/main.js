@@ -1,10 +1,27 @@
-// src/memory/main.js
 import { supabase } from '../../lib/supabaseClient.js';
+import { checkAndCreateUserProfile } from '../auth/profile.js'; // ✅ correct path
 
-// Redirect if not logged in
-supabase.auth.getSession().then(({ data: { session } }) => {
-  if (!session) window.location.href = '/pages/login.html';
+window.addEventListener('DOMContentLoaded', async () => {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const user = sessionData?.session?.user;
+
+  if (!user) {
+    console.warn('No active session. Redirecting...');
+    window.location.href = '/pages/login.html';
+    return;
+  }
+
+
+  try {
+    await checkAndCreateUserProfile(user);
+  } catch (err) {
+    console.warn('⚠️ Profile setup skipped due to error:', err.message);
+  }
+
+  loadMemories();
 });
+
+
 
 const memoryList = document.getElementById('memory-list');
 const memoryModal = document.getElementById('memory-modal');

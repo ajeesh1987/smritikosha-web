@@ -1,3 +1,15 @@
+console.log('🧪 main.js loaded');
+try {
+  import('../auth/profile.js').then(() => {
+    console.log('✅ dynamic import of profile.js succeeded');
+  }).catch(err => {
+    console.error('❌ dynamic import of profile.js failed', err);
+  });
+} catch (e) {
+  console.error('❌ import threw at runtime', e);
+}
+import.meta.glob('../auth/*.js');
+
 import { supabase } from '../../lib/supabaseClient.js';
 
 supabase.auth.getSession().then(({ data: { session } }) => {

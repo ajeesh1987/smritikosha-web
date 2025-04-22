@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Email Verified | SmritiKosha</title>
+  <title>Email Verification | SmritiKosha</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -20,20 +20,48 @@
 </head>
 <body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 flex items-center justify-center min-h-screen px-4">
 
-  <div class="bg-white p-8 rounded-xl shadow-xl max-w-md text-center w-full">
-    <h1 class="text-3xl font-bold text-green-600 mb-2">✔ Email Verified</h1>
-    <p class="text-gray-600 mb-6">Your email has been verified successfully. You may now log in and start preserving your memories.</p>
-    <button onclick="window.location.href='./login.html'" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition font-medium">Go to Login</button>
+  <div id="verify-card" class="bg-white p-8 rounded-xl shadow-xl max-w-md text-center w-full hidden">
+    <h1 id="status-title" class="text-3xl font-bold mb-2"></h1>
+    <p id="status-message" class="text-gray-600 mb-6"></p>
+    <button id="go-login-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition font-medium hidden">Go to Login</button>
   </div>
 
   <script type="module">
     import { supabase } from '../lib/supabaseClient.js';
 
+    const card = document.getElementById('verify-card');
+    const title = document.getElementById('status-title');
+    const msg = document.getElementById('status-message');
+    const loginBtn = document.getElementById('go-login-btn');
+
     (async () => {
-      await supabase.auth.getSession();
-      if (window.location.hash.includes('access_token')) {
-        history.replaceState({}, document.title, window.location.pathname);
+      const hash = window.location.hash;
+
+      // Show error if there's no token
+      if (!hash.includes('access_token')) {
+        title.textContent = '⚠ Verification Failed';
+        msg.textContent = 'No access token found. Please use the link sent to your email.';
+        card.classList.remove('hidden');
+        return;
       }
+
+      // Exchange token and verify user
+      const { error } = await supabase.auth.getSession();
+
+      if (error) {
+        title.textContent = '⚠ Verification Failed';
+        msg.textContent = `Something went wrong: ${error.message}`;
+      } else {
+        title.textContent = '✔ Email Verified';
+        title.classList.add('text-green-600');
+        msg.textContent = 'Your email has been verified successfully. You may now log in and start preserving your memories.';
+        loginBtn.classList.remove('hidden');
+        loginBtn.onclick = () => window.location.href = './login.html';
+      }
+
+      // Hide access token from URL
+      history.replaceState({}, document.title, window.location.pathname);
+      card.classList.remove('hidden');
     })();
   </script>
 </body>
