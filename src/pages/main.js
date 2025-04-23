@@ -1,7 +1,13 @@
 import { supabase } from '../../lib/supabaseClient.js';
 import { checkAndCreateUserProfile } from '../auth/profile.js'; // ✅ correct path
+import { openImageUpload, closeImageUpload } from '../memory/upload.js';
+import { showToast } from '../ui/toast.js';
 
 window.addEventListener('DOMContentLoaded', async () => {
+  // ✅ only run loadMemories if we're on main.html
+  if (!window.location.pathname.includes('main.html')) return;
+
+
   const { data: sessionData } = await supabase.auth.getSession();
   const user = sessionData?.session?.user;
 
@@ -11,15 +17,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-
   try {
     await checkAndCreateUserProfile(user);
   } catch (err) {
     console.warn('⚠️ Profile setup skipped due to error:', err.message);
   }
 
-  loadMemories();
+  await loadMemories();
 });
+
 
 
 
@@ -27,7 +33,6 @@ const memoryList = document.getElementById('memory-list');
 const memoryModal = document.getElementById('memory-modal');
 const imageModal = document.getElementById('image-modal');
 const memoryForm = document.getElementById('memory-form');
-const imageForm = document.getElementById('image-form');
 const toast = document.getElementById('toast');
 const modalImg = document.getElementById('modal-image');
 const modalLocation = document.getElementById('modal-location');
@@ -47,23 +52,7 @@ let currentImageIndex = 0;
 let currentMemoryId = null;
 
 // TOAST
-function showToast(message, success = true) {
-  toast.textContent = message;
-  toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-500 ${
-    success ? 'bg-green-600' : 'bg-red-600'
-  } text-white opacity-100 pointer-events-auto`;
 
-  // Hide after delay
-  setTimeout(() => {
-    toast.classList.remove('opacity-100');
-    toast.classList.add('opacity-0');
-  }, 2500);
-
-  // Fully remove it from interaction after fade
-  setTimeout(() => {
-    toast.classList.add('pointer-events-none');
-  }, 2000);
-}
 
 // MODAL NAVIGATION
 function updateImageModalContent() {
@@ -213,49 +202,12 @@ window.closeMemoryModal = () => {
   document.getElementById('memory-submit-btn').textContent = 'Create';
   document.getElementById('memory-submit-btn').disabled = false;
 };
-window.openImageUpload = id => {
-  currentMemoryId = id;
-  imageForm.reset();
-  document.getElementById('image-upload-modal').classList.remove('hidden');
-};
-window.closeImageUpload = () => {
-  document.getElementById('image-upload-modal').classList.add('hidden');
-  imageForm.reset();
-  document.getElementById('image-submit-btn').textContent = 'Upload';
-  document.getElementById('image-submit-btn').disabled = false;
-};
+window.openImageUpload = openImageUpload;
 
-// Memory CRUD
-memoryForm?.addEventListener('submit', async e => {
-  e.preventDefault();
-  const btn = document.getElementById('memory-submit-btn');
-  btn.disabled = true;
-  btn.textContent = 'Saving...';
-  const title = document.getElementById('memory-title').value.trim();
-  const location = document.getElementById('memory-location').value.trim();
-  const description = document.getElementById('memory-description').value.trim();
-  const tags = document.getElementById('memory-tags').value.trim().split(/[, ]+/).filter(Boolean).join(' ');
-  const { data: { user } } = await supabase.auth.getUser();
+window.closeImageUpload = closeImageUpload;
 
-  const { data: existing } = await supabase.from('memories').select('*').eq('user_id', user.id).eq('title', title).maybeSingle();
-  if (existing) {
-    showToast('Memory with this title exists.', false);
-    btn.disabled = false;
-    btn.textContent = 'Create';
-    return;
-  }
-  const { error } = await supabase.from('memories').insert([{ user_id: user.id, title, location, description, tags }]);
-  if (!error) {
-    showToast('Memory created!');
-    loadMemories();
-  } else {
-    showToast('Failed to save memory', false);
-  }
-  memoryModal.classList.add('hidden');
-  memoryForm.reset();
-  btn.disabled = false;
-  btn.textContent = 'Create';
-});
+
+
 // Custom Confirm Dialog Logic
 const confirmDialog = document.getElementById('confirm-dialog');
 const confirmMessage = document.getElementById('confirm-message');
@@ -284,77 +236,8 @@ window.showConfirm = function (message) {
   });
 };
 
-imageForm?.addEventListener('submit', async e => {
-  e.preventDefault();
-  const btn = document.getElementById('image-submit-btn');
-  btn.disabled = true;
-  btn.textContent = 'Uploading...';
 
-  const fileInput = document.getElementById('upload-image');
-  const location = locationInput.value.trim();
-  const lat = parseFloat(locationInput.dataset.lat);
-  const lon = parseFloat(locationInput.dataset.lon);
-  const description = document.getElementById('image-description').value.trim();
-  const tags = document.getElementById('image-tags').value.trim().split(/[, ]+/).filter(Boolean).join(' ');
 
-  if (!fileInput.files.length) {
-    showToast('Select an image', false);
-    btn.disabled = false;
-    btn.textContent = 'Upload';
-    return;
-  }
-
-  const file = fileInput.files[0];
-  const safeName = file.name.replace(/\s+/g, '-').replace(/[^\w.-]/g, '');
-  const { data: { user }, error: userErr } = await supabase.auth.getUser();
-
-  if (!user || userErr) {
-    console.error('User fetch failed:', userErr);
-    showToast('User not authenticated', false);
-    btn.disabled = false;
-    btn.textContent = 'Upload';
-    return;
-  }
-
-  const filePath = `${user.id}/${Date.now()}_${safeName}`;
-  const { error: uploadErr } = await supabase.storage.from('memory-images').upload(filePath, file);
-
-  if (uploadErr) {
-    console.error('Storage upload error:', uploadErr);
-    showToast('Upload failed', false);
-    btn.disabled = false;
-    btn.textContent = 'Upload';
-    return;
-  }
-
-  const insertPayload = {
-    user_id: user.id,
-    memory_id: currentMemoryId,
-    image_path: filePath,
-    location,
-    description,
-    tags,
-    lat: isNaN(lat) ? null : lat,
-    lon: isNaN(lon) ? null : lon
-  };
-
-  console.log('Insert payload:', insertPayload);
-
-  const { error: insertErr } = await supabase.from('memory_images').insert([insertPayload]);
-
-  if (insertErr) {
-    console.error('Insert error:', insertErr);
-    showToast('Save failed', false);
-  } else {
-    showToast('Image uploaded!');
-    loadMemories();
-  }
-
-  document.getElementById('image-upload-modal').classList.add('hidden');
-  imageForm.reset();
-  btn.disabled = false;
-  btn.textContent = 'Upload';
-});
 
 
 window.deleteMemory = async id => {
@@ -446,10 +329,16 @@ window.deleteImage = async (id, btn) => {
 
 
 async function loadMemories() {
+
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
   const { data: memories } = await supabase.from('memories').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
-  const { data: images } = await supabase.from('memory_images').select('*');
+  console.log('Memories:', memories.map(m => m.id));
+
+  const { data: images } = await supabase
+  .from('memory_images')
+  .select('*')
+  .eq('user_id', user.id); // ✅ filter to only user's images
   memoryList.innerHTML = '';
 
   for (const memory of memories) {
@@ -495,6 +384,8 @@ async function loadMemories() {
   document.getElementById('map-feature-card')?.classList.remove('hidden');
 
 }
+window.loadMemories = loadMemories;
+
 // Close memory modal on Escape key or outside click
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !memoryModal.classList.contains('hidden')) {
@@ -513,4 +404,3 @@ memoryModal.addEventListener('click', e => {
   if (e.target === memoryModal) closeMemoryModal();
 });
 
-loadMemories();

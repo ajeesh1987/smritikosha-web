@@ -1,16 +1,18 @@
+// ✅ map.js
 console.log('🧪 main.js loaded');
-try {
-  import('../auth/profile.js').then(() => {
-    console.log('✅ dynamic import of profile.js succeeded');
-  }).catch(err => {
-    console.error('❌ dynamic import of profile.js failed', err);
-  });
-} catch (e) {
-  console.error('❌ import threw at runtime', e);
-}
-import.meta.glob('../auth/*.js');
 
+import { setupFilterOptions, setupFilterEventHandlers, getFilterValues } from './map-filter.js';
 import { supabase } from '../../lib/supabaseClient.js';
+
+let map;
+let currentMarkers = [];
+
+setupFilterOptions();
+setupFilterEventHandlers(() => {
+  const filters = getFilterValues();
+  console.log('📦 Filters:', filters);
+  applyFilters(filters);
+});
 
 supabase.auth.getSession().then(({ data: { session } }) => {
   if (!session) {
@@ -22,7 +24,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const defaultLat = parseFloat(urlParams.get('lat')) || 49.57;
 const defaultLon = parseFloat(urlParams.get('lon')) || 11.01;
 
-const map = new maplibregl.Map({
+map = new maplibregl.Map({
   container: 'map',
   style: '/styles/clean-light-style.json',
   center: [defaultLon, defaultLat],
@@ -83,17 +85,39 @@ map.on('dblclick', (e) => {
   map.easeTo({ center: e.lngLat, zoom: map.getZoom() + 1 });
 });
 
-async function loadMarkers() {
-  const { data: images, error } = await supabase
+function clearMarkers() {
+  for (const marker of currentMarkers) {
+    marker.remove();
+  }
+  currentMarkers = [];
+}
+
+async function loadMarkers(filters = {}) {
+  clearMarkers();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  let query = supabase
     .from('memory_images')
     .select('id, location, lat, lon, description, image_path')
+    .eq('user_id', user.id)
     .not('lat', 'is', null)
     .not('lon', 'is', null);
 
+  if (filters.memoryId) query = query.eq('memory_id', filters.memoryId);
+  if (filters.country) query = query.eq('country', filters.country);
+  if (filters.dateFrom) query = query.gte('capture_date', filters.dateFrom);
+if (filters.dateTo) query = query.lte('capture_date', filters.dateTo);
+
+
+  const { data: images, error } = await query;
+
   if (error) {
-    console.error('Failed to load images with location:', error);
+    console.error('❌ Failed to load images:', error);
     return;
   }
+
+  if (!images || images.length === 0) return;
 
   for (const img of images) {
     const { data: urlData } = await supabase
@@ -126,5 +150,11 @@ async function loadMarkers() {
     pin.addEventListener('click', () => {
       popup.setLngLat([img.lon, img.lat]).addTo(map);
     });
+
+    currentMarkers.push(marker);
   }
+}
+
+async function applyFilters(filters) {
+  await loadMarkers(filters);
 }

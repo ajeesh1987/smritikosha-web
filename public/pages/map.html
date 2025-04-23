@@ -17,6 +17,13 @@
   <style>
     html, body { margin: 0; padding: 0; height: 100%; }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    .pin-marker {
+      width: 24px;
+      height: 24px;
+      background-image: url('https://cdn-icons-png.flaticon.com/512/2776/2776067.png');
+      background-size: cover;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body class="relative font-sans">
@@ -31,8 +38,69 @@
     Back to Memories
   </a>
 
+  <!-- Mobile Toggle Button -->
+  <button id="toggle-filter"
+          type="button"
+          class="fixed top-20 left-4 z-50 bg-indigo-600 text-white px-3 py-1.5 rounded-full shadow hover:bg-indigo-700 block md:hidden">
+    <i class="fas fa-sliders-h mr-1"></i> Filters
+  </button>
+
+  <!-- Filter Panel -->
+  <div id="filter-panel"
+       class="hidden md:block fixed top-20 left-4 w-72 bg-white shadow-xl rounded-xl p-4 z-50 space-y-4 max-h-[80vh] overflow-auto">
+
+    <h2 class="text-lg font-semibold text-indigo-800">Filter Memories</h2>
+  <!-- Memory Title Dropdown -->
+
+    <div>
+      <label for="filter-memory" class="block text-sm font-medium text-gray-700">Memory</label>
+      <select id="filter-memory" class="mt-1 block w-48 rounded-md border border-gray-300 shadow-sm p-2">
+        <option value="">All</option>
+        <!-- dynamically populated -->
+      </select>
+    </div>
+
+    <!-- Country Filter -->
+  <!-- Country Dropdown -->
+  <div>
+    <label for="filter-country" class="block text-sm font-medium text-gray-700">Country</label>
+    <select id="filter-country" class="mt-1 block w-40 rounded-md border border-gray-300 shadow-sm p-2">
+      <option value="">All</option>
+      <!-- dynamically populated -->
+    </select>
+  </div>
+
+    <!-- Date Range -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Date Range</label>
+      <div class="flex gap-2 mt-2">
+        <input type="date" id="date-from" class="w-full px-2 py-1 border rounded text-sm"/>
+        <input type="date" id="date-to" class="w-full px-2 py-1 border rounded text-sm"/>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-between pt-3 border-t mt-4">
+      <button type="button" id="reset-filters" class="text-sm text-gray-500 hover:underline">Reset</button>
+      <button type="button" id="apply-filters" class="bg-indigo-600 text-white text-sm px-4 py-1.5 rounded hover:bg-indigo-700">
+        Apply
+      </button>
+    </div>
+  </div>
+
+  <!-- Toggle logic -->
+  <script>
+    const toggleBtn = document.getElementById('toggle-filter');
+    const filterPanel = document.getElementById('filter-panel');
+    toggleBtn.addEventListener('click', () => {
+      filterPanel.classList.toggle('hidden');
+      const isVisible = !filterPanel.classList.contains('hidden');
+      toggleBtn.setAttribute('aria-expanded', isVisible.toString());
+    });
+  </script>
+
   <!-- Your map JS -->
-  <script type="module" src="/src/memory/map.js"></script>
+  <script type="module" src="/src/map/map.js"></script>
 
 </body>
 </html>
