@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Email Verification | SmritiKosha</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png" />
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -19,7 +21,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
 </head>
 <body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 flex items-center justify-center min-h-screen px-4">
-
+  <div id="global-logo"></div>
+  <script>
+    fetch('/components/logo.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('global-logo').innerHTML = html;
+      });
+  </script>
+  
   <div id="verify-card" class="bg-white p-8 rounded-xl shadow-xl max-w-md text-center w-full hidden">
     <h1 id="status-title" class="text-3xl font-bold mb-2"></h1>
     <p id="status-message" class="text-gray-600 mb-6"></p>

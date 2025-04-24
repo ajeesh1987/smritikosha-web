@@ -35,9 +35,19 @@
       position: relative;
     }
   </style>
+  
+  
 </head>
 <body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800">
-
+  <div id="global-logo"></div>
+  <script>
+    fetch('/components/logo.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('global-logo').innerHTML = html;
+      });
+  </script>
+  
   <!-- Hero Section -->
   <section class="min-h-screen flex items-center justify-center text-center px-4 md:px-0 relative overflow-hidden">
     <div class="z-10">

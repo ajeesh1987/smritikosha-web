@@ -9,9 +9,17 @@ const locationInput = document.getElementById('image-location');
 const descriptionInput = document.getElementById('image-description');
 const tagsInput = document.getElementById('image-tags');
 const captureDateInput = document.getElementById('image-capture-date');
-const captureDate = captureDateInput?.value || new Date().toISOString().split('T')[0];
+let captureDate = new Date().toISOString().split('T')[0]; // Default to today
+if (captureDateInput && captureDateInput.value) {
+  captureDate = captureDateInput.value;
+}
 const submitBtn = document.getElementById('image-submit-btn');
-
+// Restrict capture date input to today
+if (captureDateInput) {
+    const today = new Date().toISOString().split('T')[0];
+    captureDateInput.max = today;
+  }
+  
 let currentMemoryId = null;
 
 export function openImageUpload(memoryId) {
@@ -32,24 +40,31 @@ export function closeImageUpload() {
 }
 fileInput.addEventListener('input', async () => {
     const file = fileInput.files[0];
-    if (!file) return;
+    const captureDateInput = document.getElementById('image-capture-date');
+    if (!file || !captureDateInput) return;
+  
+    let fallbackUsed = false;
   
     try {
+      console.log('📂 Input triggered, file:', file.name);
       const parsed = await exifr.parse(file, ['DateTimeOriginal']);
   
-      const captureDateInput = document.getElementById('image-capture-date'); // 👈 move here
-      if (parsed?.DateTimeOriginal && captureDateInput) {
+      if (parsed?.DateTimeOriginal) {
         const isoDate = new Date(parsed.DateTimeOriginal).toISOString().split('T')[0];
         captureDateInput.value = isoDate;
+      } else {
+        fallbackUsed = true;
       }
     } catch (err) {
-      console.warn('❌ EXIF parse error:', err);
+      fallbackUsed = true;
+    }
+  
+    if (fallbackUsed || !captureDateInput.value) {
+      const today = new Date().toISOString().split('T')[0];
+      captureDateInput.value = today;
     }
   });
   
-  
-  
-
 imageForm.addEventListener('submit', async e => {
   e.preventDefault();
   submitBtn.disabled = true;

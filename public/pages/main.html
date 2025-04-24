@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/png" href="/assets/favicon.png" />
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Your Memories | SmritiKosha</title>
@@ -25,11 +27,20 @@
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
-
+   
+  
   
 </head>
 <body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 min-h-screen p-6">
-
+  <div id="global-logo"></div>
+  <script>
+    fetch('/components/logo.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('global-logo').innerHTML = html;
+      });
+  </script>
+  
   <div class="max-w-5xl mx-auto space-y-8">
     
     <!-- Header -->
@@ -120,8 +131,23 @@
         <div>
           <label class="block text-sm font-medium">Description</label>
           <textarea id="image-description" rows="3" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none"></textarea>
-          <label class="block text-sm font-medium text-gray-700 mt-4">Capture Date</label>
-          <input type="date" id="image-capture-date" class="mt-1 block w-full border rounded-md px-3 py-2 shadow-sm" />
+          <label for="image-capture-date" class="block text-sm font-medium text-gray-700 flex items-center gap-2">
+            Capture Date
+            <span class="relative group cursor-pointer">
+              <i class="fas fa-info-circle text-gray-400 hover:text-indigo-600"></i>
+              <div class="absolute left-6 top-1 z-10 hidden group-hover:block w-64 bg-white text-xs text-gray-700 border border-gray-300 p-2 rounded shadow-md">
+                This date is extracted from the image metadata. If not available, today's date is used. You can manually edit it.
+              </div>
+            </span>
+          </label>
+          <input 
+            type="date" 
+            id="image-capture-date" 
+            name="image-capture-date" 
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
+            max="" />
+          <small class="text-xs text-gray-500 mt-1 block">You can adjust the date if needed.</small>
+          
           
         </div>
         <div class="flex justify-end gap-3 pt-2">
