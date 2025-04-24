@@ -2,6 +2,9 @@ import { supabase } from '../../lib/supabaseClient.js';
 import { checkAndCreateUserProfile } from '../auth/profile.js'; // ✅ correct path
 import { openImageUpload, closeImageUpload } from '../memory/upload.js';
 import { showToast } from '../ui/toast.js';
+import { startSessionTimeout } from '../auth/sessionTimeout.js';
+
+startSessionTimeout(60); // configurable
 
 window.addEventListener('DOMContentLoaded', async () => {
   // ✅ only run loadMemories if we're on main.html

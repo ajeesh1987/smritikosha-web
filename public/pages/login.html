@@ -24,7 +24,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 min-h-screen flex flex-col items-center justify-center px-4">
 
-  
+    <script type="module">
+      import { redirectIfAuthenticated } from '../../src/auth/redirectIfAuthenticated.js';
+      redirectIfAuthenticated();
+    </script>
+    
   
 
 </head>
