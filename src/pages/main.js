@@ -64,11 +64,22 @@ let currentMemoryId = null;
 function updateImageModalContent() {
   modalImg.src = modalImages[currentImageIndex];
   modalLocation.textContent = modalLocations[currentImageIndex] || '';
-  modalDescription.textContent = modalDescriptions[currentImageIndex] || '';
-  const showInfo = modalLocations[currentImageIndex] || modalDescriptions[currentImageIndex];
-  modalInfoPanel.classList.toggle('hidden', !showInfo);
-  modalInfoPanel.style.display = showInfo ? 'block' : 'none';
+
+  const description = modalDescriptions[currentImageIndex]?.trim();
+
+  const panelWrapper = document.getElementById('modal-info-panel');
+
+  if (description) {
+    panelWrapper.classList.remove('hidden');
+    modalDescription.textContent = description;
+  } else {
+    panelWrapper.classList.add('hidden');
+    modalDescription.textContent = '';
+  }
 }
+
+
+
 modalPrev.onclick = () => {
   currentImageIndex = (currentImageIndex - 1 + modalImages.length) % modalImages.length;
   updateImageModalContent();

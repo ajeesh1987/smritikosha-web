@@ -158,43 +158,41 @@
     </div>
   </div>
 
-<!-- Image Modal -->
-<div id="image-modal" class="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center hidden">
-  <div class="relative w-full max-w-6xl max-h-[90vh] flex items-center justify-center px-6">
-
-  <!-- Left -->
-<button id="modal-prev"
-class="fixed left-6 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black/50 hover:bg-black/70 rounded-full w-12 h-12 flex items-center justify-center z-50 shadow-lg backdrop-blur">
-&#10094;
-</button>
-
-<!-- Close -->
-<button onclick="closeImageModal()"
-class="fixed top-6 right-6 text-white text-2xl font-bold bg-black/50 hover:bg-red-600 rounded-full w-10 h-10 flex items-center justify-center z-50 shadow-lg backdrop-blur">
-&times;
-</button>
-
-<!-- Right -->
-<button id="modal-next"
-class="fixed right-6 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black/50 hover:bg-black/70 rounded-full w-12 h-12 flex items-center justify-center z-50 shadow-lg backdrop-blur">
-&#10095;
-</button>
 
 
+ <!-- Image Modal -->
+<div id="image-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
+  <div class="relative w-full max-w-6xl max-h-[90vh] flex flex-col md:flex-row bg-white p-6 rounded-lg shadow-lg mx-4 md:mx-auto gap-6">
 
-    <!-- Image + Info -->
-    <div class="flex flex-col md:flex-row items-center justify-center gap-6 w-full">
-      <div class="flex-1 flex items-center justify-center">
-        <img id="modal-image" src="" alt="Full Preview" class="rounded-xl max-h-[80vh] max-w-full shadow-lg object-contain z-10" />
-      </div>
-      <div id="modal-info-panel" class="hidden md:block bg-white bg-opacity-90 text-gray-800 p-4 rounded-lg max-w-xs shadow-md z-10">
-        <p id="modal-location" class="text-sm text-indigo-600 font-medium mb-3"></p>
-        <p id="modal-description" class="text-sm leading-relaxed whitespace-pre-line break-words"></p>
-      </div>
-      
+    <!-- Left arrow -->
+    <button id="modal-prev" class="absolute left-6 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black/50 hover:bg-black/70 rounded-full w-12 h-12 flex items-center justify-center z-50 shadow-lg backdrop-blur">
+      &#10094;
+    </button>
+
+    <!-- Close button -->
+    <button onclick="closeImageModal()" id="modal-close" class="absolute top-6 right-6 text-white text-2xl font-bold bg-black/50 hover:bg-red-600 rounded-full w-10 h-10 flex items-center justify-center z-50 shadow-lg backdrop-blur">
+      &times;
+    </button>
+
+    <!-- Right arrow -->
+    <button id="modal-next" class="absolute right-6 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black/50 hover:bg-black/70 rounded-full w-12 h-12 flex items-center justify-center z-50 shadow-lg backdrop-blur">
+      &#10095;
+    </button>
+
+    <!-- Image and location -->
+    <div class="flex flex-col items-center justify-center w-full md:w-2/3">
+      <img id="modal-image" src="" class="max-h-[70vh] w-full object-contain rounded-lg shadow" />
+      <p id="modal-location" class="text-sm text-indigo-600 font-medium mt-4 text-center"></p>
     </div>
+
+    <!-- Description panel -->
+    <div id="modal-info-panel" class="bg-white text-gray-800 p-4 rounded-lg shadow w-full md:w-1/3 self-center hidden">
+      <p id="modal-description" class="text-sm leading-relaxed whitespace-pre-line break-words"></p>
+    </div>
+
   </div>
 </div>
+
 
 
 
