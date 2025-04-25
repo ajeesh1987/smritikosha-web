@@ -3,8 +3,11 @@ import { checkAndCreateUserProfile } from '../auth/profile.js'; // ✅ correct p
 import { openImageUpload, closeImageUpload } from '../memory/upload.js';
 import { showToast } from '../ui/toast.js';
 import { startSessionTimeout } from '../auth/sessionTimeout.js';
+import { setupImageModalEvents } from '../ui/imageModal.js';
+
 
 startSessionTimeout(60); // configurable
+setupImageModalEvents();
 
 window.addEventListener('DOMContentLoaded', async () => {
   // ✅ only run loadMemories if we're on main.html
@@ -87,40 +90,8 @@ modalImg.addEventListener('touchend', e => {
   if (Math.abs(deltaX) > 50) deltaX < 0 ? modalNext.click() : modalPrev.click();
 });
 
-window.openImageModal = (clickedUrl, indexGuess = 0) => {
-  const memoryCard = event.target.closest('[data-memory-id]');
-  const allThumbs = memoryCard.querySelectorAll('img');
 
-  modalImages = [];
-  modalDescriptions = [];
-  modalLocations = [];
-  modalIds = [];
 
-  let matchedIndex = 0;
-
-  allThumbs.forEach((img, i) => {
-    const wrapper = img.closest('[data-image-id]');
-    if (!wrapper) return;
-
-    const id = wrapper.dataset.imageId;
-    const url = img.getAttribute('src');
-    const desc = img.getAttribute('data-description') || '';
-    const loc = img.getAttribute('data-location') || '';
-
-    modalImages.push(url);
-    modalDescriptions.push(desc);
-    modalLocations.push(loc);
-    modalIds.push(id);
-
-    if (url === clickedUrl) matchedIndex = i;
-  });
-
-  currentImageIndex = matchedIndex;
-  updateImageModalContent();
-  imageModal.classList.remove('hidden');
-};
-
-window.closeImageModal = () => imageModal.classList.add('hidden');
 
 // PROFILE
 profileBtn?.addEventListener('click', () => profileMenu.classList.toggle('hidden'));
@@ -406,4 +377,66 @@ document.getElementById('image-modal').addEventListener('click', e => {
 memoryModal.addEventListener('click', e => {
   if (e.target === memoryModal) closeMemoryModal();
 });
+import { openImageModalFromMap } from '../ui/imageModal.js';
 
+window.openImageModal = function (clickedUrl, indexGuess = 0) {
+  const memoryCard = event.target.closest('[data-memory-id]');
+  if (!memoryCard) {
+    console.warn('Memory card not found');
+    return;
+  }
+
+  const allThumbs = memoryCard.querySelectorAll('img');
+
+  modalImages = [];
+  modalDescriptions = [];
+  modalLocations = [];
+  modalIds = [];
+
+  let matchedIndex = 0;
+
+  allThumbs.forEach((img, i) => {
+    const wrapper = img.closest('[data-image-id]');
+    if (!wrapper) return;
+
+    const id = wrapper.dataset.imageId;
+    const url = img.getAttribute('src');
+    const desc = img.getAttribute('data-description') || '';
+    const loc = img.getAttribute('data-location') || '';
+
+    modalImages.push(url);
+    modalDescriptions.push(desc);
+    modalLocations.push(loc);
+    modalIds.push(id);
+
+    if (url === clickedUrl) matchedIndex = i;
+  });
+
+  currentImageIndex = matchedIndex;
+  updateImageModalContent();
+  imageModal.classList.remove('hidden');
+};
+
+
+
+
+
+
+
+window.closeImageModal = function () {
+  imageModal.classList.add('hidden');
+};
+
+modalPrev?.addEventListener('click', () => {
+  if (modalImages.length > 1) {     // ✅ use modalImages
+    currentImageIndex = (currentImageIndex - 1 + modalImages.length) % modalImages.length;
+    updateImageModalContent();       // ✅ use updateImageModalContent
+  }
+});
+
+modalNext?.addEventListener('click', () => {
+  if (modalImages.length > 1) {     // ✅ use modalImages
+    currentImageIndex = (currentImageIndex + 1) % modalImages.length;
+    updateImageModalContent();       // ✅ use updateImageModalContent
+  }
+});

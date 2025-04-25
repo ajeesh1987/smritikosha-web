@@ -1,8 +1,13 @@
 // ✅ map.js
-console.log('🧪 main.js loaded');
+console.log('🧪 map.js loaded');
 
 import { setupFilterOptions, setupFilterEventHandlers, getFilterValues } from './map-filter.js';
 import { supabase } from '../../lib/supabaseClient.js';
+import { openImageModalFromMap, setupImageModalEvents } from '../ui/imageModal.js';
+
+setupImageModalEvents();
+
+
 
 let map;
 let currentMarkers = [];
@@ -107,8 +112,7 @@ async function loadMarkers(filters = {}) {
   if (filters.memoryId) query = query.eq('memory_id', filters.memoryId);
   if (filters.country) query = query.eq('country', filters.country);
   if (filters.dateFrom) query = query.gte('capture_date', filters.dateFrom);
-if (filters.dateTo) query = query.lte('capture_date', filters.dateTo);
-
+  if (filters.dateTo) query = query.lte('capture_date', filters.dateTo);
 
   const { data: images, error } = await query;
 
@@ -125,16 +129,6 @@ if (filters.dateTo) query = query.lte('capture_date', filters.dateTo);
       .from('memory-images')
       .createSignedUrl(img.image_path, 3600);
 
-    const popupContent = `
-      <div class="text-sm max-w-xs">
-        ${img.location ? `<p class="font-semibold mb-1">${img.location}</p>` : ''}
-        ${img.description ? `<p class="mb-2 text-gray-700">${img.description}</p>` : ''}
-        ${urlData?.signedUrl ? `<img src="${urlData.signedUrl}" class="rounded shadow max-h-32" />` : ''}
-      </div>
-    `;
-
-    const popup = new maplibregl.Popup({ offset: 25 }).setHTML(popupContent);
-
     const pin = document.createElement('div');
     pin.className = 'pin-marker';
     pin.style.width = '24px';
@@ -148,7 +142,7 @@ if (filters.dateTo) query = query.lte('capture_date', filters.dateTo);
       .addTo(map);
 
     pin.addEventListener('click', () => {
-      popup.setLngLat([img.lon, img.lat]).addTo(map);
+      window.openImageModalFromMap?.(img.id);
     });
 
     currentMarkers.push(marker);
@@ -158,3 +152,21 @@ if (filters.dateTo) query = query.lte('capture_date', filters.dateTo);
 async function applyFilters(filters) {
   await loadMarkers(filters);
 }
+
+// Close modal logic
+function closeImageModal() {
+  document.getElementById('image-modal')?.classList.add('hidden');
+}
+
+document.getElementById('modal-close')?.addEventListener('click', closeImageModal);
+
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeImageModal();
+});
+
+document.getElementById('image-modal')?.addEventListener('click', e => {
+  if (e.target.id === 'image-modal') closeImageModal();
+});
+
+
+
