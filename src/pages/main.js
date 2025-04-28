@@ -1,8 +1,8 @@
 import { supabase } from '../../lib/supabaseClient.js';
-import { checkAndCreateUserProfile } from '../auth/profile.js'; // ✅ correct path
-import { openImageUpload, closeImageUpload } from '../memory/upload.js';
+import { checkAndCreateUserProfile } from './profile.js'; // ✅ correct path
+import { openImageUpload, closeImageUpload } from './upload.js';
 import { showToast } from '../ui/toast.js';
-import { startSessionTimeout } from '../auth/sessionTimeout.js';
+import { startSessionTimeout } from './sessionTimeout.js';
 import { setupImageModalEvents } from '../ui/imageModal.js';
 
 
@@ -19,7 +19,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   if (!user) {
     console.warn('No active session. Redirecting...');
-    window.location.href = '/pages/login.html';
+    window.location.href = '/login.html';
     return;
   }
 

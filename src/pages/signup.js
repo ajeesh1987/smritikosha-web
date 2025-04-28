@@ -39,7 +39,7 @@ form.addEventListener('submit', async (e) => {
         country,
         terms_accepted_at: new Date().toISOString()
       },
-      emailRedirectTo: 'http://localhost:5173/pages/verify-email.html'
+      emailRedirectTo: 'http://localhost:5173/verify-email.html'
     }
   });
 

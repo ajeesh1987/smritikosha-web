@@ -2,11 +2,16 @@ import { defineConfig } from 'vite';
 import path from 'path';
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  },
   root: './',
   publicDir: 'public',
   server: {
     port: 5173,
-    open: '/', // open root (index.html)
+    open: '/',
     fs: {
       strict: false
     }
@@ -16,10 +21,11 @@ export default defineConfig({
     rollupOptions: {
       input: {
         index: path.resolve(__dirname, 'index.html'),
-        login: path.resolve(__dirname, 'public/pages/login.html'),
-        signup: path.resolve(__dirname, 'public/pages/signup.html'),
-        main: path.resolve(__dirname, 'public/pages/main.html'),
-        // keep adding more if needed
+        login: path.resolve(__dirname, 'login.html'),
+        signup: path.resolve(__dirname, 'signup.html'),
+        main: path.resolve(__dirname, 'main.html'),
+        map: path.resolve(__dirname, 'map.html'),
+        upload: path.resolve(__dirname, 'upload.html')
       }
     }
   }
