@@ -24,9 +24,7 @@ export default defineConfig({
         login: path.resolve(__dirname, 'login.html'),
         signup: path.resolve(__dirname, 'signup.html'),
         main: path.resolve(__dirname, 'main.html'),
-        map: path.resolve(__dirname, 'map.html'),
-        upload: path.resolve(__dirname, 'upload.html')
-      }
+        map: path.resolve(__dirname, 'map.html')      }
     }
   }
 });
