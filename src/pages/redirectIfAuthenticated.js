@@ -1,4 +1,4 @@
-// src/auth/redirectIfAuthenticated.js
+//redirectIfAuthenticated.js
 import { supabase } from '../../lib/supabaseClient.js';
 
 export async function redirectIfAuthenticated() {
