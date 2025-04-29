@@ -3,7 +3,7 @@
 import { OpenAI } from "openai"; // Assuming you use openai npm package
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-export async function summarizeText(title, memory_text, tags, locations) {
+async function summarizeText(title, memory_text, tags, locations) {
   if (!memory_text || memory_text.length < 10) {
     throw new Error("Memory text is too short or missing.");
   }
@@ -36,3 +36,5 @@ export async function summarizeText(title, memory_text, tags, locations) {
     throw new Error("Failed to summarize memory.");
   }
 }
+
+export default summarizeText;
