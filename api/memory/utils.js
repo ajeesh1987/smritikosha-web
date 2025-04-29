@@ -1,6 +1,6 @@
 // /api/memory/utils.js
 
-import { supabase } from '../../lib/supabaseClient'; // Adjusted the relative path
+import { supabase } from '../../lib/supabaseClient.js'; // Adjusted the relative path
 
 export async function getMemoryDetails(memoryId) {
   const { data, error, count } = await supabase
