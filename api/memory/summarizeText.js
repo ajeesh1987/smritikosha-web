@@ -1,7 +1,7 @@
-// /api/memory/summarizeText.js
+import { supabase } from '../../lib/supabaseClient'; // Import Supabase client
+import { OpenAI } from "openai";
+import { getMemoryDetails } from './utils'; // relative path
 
-import { OpenAI } from "openai"; // Assuming you use openai npm package
-import { getMemoryDetails } from './utils.js'; // relative path
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async function handler(req, res) {
@@ -10,7 +10,22 @@ export default async function handler(req, res) {
   }
 
   const { memoryId } = req.body;
+  
+  // Check for authentication token in the request
+  const token = req.headers.authorization?.split(' ')[1]; // Extract token from header
 
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized, no token provided." });
+  }
+
+  // Verify the token and get user data
+  const { data: user, error: authError } = await supabase.auth.api.getUser(token);
+
+  if (authError || !user) {
+    return res.status(401).json({ error: "Unauthorized, invalid token." });
+  }
+
+  // Proceed with fetching memory details and summarizing
   if (!memoryId) {
     return res.status(400).json({ error: "Memory ID is required." });
   }
@@ -39,14 +54,12 @@ ${finalDescription}
 Summarize it in less than 100 words, focusing on emotions and key experiences.
 `;
 
-    // Make the request to OpenAI to summarize the memory
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
     });
 
-    // Extract and return the summarized text
     const summary = response.choices[0].message.content.trim();
 
     return res.status(200).json({ summary });
