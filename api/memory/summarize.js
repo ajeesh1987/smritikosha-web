@@ -1,7 +1,7 @@
 // /api/memory/summarize.js
 
-import { summarizeText } from "./summarizeText"; // Import the summarizeText function
-import { getMemoryImages } from "./reel"; // Import the image fetcher
+import { summarizeText } from "./summarizeText.js"; // Import the summarizeText function
+import { getMemoryImages } from "./reel.js"; // Import the image fetcher
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {

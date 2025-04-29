@@ -1,6 +1,6 @@
 // /api/memory/utils.js
 
-import { supabase } from '../../lib/supabaseClient'; // Relative import
+import { supabase } from '../../lib/supabaseClient.js'; // Relative import
 
 export async function getMemoryDetails(memoryId) {
   const { data, error } = await supabase
