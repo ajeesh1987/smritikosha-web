@@ -19,27 +19,34 @@ export default async function handler(req, res) {
     const memoryDetails = await getMemoryDetails(memoryId);
     const { title, description, tags, location } = memoryDetails;
 
+    // Handle empty fields and provide default values if necessary
+    const finalDescription = description || "No description provided.";
+    const finalTags = tags && tags.length > 0 ? tags.join(", ") : "No tags provided.";
+    const finalLocation = location || "No location specified.";
+
     const prompt = `
 Summarize the following memory entry in a short and emotionally engaging paragraph.
 
 Memory Title: ${title || "(No Title)"}
 
-Tags: ${tags && tags.length > 0 ? tags.join(", ") : "(No Tags)"}
+Tags: ${finalTags}
 
-Locations: ${location || "(No Locations)"}
+Locations: ${finalLocation}
 
 Memory Text:
-${description}
+${finalDescription}
 
 Summarize it in less than 100 words, focusing on emotions and key experiences.
 `;
 
+    // Make the request to OpenAI to summarize the memory
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
     });
 
+    // Extract and return the summarized text
     const summary = response.choices[0].message.content.trim();
 
     return res.status(200).json({ summary });
