@@ -1,7 +1,7 @@
 // /api/memory/summarizeText.js
 
 import { OpenAI } from "openai"; // Assuming you use openai npm package
-import { getMemoryDetails } from './utils'; // Import the utility function
+import { getMemoryDetails } from './utils'; // Adjust the path for utils as well
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async function handler(req, res) {
@@ -9,14 +9,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { memoryId } = req.body; // Expecting only the memoryId in the payload
+  const { memoryId } = req.body;
 
   if (!memoryId) {
     return res.status(400).json({ error: "Memory ID is required." });
   }
 
   try {
-    // Fetch memory details
     const memoryDetails = await getMemoryDetails(memoryId);
     const { title, description, tags, location } = memoryDetails;
 
@@ -36,7 +35,7 @@ Summarize it in less than 100 words, focusing on emotions and key experiences.
 `;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o", // Or any other GPT model you're using
+      model: "gpt-4o",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
     });
