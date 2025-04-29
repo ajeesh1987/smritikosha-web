@@ -1,7 +1,7 @@
 // /api/memory/summarizeText.js
 
 import { OpenAI } from "openai"; // Assuming you use openai npm package
-import { getMemoryDetails } from './utils'; // Adjust the path for utils as well
+import { getMemoryDetails } from './utils'; // Use a relative import
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async function handler(req, res) {

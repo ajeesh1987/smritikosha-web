@@ -1,15 +1,13 @@
 {
   "name": "smritikosha-web",
   "version": "1.0.0",
-  "description": "SmritiKosha Web Application",
   "main": "index.js",
+  "type": "module",  
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview"
   },
-  "author": "Your Name",
-  "license": "MIT",
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",
     "exifr": "^7.1.3",

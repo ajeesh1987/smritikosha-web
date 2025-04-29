@@ -41,3 +41,4 @@ Thumbs.db
 # Optional - Typescript cache
 *.tsbuildinfo
 
+.vercel
