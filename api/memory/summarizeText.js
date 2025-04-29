@@ -1,40 +1,70 @@
-// /api/memory/summarizeText.js
+import { OpenAI } from "openai";
+import { getMemoryDetails } from './utils'; // Utility to fetch memory details
+import { getMemoryImages } from './reel'; // Utility to fetch images for a reel
 
-import { OpenAI } from "openai"; // Assuming you use openai npm package
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-async function summarizeText(title, memory_text, tags, locations) {
-  if (!memory_text || memory_text.length < 10) {
-    throw new Error("Memory text is too short or missing.");
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const prompt = `
-  Summarize the following memory entry in a short and emotionally engaging paragraph.
+  const { memoryIds } = req.body;
 
-  Memory Title: ${title || "(No Title)"}
-
-  Tags: ${tags && tags.length > 0 ? tags.join(", ") : "(No Tags)"}
-
-  Locations: ${locations && locations.length > 0 ? locations.join(", ") : "(No Locations)"}
-
-  Memory Text:
-  ${memory_text}
-
-  Summarize it in less than 100 words, focusing on emotions and key experiences.
-  `;
+  if (!memoryIds || memoryIds.length === 0) {
+    return res.status(400).json({ error: "No memory IDs provided." });
+  }
 
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.7
+    let summaries = [];
+    let images = [];
+
+    for (const memoryId of memoryIds) {
+      // Fetch memory details (title, description, tags)
+      const memoryDetails = await getMemoryDetails(memoryId);
+      
+      // Handle text summarization
+      const textSummary = await summarizeText(memoryDetails);
+
+      // Add summary to the result
+      summaries.push({ memoryId, summary: textSummary });
+
+      // Handle images and reel creation (if required)
+      if (req.body.generateReel) {
+        const memoryImages = await getMemoryImages(memoryId); // Fetch images for the reel
+        images.push({ memoryId, images: memoryImages });
+      }
+    }
+
+    return res.status(200).json({
+      summaries,
+      images: images.length ? images : undefined, // Only include images if the reel was requested
     });
 
-    return response.choices[0].message.content.trim();
   } catch (error) {
     console.error("Summarization error:", error);
-    throw new Error("Failed to summarize memory.");
+    return res.status(500).json({ error: "Failed to process the request." });
   }
 }
 
-export default summarizeText;
+// Function to summarize text
+async function summarizeText({ title, description, tags, memoryText }) {
+  const prompt = `
+Summarize the following memory entry in a short and emotionally engaging paragraph.
+
+Memory Title: ${title || "(No Title)"}
+Tags: ${tags && tags.length > 0 ? tags.join(", ") : "(No Tags)"}
+Description: ${description || "(No Description)"}
+Memory Text: ${memoryText}
+
+Summarize it in less than 100 words, focusing on emotions and key experiences.
+`;
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.7
+  });
+
+  return response.choices[0].message.content.trim();
+}
