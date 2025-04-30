@@ -35,7 +35,7 @@ map = new maplibregl.Map({
       "osm": {
         "type": "raster",
         "tiles": [
-          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          "https://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         ],
         "tileSize": 256
       }
@@ -49,6 +49,7 @@ map = new maplibregl.Map({
       }
     ]
   },
+  
   center: [defaultLon, defaultLat],
   zoom: 3,
   maxZoom: 18,
