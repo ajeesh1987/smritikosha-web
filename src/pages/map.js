@@ -35,7 +35,7 @@ map = new maplibregl.Map({
       "osm": {
         "type": "raster",
         "tiles": [
-          "https://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png" // Use subdomain 'a' explicitly
         ],
         "tileSize": 256
       }
