@@ -7,8 +7,6 @@ import { openImageModalFromMap, setupImageModalEvents } from '../ui/imageModal.j
 
 setupImageModalEvents();
 
-
-
 let map;
 let currentMarkers = [];
 
@@ -31,7 +29,26 @@ const defaultLon = parseFloat(urlParams.get('lon')) || 11.01;
 
 map = new maplibregl.Map({
   container: 'map',
-  style: '/styles/clean-light-style.json',
+  style: {
+    "version": 8,
+    "sources": {
+      "osm": {
+        "type": "raster",
+        "tiles": [
+          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        ],
+        "tileSize": 256
+      }
+    },
+    "layers": [
+      {
+        "id": "osm",
+        "type": "raster",
+        "source": "osm",
+        "paint": {}
+      }
+    ]
+  },
   center: [defaultLon, defaultLat],
   zoom: 3,
   maxZoom: 18,
@@ -167,6 +184,3 @@ window.addEventListener('keydown', e => {
 document.getElementById('image-modal')?.addEventListener('click', e => {
   if (e.target.id === 'image-modal') closeImageModal();
 });
-
-
-
