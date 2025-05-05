@@ -47,7 +47,7 @@ export default async function handler(req, res) {
     const { title, description, tags, location } = memoryDetails;
 
     const finalDescription = description || "No description provided.";
-    const finalTags = tags && tags.length > 0 ? tags.join(", ") : "No tags provided.";
+    const finalTags = typeof tags === 'string' && tags.trim() !== '' ? tags : "No tags provided.";
     const finalLocation = location || "No location specified.";
 
     const prompt = `
