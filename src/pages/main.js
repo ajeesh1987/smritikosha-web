@@ -31,6 +31,55 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   await loadMemories();
 });
+const summarizeBtn = document.getElementById('summarize-memory');
+if (summarizeBtn) {
+  summarizeBtn.classList.remove('hidden'); // Ensure the button is visible
+}
+
+// Add event listener for the Summarize button
+summarizeBtn?.addEventListener("click", async () => {
+  const memoryId = getMemoryId(); // Get the memory ID for the memory being summarized
+
+  if (!memoryId) {
+    alert("No memory selected.");
+    return;
+  }
+
+  // Show loading spinner and disable actions
+  toggleLoading(true);
+
+  try {
+    // Send a POST request to summarize the memory
+    const response = await fetch("/api/memory/summarize", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${getAuthToken()}`, // Authorization token from localStorage/session
+      },
+      body: JSON.stringify({ memoryId }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to summarize the memory");
+    }
+
+    const result = await response.json();
+    const { summary } = result;
+
+    // Display the summary to the user
+    displaySummary(summary);
+  } catch (error) {
+    console.error("Error summarizing memory:", error);
+  } finally {
+    // Hide loading spinner and re-enable actions
+    toggleLoading(false);
+  }
+});
+
+// Function to get the memory ID (ensure this is correct in your modal context)
+function getMemoryId() {
+  return document.getElementById("memory-id").value; // Ensure the memory ID is set properly in your modal
+}
 
 
 
@@ -58,6 +107,32 @@ let currentImageIndex = 0;
 let currentMemoryId = null;
 
 // TOAST
+function toggleLoading(show) {
+  const spinner = document.getElementById('loading-spinner');
+  if (!spinner) return;
+
+  if (show) {
+    spinner.classList.remove('hidden');
+    spinner.classList.add('flex');
+  } else {
+    spinner.classList.add('hidden');
+    spinner.classList.remove('flex');
+  }
+}
+
+function displaySummary(memoryId, summary) {
+  let container = document.querySelector(`[data-summary-id="${memoryId}"]`);
+
+  if (!container) {
+    const memoryCard = document.querySelector(`[data-memory-id="${memoryId}"]`);
+    container = document.createElement('div');
+    container.className = 'mt-3 text-sm bg-indigo-50 text-indigo-800 p-3 rounded shadow-sm';
+    container.setAttribute('data-summary-id', memoryId);
+    memoryCard.appendChild(container);
+  }
+
+  container.textContent = summary;
+}
 
 
 // MODAL NAVIGATION
@@ -342,7 +417,10 @@ async function loadMemories() {
       <div class="flex justify-between items-start mb-2">
         <h3 class='text-lg font-bold text-indigo-700'>${memory.title}</h3>
         <div class="flex gap-2">
-          <button onclick="openImageUpload('${memory.id}')"><i class="fas fa-plus text-indigo-600 hover:text-indigo-800"></i></button>
+<button class="summarize-btn text-indigo-600 hover:text-indigo-800" data-memory-id="${memory.id}" title="Summarize this memory">
+  <i class="fas fa-magic"></i>
+</button>
+<button onclick="openImageUpload('${memory.id}')"><i class="fas fa-plus text-indigo-600 hover:text-indigo-800"></i></button>
           <button onclick="deleteMemory('${memory.id}')"><i class="fas fa-trash text-red-500 hover:text-red-700"></i></button>
         </div>
       </div>
@@ -367,6 +445,52 @@ async function loadMemories() {
     memoryList.appendChild(card);
   }
   document.getElementById('map-feature-card')?.classList.remove('hidden');
+
+// Bind event listeners to all summarize buttons after DOM is updated
+document.querySelectorAll('.summarize-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const memoryId = btn.getAttribute('data-memory-id');
+    if (!memoryId) return;
+
+    // Optional: show loading spinner
+    toggleLoading(true);
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const token = session?.access_token;
+      if (!token) {
+        showToast('No auth token found', false);
+        return;
+      }
+
+      const response = await fetch('/api/memory/summarizeText', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ memoryId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const { summary } = await response.json();
+
+      // ✅ Display the summary (you can improve this later)
+      displaySummary(memoryId, summary);
+    } catch (err) {
+      console.error('Summarize error:', err);
+      showToast('Failed to summarize memory', false);
+    } finally {
+      toggleLoading(false); // hide loading spinner
+    }
+  });
+});
 
 }
 window.loadMemories = loadMemories;
