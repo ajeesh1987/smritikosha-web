@@ -580,8 +580,9 @@ document.querySelectorAll('.summarize-btn').forEach(btn => {
     const memoryId = btn.getAttribute('data-memory-id');
     if (!memoryId) return;
 
-    // Optional: show loading spinner
-    toggleLoading(true);
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> Summarizing...`;
+    btn.disabled = true;
 
     try {
       const {
@@ -608,17 +609,17 @@ document.querySelectorAll('.summarize-btn').forEach(btn => {
       }
 
       const { summary } = await response.json();
-
-      // ✅ Display the summary (you can improve this later)
       displaySummary(memoryId, summary);
     } catch (err) {
       console.error('Summarize error:', err);
       showToast('Failed to summarize memory', false);
     } finally {
-      toggleLoading(false); // hide loading spinner
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
     }
   });
 });
+
 
 }
 window.loadMemories = loadMemories;
