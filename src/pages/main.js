@@ -266,6 +266,46 @@ window.openImageUpload = openImageUpload;
 
 window.closeImageUpload = closeImageUpload;
 
+memoryForm?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const title = document.getElementById('memory-title')?.value.trim();
+  const location = document.getElementById('memory-location')?.value.trim();
+  const tags = document.getElementById('memory-tags')?.value.trim();
+
+  if (!title) {
+    showToast('Memory title is required', false);
+    return;
+  }
+
+  const submitBtn = document.getElementById('memory-submit-btn');
+  submitBtn.textContent = 'Saving...';
+  submitBtn.disabled = true;
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    showToast('No user session found', false);
+    return;
+  }
+
+  const { error } = await supabase.from('memories').insert([{
+    title,
+    location,
+    tags,
+    user_id: user.id
+  }]);
+
+  if (error) {
+    console.error('Error adding memory:', error.message);
+    showToast('Failed to add memory', false);
+  } else {
+    showToast('Memory added');
+    closeMemoryModal();
+    await loadMemories(); // Refresh the memory list
+  }
+
+  submitBtn.textContent = 'Create';
+  submitBtn.disabled = false;
+});
 
 
 // Custom Confirm Dialog Logic
