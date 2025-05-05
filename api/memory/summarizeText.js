@@ -1,6 +1,7 @@
 import { OpenAI } from "openai";
-import { supabase } from 'lib/supabaseClient';
-import { getMemoryDetails } from 'api/memory/utils';
+import { supabase } from '../../lib/supabaseClient.js';
+import { getMemoryDetails } from './utils.js';
+
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
