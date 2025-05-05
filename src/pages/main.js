@@ -142,34 +142,56 @@ function displaySummary(memoryId, summary) {
   `;
 
   // Bind actions
-  container.querySelector('.save-summary-btn')?.addEventListener('click', async () => {
-    const token = (await supabase.auth.getSession()).data?.session?.access_token;
-    if (!token) return showToast('No auth token found', false);
-
-    toggleLoading(true);
+  saveBtn.onclick = async () => {
     try {
-      const res = await fetch('/api/memory/saveSummary', {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+  
+      const response = await fetch('/api/memory/saveSummary', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ memoryId, summary })
       });
-
-      if (!res.ok) throw new Error('Failed to save summary');
+  
+      if (!response.ok) throw new Error('Failed to save summary');
+  
       showToast('Summary saved');
     } catch (err) {
-      console.error(err);
+      console.error('Save error:', err);
       showToast('Could not save summary', false);
+    }
+  };
+  
+
+  retryBtn.onclick = async () => {
+    toggleLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+  
+      const response = await fetch('/api/memory/summarizeText', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ memoryId })
+      });
+  
+      if (!response.ok) throw new Error('Retry failed');
+      const { summary: newSummary } = await response.json();
+      displaySummary(memoryId, newSummary); // replace with new summary
+    } catch (err) {
+      console.error('Retry error:', err);
+      showToast('Failed to retry summary', false);
     } finally {
       toggleLoading(false);
     }
-  });
-
-  container.querySelector('.retry-summary-btn')?.addEventListener('click', () => {
-    document.querySelector(`[data-memory-id="${memoryId}"] .summarize-btn`)?.click();
-  });
+  };
+  
 
   container.querySelector('.clear-summary-btn')?.addEventListener('click', () => {
     container.remove();
