@@ -359,6 +359,7 @@ memoryForm?.addEventListener('submit', async e => {
   const title = document.getElementById('memory-title')?.value.trim();
   const location = document.getElementById('memory-location')?.value.trim();
   const tags = document.getElementById('memory-tags')?.value.trim();
+  const description = document.getElementById('memory-description')?.value.trim();
 
   if (!title) {
     showToast('Memory title is required', false);
@@ -379,6 +380,7 @@ memoryForm?.addEventListener('submit', async e => {
     title,
     location,
     tags,
+    description,  
     user_id: user.id
   }]);
 
