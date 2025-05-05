@@ -133,14 +133,15 @@ function displaySummary(memoryId, summary) {
   }
 
   container.innerHTML = `
-    <p class="text-sm leading-relaxed break-words">${summary}</p>
-    <div class="flex gap-3 items-center text-sm pt-2">
-      <button class="save-summary-btn bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded" data-id="${memoryId}">💾 Save</button>
-      <button class="retry-summary-btn bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded" data-id="${memoryId}">🔁 Retry</button>
-      <button class="clear-summary-btn bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded" data-id="${memoryId}">🗑 Clear</button>
-      <span class="summary-status text-xs text-gray-500 italic ml-2"></span>
-    </div>
-  `;
+  <p class="text-sm text-indigo-900 leading-relaxed">${summary}</p>
+  <div class="flex gap-3 items-center text-sm pt-2">
+    <button class="save-summary-btn bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded" data-id="${memoryId}">Save</button>
+    <button class="retry-summary-btn bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded" data-id="${memoryId}">Regenerate</button>
+    <button class="clear-summary-btn bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded" data-id="${memoryId}">Dismiss</button>
+    <span class="summary-status text-xs text-gray-500 italic ml-2"></span>
+  </div>
+`;
+
 
   const saveBtn = container.querySelector('.save-summary-btn');
   const retryBtn = container.querySelector('.retry-summary-btn');
