@@ -127,26 +127,30 @@ function displaySummary(memoryId, summary) {
   if (!container) {
     const memoryCard = document.querySelector(`[data-memory-id="${memoryId}"]`);
     container = document.createElement('div');
-    container.className = 'mt-3 text-sm bg-indigo-50 text-indigo-800 p-3 rounded shadow-sm';
+    container.className = 'mt-3 bg-indigo-50 text-indigo-900 text-sm p-3 rounded shadow-sm space-y-2';
     container.setAttribute('data-summary-id', memoryId);
     memoryCard.appendChild(container);
   }
 
   container.innerHTML = `
-    <p class="mb-2">${summary}</p>
-    <div class="flex gap-2">
-      <button class="save-summary-btn text-sm px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200" data-memory-id="${memoryId}">Save</button>
-      <button class="retry-summary-btn text-sm px-3 py-1 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200" data-memory-id="${memoryId}">Retry</button>
-      <button class="clear-summary-btn text-sm px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300" data-memory-id="${memoryId}">Clear</button>
+    <div>${summary}</div>
+    <div class="flex justify-end gap-3 pt-2">
+      <button class="save-summary-btn bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-xs">Save</button>
+      <button class="retry-summary-btn bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs">Retry</button>
+      <button class="clear-summary-btn bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded text-xs">Clear</button>
     </div>
   `;
 
-  // Bind actions
+  // ✅ Scope is now correct:
+  const saveBtn = container.querySelector('.save-summary-btn');
+  const retryBtn = container.querySelector('.retry-summary-btn');
+  const clearBtn = container.querySelector('.clear-summary-btn');
+
   saveBtn.onclick = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
-  
+
       const response = await fetch('/api/memory/saveSummary', {
         method: 'POST',
         headers: {
@@ -155,23 +159,21 @@ function displaySummary(memoryId, summary) {
         },
         body: JSON.stringify({ memoryId, summary })
       });
-  
+
       if (!response.ok) throw new Error('Failed to save summary');
-  
       showToast('Summary saved');
     } catch (err) {
       console.error('Save error:', err);
       showToast('Could not save summary', false);
     }
   };
-  
 
   retryBtn.onclick = async () => {
     toggleLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
-  
+
       const response = await fetch('/api/memory/summarizeText', {
         method: 'POST',
         headers: {
@@ -180,10 +182,10 @@ function displaySummary(memoryId, summary) {
         },
         body: JSON.stringify({ memoryId })
       });
-  
+
       if (!response.ok) throw new Error('Retry failed');
       const { summary: newSummary } = await response.json();
-      displaySummary(memoryId, newSummary); // replace with new summary
+      displaySummary(memoryId, newSummary); // recursive re-render
     } catch (err) {
       console.error('Retry error:', err);
       showToast('Failed to retry summary', false);
@@ -191,12 +193,12 @@ function displaySummary(memoryId, summary) {
       toggleLoading(false);
     }
   };
-  
 
-  container.querySelector('.clear-summary-btn')?.addEventListener('click', () => {
+  clearBtn.onclick = () => {
     container.remove();
-  });
+  };
 }
+
 
 
 
