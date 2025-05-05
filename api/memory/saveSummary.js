@@ -29,16 +29,18 @@ export default async function handler(req, res) {
   }
 
   // ✅ Upsert summary and capture error
-  const { error: dbError } = await supabase
-    .from('memory_summaries')
-    .upsert(
-      {
-        memory_id: memoryId,
-        type: 'text', // or 'reel' in future
-        summary,
-      },
-      { onConflict: ['memory_id', 'type'] }
-    );
+  await supabase
+  .from('memory_summaries')
+  .upsert(
+    {
+      memory_id: memoryId,
+      type: 'text',
+      summary,
+      user_id: user.id  // ✅ Add this line
+    },
+    { onConflict: ['memory_id', 'type'] }
+  );
+
 
   if (dbError) {
     return res.status(500).json({ error: dbError.message });
