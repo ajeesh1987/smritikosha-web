@@ -1,7 +1,6 @@
 import { OpenAI } from "openai";
-import { supabase } from '../../lib/supabaseClient.js';
 import { getMemoryDetails } from './utils.js';
-
+import { createClient } from '@supabase/supabase-js';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -11,22 +10,34 @@ export default async function handler(req, res) {
   }
 
   const { memoryId } = req.body;
-  
-  // Check for authentication token in the request
-  const token = req.headers.authorization?.split(' ')[1]; // Extract token from header
+
+  // ✅ Extract token from Authorization header
+  const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ error: "Unauthorized, no token provided." });
+    return res.status(401).json({ error: "Unauthorized: no token provided." });
   }
 
-  // Verify the token and get user data
-  const { data: user, error: authError } = await supabase.auth.api.getUser(token);
+  // ✅ Create a server-side Supabase client using token
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    }
+  );
+
+  // ✅ Verify the user
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return res.status(401).json({ error: "Unauthorized, invalid token." });
+    return res.status(401).json({ error: "Unauthorized: invalid token." });
   }
 
-  // Proceed with fetching memory details and summarizing
   if (!memoryId) {
     return res.status(400).json({ error: "Memory ID is required." });
   }
@@ -35,7 +46,6 @@ export default async function handler(req, res) {
     const memoryDetails = await getMemoryDetails(memoryId);
     const { title, description, tags, location } = memoryDetails;
 
-    // Handle empty fields and provide default values if necessary
     const finalDescription = description || "No description provided.";
     const finalTags = tags && tags.length > 0 ? tags.join(", ") : "No tags provided.";
     const finalLocation = location || "No location specified.";
@@ -47,13 +57,13 @@ Memory Title: ${title || "(No Title)"}
 
 Tags: ${finalTags}
 
-Locations: ${finalLocation}
+Location: ${finalLocation}
 
 Memory Text:
 ${finalDescription}
 
 Summarize it in less than 100 words, focusing on emotions and key experiences.
-`;
+    `.trim();
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
