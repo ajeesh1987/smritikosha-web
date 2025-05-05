@@ -120,6 +120,7 @@ function toggleLoading(show) {
   }
 }
 
+// 👇 Enhancing displaySummary function in main.js to show buttons
 function displaySummary(memoryId, summary) {
   let container = document.querySelector(`[data-summary-id="${memoryId}"]`);
 
@@ -131,8 +132,50 @@ function displaySummary(memoryId, summary) {
     memoryCard.appendChild(container);
   }
 
-  container.textContent = summary;
+  container.innerHTML = `
+    <p class="mb-2">${summary}</p>
+    <div class="flex gap-2">
+      <button class="save-summary-btn text-sm px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200" data-memory-id="${memoryId}">Save</button>
+      <button class="retry-summary-btn text-sm px-3 py-1 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200" data-memory-id="${memoryId}">Retry</button>
+      <button class="clear-summary-btn text-sm px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300" data-memory-id="${memoryId}">Clear</button>
+    </div>
+  `;
+
+  // Bind actions
+  container.querySelector('.save-summary-btn')?.addEventListener('click', async () => {
+    const token = (await supabase.auth.getSession()).data?.session?.access_token;
+    if (!token) return showToast('No auth token found', false);
+
+    toggleLoading(true);
+    try {
+      const res = await fetch('/api/memory/saveSummary', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ memoryId, summary })
+      });
+
+      if (!res.ok) throw new Error('Failed to save summary');
+      showToast('Summary saved');
+    } catch (err) {
+      console.error(err);
+      showToast('Could not save summary', false);
+    } finally {
+      toggleLoading(false);
+    }
+  });
+
+  container.querySelector('.retry-summary-btn')?.addEventListener('click', () => {
+    document.querySelector(`[data-memory-id="${memoryId}"] .summarize-btn`)?.click();
+  });
+
+  container.querySelector('.clear-summary-btn')?.addEventListener('click', () => {
+    container.remove();
+  });
 }
+
 
 
 // MODAL NAVIGATION
