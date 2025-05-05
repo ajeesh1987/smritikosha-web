@@ -545,9 +545,11 @@ async function loadMemories() {
       <div class="flex justify-between items-start mb-2">
         <h3 class='text-lg font-bold text-indigo-700'>${memory.title}</h3>
         <div class="flex gap-2">
-<button class="summarize-btn text-indigo-600 hover:text-indigo-800" data-memory-id="${memory.id}" title="Summarize this memory">
-  <i class="fas fa-magic"></i>
-</button>
+        ${memory.title && memory.description && memory.location
+          ? `<button class="summarize-btn text-indigo-600 hover:text-indigo-800" data-memory-id="${memory.id}" title="Summarize this memory">
+               <i class="fas fa-magic"></i>
+             </button>`
+          : ''}
 <button onclick="openImageUpload('${memory.id}')"><i class="fas fa-plus text-indigo-600 hover:text-indigo-800"></i></button>
           <button onclick="deleteMemory('${memory.id}')"><i class="fas fa-trash text-red-500 hover:text-red-700"></i></button>
         </div>
