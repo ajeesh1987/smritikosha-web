@@ -1,6 +1,6 @@
-import { supabase } from '../../lib/supabaseClient'; // Import Supabase client
 import { OpenAI } from "openai";
-import { getMemoryDetails } from './utils'; // relative path
+import { supabase } from 'lib/supabaseClient';
+import { getMemoryDetails } from 'api/memory/utils';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
