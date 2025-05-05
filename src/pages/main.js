@@ -127,77 +127,97 @@ function displaySummary(memoryId, summary) {
   if (!container) {
     const memoryCard = document.querySelector(`[data-memory-id="${memoryId}"]`);
     container = document.createElement('div');
-    container.className = 'mt-3 bg-indigo-50 text-indigo-900 text-sm p-3 rounded shadow-sm space-y-2';
+    container.className = 'mt-3 bg-indigo-50 text-indigo-800 p-3 rounded shadow-sm space-y-2';
     container.setAttribute('data-summary-id', memoryId);
     memoryCard.appendChild(container);
   }
 
   container.innerHTML = `
-    <div>${summary}</div>
-    <div class="flex justify-end gap-3 pt-2">
-      <button class="save-summary-btn bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-xs">Save</button>
-      <button class="retry-summary-btn bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs">Retry</button>
-      <button class="clear-summary-btn bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded text-xs">Clear</button>
+    <p class="text-sm leading-relaxed break-words">${summary}</p>
+    <div class="flex gap-3 items-center text-sm pt-2">
+      <button class="save-summary-btn bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded" data-id="${memoryId}">💾 Save</button>
+      <button class="retry-summary-btn bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded" data-id="${memoryId}">🔁 Retry</button>
+      <button class="clear-summary-btn bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded" data-id="${memoryId}">🗑 Clear</button>
+      <span class="summary-status text-xs text-gray-500 italic ml-2"></span>
     </div>
   `;
 
-  // ✅ Scope is now correct:
   const saveBtn = container.querySelector('.save-summary-btn');
   const retryBtn = container.querySelector('.retry-summary-btn');
   const clearBtn = container.querySelector('.clear-summary-btn');
+  const statusText = container.querySelector('.summary-status');
 
-  saveBtn.onclick = async () => {
+  saveBtn.addEventListener('click', async () => {
+    statusText.textContent = 'Saving...';
+    saveBtn.disabled = true;
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
 
-      const response = await fetch('/api/memory/saveSummary', {
+      const res = await fetch('/api/memory/saveSummary', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ memoryId, summary })
+        body: JSON.stringify({ memoryId, summary }),
       });
 
-      if (!response.ok) throw new Error('Failed to save summary');
-      showToast('Summary saved');
+      const result = await res.json();
+      if (res.ok) {
+        statusText.textContent = '✅ Saved';
+      } else {
+        console.error(result.error);
+        statusText.textContent = '❌ Failed to save';
+      }
     } catch (err) {
-      console.error('Save error:', err);
-      showToast('Could not save summary', false);
-    }
-  };
-
-  retryBtn.onclick = async () => {
-    toggleLoading(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.access_token;
-
-      const response = await fetch('/api/memory/summarizeText', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ memoryId })
-      });
-
-      if (!response.ok) throw new Error('Retry failed');
-      const { summary: newSummary } = await response.json();
-      displaySummary(memoryId, newSummary); // recursive re-render
-    } catch (err) {
-      console.error('Retry error:', err);
-      showToast('Failed to retry summary', false);
+      console.error(err);
+      statusText.textContent = '❌ Error';
     } finally {
-      toggleLoading(false);
+      saveBtn.disabled = false;
+      setTimeout(() => (statusText.textContent = ''), 2000);
     }
-  };
+  });
 
-  clearBtn.onclick = () => {
+  retryBtn.addEventListener('click', async () => {
+    statusText.textContent = 'Retrying...';
+    retryBtn.disabled = true;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      const res = await fetch('/api/memory/summarizeText', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ memoryId }),
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        displaySummary(memoryId, result.summary);
+      } else {
+        console.error(result.error);
+        statusText.textContent = '❌ Retry failed';
+      }
+    } catch (err) {
+      console.error(err);
+      statusText.textContent = '❌ Error';
+    } finally {
+      retryBtn.disabled = false;
+      setTimeout(() => (statusText.textContent = ''), 2000);
+    }
+  });
+
+  clearBtn.addEventListener('click', () => {
     container.remove();
-  };
+  });
 }
+
 
 
 
