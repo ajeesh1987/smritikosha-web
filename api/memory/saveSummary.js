@@ -28,19 +28,17 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  // ✅ Upsert summary and capture error
-  await supabase
-  .from('memory_summaries')
-  .upsert(
-    {
-      memory_id: memoryId,
-      type: 'text',
-      summary,
-      user_id: user.id  // ✅ Add this line
-    },
-    { onConflict: ['memory_id', 'type'] }
-  );
-
+  const { error: dbError } = await supabase
+    .from('memory_summaries')
+    .upsert(
+      {
+        memory_id: memoryId,
+        type: 'text',        // will be used later for 'reel'
+        summary,
+        user_id: user.id     // required due to RLS
+      },
+      { onConflict: ['memory_id', 'type'] } // unique composite key
+    );
 
   if (dbError) {
     return res.status(500).json({ error: dbError.message });
