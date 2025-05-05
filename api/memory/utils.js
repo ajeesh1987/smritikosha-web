@@ -1,13 +1,13 @@
 import { supabase } from '../../lib/supabaseClient.js'; // Adjusted the relative path
 
-export async function getMemoryDetails(memoryId) {
-  console.log('🔍 Fetching memory for ID:', memoryId); // helpful debug log
+export async function getMemoryDetails(memoryId, supabase) {
+  console.log('🔍 Fetching memory for ID:', memoryId);
 
   const { data, error } = await supabase
     .from('memories')
     .select('id, title, description, tags, location')
     .eq('id', memoryId)
-    .maybeSingle(); // allows 0 or 1 row safely
+    .maybeSingle();
 
   if (error) {
     throw new Error(`Failed to fetch memory details: ${error.message}`);

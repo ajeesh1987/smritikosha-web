@@ -43,7 +43,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const memoryDetails = await getMemoryDetails(memoryId);
+    const memoryDetails = await getMemoryDetails(memoryId, supabase);
     const { title, description, tags, location } = memoryDetails;
 
     const finalDescription = description || "No description provided.";
