@@ -691,6 +691,67 @@ window.openImageModal = function (clickedUrl, indexGuess = 0) {
 
 
 
+// REEL VIEW
+window.closeReelModal = () => {
+  document.getElementById('reel-modal').classList.add('hidden');
+};
+
+document.querySelectorAll('.reel-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const memoryId = btn.getAttribute('data-memory-id');
+    if (!memoryId) return;
+
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      const res = await fetch('/api/memory/reel', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ memoryId }),
+      });
+
+      if (!res.ok) throw new Error('Failed to load reel');
+
+      const { title, summary, visualFlow } = await res.json();
+      document.getElementById('reel-title').textContent = title;
+      document.getElementById('reel-summary').textContent = summary;
+
+      const container = document.getElementById('reel-visuals');
+      container.innerHTML = '';
+
+      visualFlow.forEach((item, i) => {
+        const block = document.createElement('div');
+        block.innerHTML = `
+          <div class="flex flex-col md:flex-row gap-4 items-start">
+            <img src="${item.imageUrl}" class="w-full md:w-1/2 rounded-lg shadow" />
+            <div class="md:w-1/2 space-y-2">
+              ${item.caption ? `<p class="text-gray-800 text-sm">${item.caption}</p>` : ''}
+              ${item.date ? `<p class="text-xs text-gray-500">📅 ${item.date}</p>` : ''}
+              ${item.location ? `<p class="text-xs text-gray-500">📍 ${item.location}</p>` : ''}
+              ${item.tags?.length ? `<div class="text-xs text-indigo-700">${item.tags.map(tag => `<span class="bg-indigo-100 px-2 py-1 rounded-full mr-1">${tag}</span>`).join('')}</div>` : ''}
+            </div>
+          </div>
+        `;
+        container.appendChild(block);
+      });
+
+      document.getElementById('reel-modal').classList.remove('hidden');
+    } catch (err) {
+      console.error('Reel generation failed:', err);
+      showToast('Could not load reel.', false);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `<i class="fas fa-film"></i>`;
+    }
+  });
+});
 
 
 
