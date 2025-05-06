@@ -19,9 +19,7 @@ export default async function handler(req, res) {
     process.env.SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY,
     {
-      global: {
-        headers: { Authorization: `Bearer ${token}` },
-      },
+      global: { headers: { Authorization: `Bearer ${token}` } },
     }
   );
 
@@ -34,28 +32,14 @@ export default async function handler(req, res) {
     const memory = await getMemoryDetails(memoryId, supabase);
     const { title, description, tags, location } = memory;
 
-    // Only include fields that exist
-    const promptInputs = {
-      ...(title && { title }),
-      ...(description && { description }),
-      ...(tags && { tags }),
-      ...(location && { location }),
-    };
-
-    const summary = await summarizeText(
-      promptInputs.title,
-      promptInputs.description,
-      promptInputs.tags,
-      promptInputs.location
-    );
-
-    const visualFlow = await getReelVisualFlow(memoryId, user.id, supabase);
+    const summary = await summarizeText(title, description, tags, location);
+    const reelData = await getReelVisualFlow(memoryId, user.id, supabase);
 
     return res.status(200).json({
       memoryId,
       title,
       summary,
-      visualFlow,
+      ...reelData, // includes theme, mood, musicStyle, visualFlow
       memoryTags: tags?.split(/[, ]+/).filter(Boolean) || [],
     });
 
