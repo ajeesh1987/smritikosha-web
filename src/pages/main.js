@@ -741,14 +741,6 @@ window.openImageModal = function (event, clickedUrl, indexGuess = 0) {
   imageModal.classList.remove('hidden');
 };
 
-
-
-
-
-
-
-
-
 window.closeImageModal = function () {
   imageModal.classList.add('hidden');
 };
