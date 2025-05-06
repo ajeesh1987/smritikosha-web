@@ -550,7 +550,11 @@ async function loadMemories() {
         ${memory.title && memory.description && memory.location
           ? `<button class="summarize-btn text-indigo-600 hover:text-indigo-800" data-memory-id="${memory.id}" title="Summarize this memory">
                <i class="fas fa-magic"></i>
-             </button>`
+             </button>
+             <button class="reel-btn text-purple-600 hover:text-purple-800" data-memory-id="${memory.id}" title="Create Reel">
+        <i class="fas fa-film"></i>
+      </button>
+      `
           : ''}
 <button onclick="openImageUpload('${memory.id}')"><i class="fas fa-plus text-indigo-600 hover:text-indigo-800"></i></button>
           <button onclick="deleteMemory('${memory.id}')"><i class="fas fa-trash text-red-500 hover:text-red-700"></i></button>

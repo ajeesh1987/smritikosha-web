@@ -1,30 +1,67 @@
 // /api/memory/reel.js
+import { createClient } from '@supabase/supabase-js';
+import { summarizeText } from './summarizeText';
+import { getMemoryDetails } from './utils';
+import { getReelVisualFlow } from './generateReelData';
 
-import { summarizeText } from "./summarizeText"; // Import the summarizeText function
-import { getMemoryImages } from "./reel"; // Import the image fetcher
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
-export async function handleReelRequest(req, res) {
-  const { memoryIds } = req.body;
+  const { memoryId } = req.body;
+  const token = req.headers.authorization?.split(' ')[1];
 
-  if (!memoryIds || memoryIds.length === 0) {
-    return res.status(400).json({ error: "No memory IDs provided." });
+  if (!memoryId || !token) {
+    return res.status(400).json({ error: 'Missing memory ID or auth token' });
+  }
+
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    {
+      global: {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    }
+  );
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 
   try {
-    // Fetch images for the selected memories
-    const images = await getMemoryImages(memoryIds);
+    const memory = await getMemoryDetails(memoryId, supabase);
+    const { title, description, tags, location } = memory;
 
-    // Summarize text for each memory
-    const summaries = await Promise.all(memoryIds.map(async (memoryId) => {
-      const { title, memory_text, tags, locations } = await getMemoryDetails(memoryId); // Assuming this function exists to get memory details
-      const summary = await summarizeText(title, memory_text, tags, locations);
-      return { memoryId, summary };
-    }));
+    // Only include fields that exist
+    const promptInputs = {
+      ...(title && { title }),
+      ...(description && { description }),
+      ...(tags && { tags }),
+      ...(location && { location }),
+    };
 
-    // Proceed with creating a reel from the images (this part will come later)
-    return res.status(200).json({ summaries, images });
+    const summary = await summarizeText(
+      promptInputs.title,
+      promptInputs.description,
+      promptInputs.tags,
+      promptInputs.location
+    );
+
+    const visualFlow = await getReelVisualFlow(memoryId, user.id, supabase);
+
+    return res.status(200).json({
+      memoryId,
+      title,
+      summary,
+      visualFlow,
+      memoryTags: tags?.split(/[, ]+/).filter(Boolean) || [],
+    });
+
   } catch (error) {
-    console.error("Error during summarization or image fetch:", error);
-    return res.status(500).json({ error: "Failed to summarize or fetch images." });
+    console.error('Reel generation error:', error);
+    return res.status(500).json({ error: 'Failed to generate memory reel.' });
   }
 }
