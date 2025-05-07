@@ -3,6 +3,12 @@ import { OpenAI } from 'openai';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+/**
+ * Generates the visual flow for a memory reel by letting AI determine how best to tell the story.
+ * @param {string} memoryId 
+ * @param {string} userId 
+ * @param {object} supabase - Supabase client instance
+ */
 export async function getReelVisualFlow(memoryId, userId, supabase) {
   const { data: images, error } = await supabase
     .from('memory_images')
@@ -15,7 +21,7 @@ export async function getReelVisualFlow(memoryId, userId, supabase) {
   if (!images || images.length === 0) return [];
 
   // Securely fetch signed URLs and format image metadata
-  const imagePromises = images.map(async img => {
+  const imageMap = images.map(async img => {
     const { data, error: signError } = await supabase
       .storage
       .from('memory-images')
@@ -36,68 +42,69 @@ export async function getReelVisualFlow(memoryId, userId, supabase) {
     };
   });
 
-  const formattedImages = (await Promise.all(imagePromises)).filter(Boolean);
+  const formattedImages = (await Promise.all(imageMap)).filter(Boolean);
+
   const smartDuration = Math.max(1.8, Math.min(3, 60 / formattedImages.length));
 
   const flowPrompt = `
-You're a creative film director crafting a short, emotionally engaging memory reel from ${formattedImages.length} user-submitted photos.
+  You're a creative film director crafting a short, emotionally engaging memory reel from ${formattedImages.length} user-submitted photos.
 
-Each photo includes optional metadata: location, tags, description, and capture date.
+  Each photo includes optional metadata: location, tags, description, and capture date.
 
-Your responsibilities:
+  Your responsibilities:
 
-1. **Sequence Design**  
-   - Analyze the images and choose an expressive visual sequence (chronological or narrative-driven).  
-   - Include **every image** in the output.  
-   - Assign an appropriate transition style to each (fade, zoom, pan, map-travel, etc).  
-   - For each image, assign a 'duration' of approximately ${smartDuration.toFixed(1)} seconds.
+  1. **Sequence Design**  
+     - Analyze the images and choose an expressive visual sequence (chronological or narrative-driven).  
+     - Include **every image** in the output.  
+     - Assign an appropriate transition style to each (fade, zoom, pan, map-travel, etc).  
+     - For each image, assign a 'duration' of approximately ${smartDuration.toFixed(1)} seconds.
 
-2. **Travel Awareness**  
-   - If travel is evident (based on geolocations or capture dates), add at least one \`map-travel\` transition to illustrate motion.
+  2. **Travel Awareness**  
+     - If travel is evident (based on geolocations or capture dates), add at least one `map-travel` transition to illustrate motion.
 
-3. **Captioning (Optional)**  
-   - Add poetic or emotional captions where it enhances the storytelling.
+  3. **Captioning (Optional)**  
+     - Add poetic or emotional captions where it enhances the storytelling.
 
-4. **Mood and Style**  
-   - Choose a single mood (e.g., nostalgic, adventurous, tranquil) and a matching visual theme (e.g., Dreamy Voyage, Whimsical Escape).
+  4. **Mood and Style**  
+     - Choose a single mood (e.g., nostalgic, adventurous, tranquil) and a matching visual theme (e.g., Dreamy Voyage, Whimsical Escape).
 
-5. **Ghibli-style Reimagination**  
-   - Select up to **2 images** (or zero) that would benefit most from a stylized transformation into Studio Ghibli art.  
-   - Optionally, decide if **an extra Ghibli-style interpreted frame** can be created and added to the reel to deepen the emotional arc.
-   
-   To evaluate and reimagine a Ghibli-style frame:
-   - **7a. Analyze the Image**: Assess composition, palette, subjects.
-   - **7b. Match Ghibli Traits**: Look for cues that align with Studio Ghibli’s aesthetic:  
-     - Soft, vibrant colors  
-     - Nature-rich settings  
-     - Expressive characters with emotive eyes  
-     - Dreamlike lighting and layered depth
-   - **7c. Visualize the Transformation**: Imagine a Ghibli reinterpretation—how it would appear if hand-drawn in Ghibli style.
-   - **7d. Add to Reel**: If it adds magic or emotional weight, insert the stylized image as a separate frame.
+  5. **Ghibli-style Reimagination**  
+     - Select up to **2 images** (or zero) that would benefit most from a stylized transformation into Studio Ghibli art.  
+     - Optionally, decide if **an extra Ghibli-style interpreted frame** can be created and added to the reel to deepen the emotional arc.
 
-Respond ONLY with a **valid JSON object** in this format:
-{
-  "theme": "e.g. Dreamy Voyage",
-  "mood": "e.g. Nostalgic",
-  "musicStyle": "instrumental | ambient | ghibli-piano | cinematic",
-  "visualFlow": [
-    {
-      "imageUrl": "...",
-      "caption": "Optional",
-      "date": "",
-      "location": "",
-      "tags": ["..."],
-      "duration": ${smartDuration.toFixed(1)},
-      "effect": "fade | zoom | pan | ghibli | map-travel | none"
-    },
-    ...
-  ]
-}
+     To evaluate and reimagine a Ghibli-style frame:
+     - **7a. Analyze the Image**: Assess composition, palette, subjects.
+     - **7b. Match Ghibli Traits**: Look for cues that align with Studio Ghibli’s aesthetic:  
+       - Soft, vibrant colors  
+       - Nature-rich settings  
+       - Expressive characters with emotive eyes  
+       - Dreamlike lighting and layered depth
+     - **7c. Visualize the Transformation**: Imagine a Ghibli reinterpretation—how it would appear if hand-drawn in Ghibli style.
+     - **7d. Add to Reel**: If it adds magic or emotional weight, insert the stylized image as a separate frame.
 
-Here is the metadata for the photos:
-${JSON.stringify(formattedImages, null, 2)}
+  Respond ONLY with a **valid JSON object** in this format:
+  {
+    "theme": "e.g. Dreamy Voyage",
+    "mood": "e.g. Nostalgic",
+    "musicStyle": "instrumental | ambient | ghibli-piano | cinematic",
+    "visualFlow": [
+      {
+        "imageUrl": "...",
+        "caption": "Optional",
+        "date": "",
+        "location": "",
+        "tags": ["..."],
+        "duration": ${smartDuration.toFixed(1)},
+        "effect": "fade | zoom | pan | ghibli | map-travel | none"
+      },
+      ...
+    ]
+  }
 
-Return ONLY the JSON object.`.trim();
+  Here is the metadata for the photos:
+  ${JSON.stringify(formattedImages, null, 2)}
+
+  Return ONLY the JSON object.`.trim();
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o',
@@ -121,6 +128,20 @@ Return ONLY the JSON object.`.trim();
       typeof parsed.musicStyle !== 'string'
     ) {
       throw new Error("Incomplete or invalid AI structure");
+    }
+
+    // Inject generated Ghibli-style images
+    for (const frame of parsed.visualFlow) {
+      if (frame.effect === 'ghibli' && !formattedImages.some(img => img.url === frame.imageUrl)) {
+        const imgPrompt = `Studio Ghibli style illustration of: ${frame.caption || 'a poetic memory'}`;
+        const result = await openai.images.generate({
+          model: "dall-e-3",
+          prompt: imgPrompt,
+          n: 1,
+          size: "1024x1024"
+        });
+        if (result?.data?.[0]?.url) frame.imageUrl = result.data[0].url;
+      }
     }
 
     return parsed;
