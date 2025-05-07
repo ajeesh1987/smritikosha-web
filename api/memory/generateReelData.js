@@ -20,24 +20,16 @@ export async function getReelVisualFlow(memoryId, userId, supabase) {
   if (error) throw new Error('Failed to fetch memory images');
   if (!images || images.length === 0) return [];
 
-  const formattedImages = await Promise.all(
-    images.map(async (img) => {
-      const { data: signed } = await supabase
-        .storage
-        .from('memory-images')
-        .createSignedUrl(img.image_path, 3600);
-  
-      return {
-        id: img.id,
-        url: signed?.signedUrl || '',
-        location: img.location || '',
-        description: img.description || '',
-        tags: img.tags || '',
-        date: img.capture_date || '',
-      };
-    })
-  );
-  
+  const formattedImages = images.map(img => ({
+    id: img.id,
+    url: supabase.storage.from('memory-images').getPublicUrl(img.image_path).data.publicUrl,
+    location: img.location || '',
+    description: img.description || '',
+    tags: img.tags || '',
+    date: img.capture_date || '',
+  }));
+
+  const smartDuration = Math.max(1.8, Math.min(3, 60 / formattedImages.length));
 
   // Let AI decide how to present these images in a cinematic sequence
   const flowPrompt = `
@@ -47,11 +39,11 @@ Each image includes optional metadata: location, tags, description, and capture 
 
 Here’s your task:
 - Analyze the photos and choose an expressive sequence (chronological or narrative-driven).
-- Select up to 2 images (but zero is allowed) that deserve a Ghibli-style fantasy reimagining.
+- Select up to 2 images (but zero is allowed) that deserve a Ghibli-style fantasy reimagining aka studio ghibli.
 - Assign subtle transitions: fade, zoom, pan, map-travel, etc. Choose what fits emotionally.
 - If this memory suggests travel (from locations or capture dates), include a map-travel moment.
 - Add optional poetic/emotional captions.
-- Decide how long each image should be shown (default 3.5s).
+- Include **every image** in the output, and for each set \'duration\' to ~${smartDuration.toFixed(1)} seconds.
 - Pick a mood (e.g. nostalgic, adventurous, tender) and a visual theme.
 
 Respond ONLY with a valid JSON object in this format:
@@ -66,7 +58,7 @@ Respond ONLY with a valid JSON object in this format:
       "date": "",
       "location": "",
       "tags": ["..."],
-      "duration": 4,
+      "duration": ${smartDuration.toFixed(1)},
       "effect": "fade | zoom | ghibli | map-travel | pan | none"
     },
     ...
@@ -84,15 +76,8 @@ Return ONLY the JSON object.`.trim();
     temperature: 0.9,
   });
 
-  let raw = completion.choices[0].message.content.trim();
+  const raw = completion.choices[0].message.content.trim();
 
-  // 🚫 Remove leading/trailing ```json ... ``` if present
-  if (raw.startsWith("```json")) {
-    raw = raw.slice(7, -3).trim();
-  } else if (raw.startsWith("```")) {
-    raw = raw.slice(3, -3).trim();
-  }
-  
   try {
     const parsed = JSON.parse(raw);
   
@@ -111,7 +96,4 @@ Return ONLY the JSON object.`.trim();
     console.error('AI response not valid JSON:', raw);
     throw new Error('AI did not return valid JSON for reel content');
   }
-  
-
-  
 }
