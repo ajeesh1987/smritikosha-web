@@ -20,14 +20,24 @@ export async function getReelVisualFlow(memoryId, userId, supabase) {
   if (error) throw new Error('Failed to fetch memory images');
   if (!images || images.length === 0) return [];
 
-  const formattedImages = images.map(img => ({
-    id: img.id,
-    url: supabase.storage.from('memory-images').getPublicUrl(img.image_path).data.publicUrl,
-    location: img.location || '',
-    description: img.description || '',
-    tags: img.tags || '',
-    date: img.capture_date || '',
-  }));
+  const formattedImages = await Promise.all(
+    images.map(async (img) => {
+      const { data: signed } = await supabase
+        .storage
+        .from('memory-images')
+        .createSignedUrl(img.image_path, 3600);
+  
+      return {
+        id: img.id,
+        url: signed?.signedUrl || '',
+        location: img.location || '',
+        description: img.description || '',
+        tags: img.tags || '',
+        date: img.capture_date || '',
+      };
+    })
+  );
+  
 
   // Let AI decide how to present these images in a cinematic sequence
   const flowPrompt = `
