@@ -20,28 +20,30 @@ export async function getReelVisualFlow(memoryId, userId, supabase) {
   if (error) throw new Error('Failed to fetch memory images');
   if (!images || images.length === 0) return [];
 
-  const imageMap = images.map(async img => {
-    const { data, error: signError } = await supabase
-      .storage
-      .from('memory-images')
-      .createSignedUrl(encodeURI(img.image_path), 3600);
+  const formattedImages = await Promise.all(
+    images.map(async (img) => {
+      const { data, error: signError } = await supabase
+        .storage
+        .from('memory-images')
+        .createSignedUrl(encodeURI(img.image_path), 3600);
+  
+      if (signError || !data?.signedUrl) {
+        console.warn('Skipping image due to signing error:', img.image_path);
+        return null;
+      }
+  
+      return {
+        id: img.id,
+        url: data.signedUrl,
+        location: img.location || '',
+        description: img.description || '',
+        tags: img.tags || '',
+        date: img.capture_date || '',
+      };
+    })
+  ).then(results => results.filter(Boolean));
+  
 
-    if (signError || !data?.signedUrl) {
-      console.warn('Skipping image due to signing error:', img.image_path);
-      return null;
-    }
-
-    return {
-      id: img.id,
-      url: data.signedUrl,
-      location: img.location || '',
-      description: img.description || '',
-      tags: img.tags || '',
-      date: img.capture_date || '',
-    };
-  });
-
-  const formattedImages = (await Promise.all(imageMap)).filter(Boolean);
   const smartDuration = Math.max(1.8, Math.min(3, 60 / formattedImages.length));
 
   const flowPrompt = `
