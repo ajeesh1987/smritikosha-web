@@ -76,15 +76,25 @@ Return ONLY the JSON object.`.trim();
 
   const raw = completion.choices[0].message.content.trim();
 
-  try {
-    const parsed = JSON.parse(raw);
-    if (!parsed.visualFlow || !Array.isArray(parsed.visualFlow)) {
-      throw new Error("Missing or invalid visualFlow array");
-    }
-    return parsed; // ✅ this includes theme, mood, musicStyle, visualFlow
-  } catch (err) {
-    console.error('AI response not valid JSON:', raw);
-    throw new Error('AI did not return valid JSON for reel content');
+try {
+  const parsed = JSON.parse(raw);
+
+  // Validate expected structure
+  if (
+    !parsed.visualFlow || 
+    !Array.isArray(parsed.visualFlow) || 
+    typeof parsed.theme !== 'string' ||
+    typeof parsed.mood !== 'string' ||
+    typeof parsed.musicStyle !== 'string'
+  ) {
+    throw new Error("Incomplete AI response");
   }
+
+  return parsed; // 👈 includes theme, mood, musicStyle, visualFlow
+} catch (err) {
+  console.error('AI response not valid JSON:', raw);
+  throw new Error('AI did not return valid JSON for reel content');
+}
+
   
 }
