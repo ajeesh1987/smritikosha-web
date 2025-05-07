@@ -74,8 +74,15 @@ Return ONLY the JSON object.`.trim();
     temperature: 0.9,
   });
 
-  const raw = completion.choices[0].message.content.trim();
+  let raw = completion.choices[0].message.content.trim();
 
+  // 🚫 Remove leading/trailing ```json ... ``` if present
+  if (raw.startsWith("```json")) {
+    raw = raw.slice(7, -3).trim();
+  } else if (raw.startsWith("```")) {
+    raw = raw.slice(3, -3).trim();
+  }
+  
   try {
     const parsed = JSON.parse(raw);
   
