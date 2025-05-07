@@ -50,42 +50,65 @@ const formattedImages = (await Promise.all(imageMap)).filter(Boolean);
 
   // Let AI decide how to present these images in a cinematic sequence
   const flowPrompt = `
-You're a creative film director crafting a short, emotionally engaging memory reel from ${formattedImages.length} user-submitted photos.
-
-Each image includes optional metadata: location, tags, description, and capture date.
-
-Here’s your task:
-- Analyze the photos and choose an expressive sequence (chronological or narrative-driven).
-- Select up to 2 images (but zero is allowed) that deserve a Ghibli-style fantasy reimagining aka studio ghibli.
-- Assign subtle transitions: fade, zoom, pan, map-travel, etc. Choose what fits emotionally.
-- If this memory suggests travel (from locations or capture dates), include a map-travel moment.
-- Add optional poetic/emotional captions.
-- Include **every image** in the output, and for each set \'duration\' to ~${smartDuration.toFixed(1)} seconds.
-- Pick a mood (e.g. nostalgic, adventurous, tender) and a visual theme.
-
-Respond ONLY with a valid JSON object in this format:
-{
-  "theme": "One or two word visual tone (e.g. Dreamy Voyage)",
-  "mood": "emotional tone (e.g. Nostalgic)",
-  "musicStyle": "instrumental | ambient | ghibli-piano | cinematic",
-  "visualFlow": [
-    {
-      "imageUrl": "...",
-      "caption": "Optional AI-generated text",
-      "date": "",
-      "location": "",
-      "tags": ["..."],
-      "duration": ${smartDuration.toFixed(1)},
-      "effect": "fade | zoom | ghibli | map-travel | pan | none"
-    },
-    ...
-  ]
-}
-
-Here is the metadata for the photos:
-${JSON.stringify(formattedImages, null, 2)}
-
-Return ONLY the JSON object.`.trim();
+  You're a creative film director crafting a short, emotionally engaging memory reel from ${formattedImages.length} user-submitted photos.
+  
+  Each photo includes optional metadata: location, tags, description, and capture date.
+  
+  Your responsibilities:
+  
+  1. **Sequence Design**  
+     - Analyze the images and choose an expressive visual sequence (chronological or narrative-driven).  
+     - Include **every image** in the output.  
+     - Assign an appropriate transition style to each (fade, zoom, pan, map-travel, etc).  
+     - For each image, assign a 'duration' of approximately ${smartDuration.toFixed(1)} seconds.
+  
+  2. **Travel Awareness**  
+     - If travel is evident (based on geolocations or capture dates), add at least one `map-travel` transition to illustrate motion.
+  
+  3. **Captioning (Optional)**  
+     - Add poetic or emotional captions where it enhances the storytelling.
+  
+  4. **Mood and Style**  
+     - Choose a single mood (e.g., nostalgic, adventurous, tranquil) and a matching visual theme (e.g., Dreamy Voyage, Whimsical Escape).
+  
+  5. **Ghibli-style Reimagination**  
+     - Select up to **2 images** (or zero) that would benefit most from a stylized transformation into Studio Ghibli art.  
+     - Optionally, decide if **an extra Ghibli-style interpreted frame** can be created and added to the reel to deepen the emotional arc.
+     
+     To evaluate and reimagine a Ghibli-style frame:
+     - **7a. Analyze the Image**: Assess composition, palette, subjects.
+     - **7b. Match Ghibli Traits**: Look for cues that align with Studio Ghibli’s aesthetic:  
+       - Soft, vibrant colors  
+       - Nature-rich settings  
+       - Expressive characters with emotive eyes  
+       - Dreamlike lighting and layered depth
+     - **7c. Visualize the Transformation**: Imagine a Ghibli reinterpretation—how it would appear if hand-drawn in Ghibli style.
+     - **7d. Add to Reel**: If it adds magic or emotional weight, insert the stylized image as a separate frame.
+  
+  Respond ONLY with a **valid JSON object** in this format:
+  {
+    "theme": "e.g. Dreamy Voyage",
+    "mood": "e.g. Nostalgic",
+    "musicStyle": "instrumental | ambient | ghibli-piano | cinematic",
+    "visualFlow": [
+      {
+        "imageUrl": "...",
+        "caption": "Optional",
+        "date": "",
+        "location": "",
+        "tags": ["..."],
+        "duration": ${smartDuration.toFixed(1)},
+        "effect": "fade | zoom | pan | ghibli | map-travel | none"
+      },
+      ...
+    ]
+  }
+  
+  Here is the metadata for the photos:
+  ${JSON.stringify(formattedImages, null, 2)}
+  
+  Return ONLY the JSON object.`.trim();
+  
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o',
