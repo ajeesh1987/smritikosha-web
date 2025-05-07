@@ -12,9 +12,22 @@ export function playReel({ title, theme, mood, musicStyle, visualFlow }) {
   container.appendChild(overlay);
 
   let index = 0;
+// Create and configure audio player
+const track = Math.random() > 0.5 ? '1' : '2';
+const audio = new Audio(`/music/${track}.mp3`);
+audio.volume = 0;
+audio.loop = false;
+audio.play();
+gsap.to(audio, { volume: 0.4, duration: 3 }); // fade in
 
   const playNext = () => {
     if (index >= visualFlow.length) {
+        gsap.to(audio, {
+            volume: 0,
+            duration: 2,
+            onComplete: () => audio.pause()
+          });
+          
       setTimeout(() => container.classList.add("hidden"), 1000);
       return;
     }
