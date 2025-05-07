@@ -20,14 +20,22 @@ export async function getReelVisualFlow(memoryId, userId, supabase) {
   if (error) throw new Error('Failed to fetch memory images');
   if (!images || images.length === 0) return [];
 
-  const formattedImages = images.map(img => ({
-    id: img.id,
-    url: supabase.storage.from('memory-images').getPublicUrl(img.image_path).data.publicUrl,
-    location: img.location || '',
-    description: img.description || '',
-    tags: img.tags || '',
-    date: img.capture_date || '',
+  const formattedImages = await Promise.all(images.map(async img => {
+    const { data } = await supabase
+      .storage
+      .from('memory-images')
+      .createSignedUrl(img.image_path, 60 * 60); // 1 hour token
+  
+    return {
+      id: img.id,
+      url: data?.signedUrl,
+      location: img.location || '',
+      description: img.description || '',
+      tags: img.tags || '',
+      date: img.capture_date || '',
+    };
   }));
+  
 
   const smartDuration = Math.max(1.8, Math.min(3, 60 / formattedImages.length));
 
