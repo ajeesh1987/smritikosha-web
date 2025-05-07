@@ -81,9 +81,10 @@ Return ONLY the JSON object.`.trim();
     if (!parsed.visualFlow || !Array.isArray(parsed.visualFlow)) {
       throw new Error("Missing or invalid visualFlow array");
     }
-    return parsed;
+    return parsed; // ✅ this includes theme, mood, musicStyle, visualFlow
   } catch (err) {
     console.error('AI response not valid JSON:', raw);
     throw new Error('AI did not return valid JSON for reel content');
   }
+  
 }
