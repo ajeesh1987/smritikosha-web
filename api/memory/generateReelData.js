@@ -78,8 +78,14 @@ Return ONLY the JSON object.`.trim();
 
   const raw = completion.choices[0].message.content.trim();
 
-  try {
-    const parsed = JSON.parse(raw);
+// Try to extract only the JSON block
+const jsonStart = raw.indexOf('{');
+const jsonEnd = raw.lastIndexOf('}');
+const safeJson = raw.slice(jsonStart, jsonEnd + 1);
+
+try {
+  const parsed = JSON.parse(safeJson);
+
   
     if (
       !parsed.visualFlow ||
