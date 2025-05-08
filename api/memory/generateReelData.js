@@ -136,22 +136,25 @@ export async function getReelVisualFlow(memoryId, userId, supabase) {
 
     // Inject generated Ghibli-style images (if needed)
     for (const frame of parsed.visualFlow) {
-      const isFromUserUpload = formattedImages.some(img => img.url === frame.imageUrl);
-      if (frame.effect === 'ghibli' && !isFromUserUpload) {
+      if (frame.effect === 'ghibli') {
         try {
-          const imgPrompt = `Studio Ghibli style illustration of: ${frame.caption || 'a poetic memory'}`;
+          const imgPrompt = `Studio Ghibli style illustration of: ${frame.caption || 'a poetic moment at ' + (frame.location || 'a beautiful place')}`;
           const result = await openai.images.generate({
             model: "dall-e-3",
             prompt: imgPrompt,
             n: 1,
             size: "1024x1024"
           });
-          if (result?.data?.[0]?.url) frame.imageUrl = result.data[0].url;
+    
+          if (result?.data?.[0]?.url) {
+            frame.imageUrl = result.data[0].url;
+          }
         } catch (genErr) {
           console.warn('Failed to generate Ghibli-style image:', frame.caption, genErr.message);
         }
       }
     }
+    
 
     return parsed;
   } catch (err) {
