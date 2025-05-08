@@ -20,29 +20,30 @@ export async function getReelVisualFlow(memoryId, userId, supabase) {
   if (error) throw new Error('Failed to fetch memory images');
   if (!images || images.length === 0) return [];
 
-  const formattedImages = await Promise.all(
-    images.map(async (img) => {
-      const { data, error: signError } = await supabase
-        .storage
-        .from('memory-images')
-        .createSignedUrl(encodeURI(img.image_path), 3600);
-  
-      if (signError || !data?.signedUrl) {
-        console.warn('Skipping image due to signing error:', img.image_path);
-        return null;
-      }
-  
-      return {
-        id: img.id,
-        url: data.signedUrl,
-        location: img.location || '',
-        description: img.description || '',
-        tags: img.tags || '',
-        date: img.capture_date || '',
-      };
-    })
-  ).then(results => results.filter(Boolean));
-  
+  const formattedImages = (
+    await Promise.all(
+      images.map(async (img) => {
+        const { data, error: signError } = await supabase
+          .storage
+          .from('memory-images')
+          .createSignedUrl(encodeURI(img.image_path), 3600);
+
+        if (signError || !data?.signedUrl) {
+          console.warn('Skipping image due to signing error:', img.image_path);
+          return null;
+        }
+
+        return {
+          id: img.id,
+          url: data.signedUrl,
+          location: img.location || '',
+          description: img.description || '',
+          tags: img.tags || '',
+          date: img.capture_date || '',
+        };
+      })
+    )
+  ).filter(Boolean);
 
   const smartDuration = Math.max(1.8, Math.min(3, 60 / formattedImages.length));
 
@@ -60,7 +61,7 @@ export async function getReelVisualFlow(memoryId, userId, supabase) {
      - For each image, assign a 'duration' of approximately ${smartDuration.toFixed(1)} seconds.
 
   2. **Travel Awareness**  
-     - If travel is evident (based on geolocations or capture dates), add at least one `map-travel` transition to illustrate motion.
+     - If travel is evident (based on geolocations or capture dates), add at least one \`map-travel\` transition to illustrate motion.
 
   3. **Captioning (Optional)**  
      - Add poetic or emotional captions where it enhances the storytelling.
@@ -135,15 +136,20 @@ export async function getReelVisualFlow(memoryId, userId, supabase) {
 
     // Inject generated Ghibli-style images (if needed)
     for (const frame of parsed.visualFlow) {
-      if (frame.effect === 'ghibli' && !formattedImages.some(img => img.url === frame.imageUrl)) {
-        const imgPrompt = `Studio Ghibli style illustration of: ${frame.caption || 'a poetic memory'}`;
-        const result = await openai.images.generate({
-          model: "dall-e-3",
-          prompt: imgPrompt,
-          n: 1,
-          size: "1024x1024"
-        });
-        if (result?.data?.[0]?.url) frame.imageUrl = result.data[0].url;
+      const isFromUserUpload = formattedImages.some(img => img.url === frame.imageUrl);
+      if (frame.effect === 'ghibli' && !isFromUserUpload) {
+        try {
+          const imgPrompt = `Studio Ghibli style illustration of: ${frame.caption || 'a poetic memory'}`;
+          const result = await openai.images.generate({
+            model: "dall-e-3",
+            prompt: imgPrompt,
+            n: 1,
+            size: "1024x1024"
+          });
+          if (result?.data?.[0]?.url) frame.imageUrl = result.data[0].url;
+        } catch (genErr) {
+          console.warn('Failed to generate Ghibli-style image:', frame.caption, genErr.message);
+        }
       }
     }
 
