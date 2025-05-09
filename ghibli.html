@@ -1,0 +1,65 @@
+<!-- ghibli.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studio Ghibli Maker - SmritiKosha</title>
+  <link href="/styles/tailwind.css" rel="stylesheet" />
+</head>
+<body class="bg-white text-gray-800 font-sans">
+  <header class="flex justify-between items-center p-4 border-b shadow-sm">
+    <a href="/main.html" class="text-blue-600 font-semibold">&larr; Back</a>
+    <h1 class="text-xl font-bold">Studio Ghibli Maker</h1>
+    <div></div>
+  </header>
+
+  <main class="max-w-4xl mx-auto p-6">
+    <!-- Image Selection -->
+    <section id="image-select" class="mb-8">
+      <h2 class="text-lg font-semibold mb-2">Choose an image</h2>
+      <div class="flex gap-4 items-center">
+        <select id="memory-picker" class="border rounded p-2 w-1/2">
+          <option value="">Select memory...</option>
+        </select>
+        <input type="file" id="upload-input" accept="image/*" class="block" />
+      </div>
+      <div id="thumbnails" class="mt-4 grid grid-cols-3 gap-4"></div>
+    </section>
+
+    <!-- Generation Button -->
+    <section class="mb-8 text-center">
+      <button id="generate-ghibli" class="px-4 py-2 bg-indigo-600 text-white rounded disabled:opacity-50">Create Ghibli Version</button>
+    </section>
+
+    <!-- Output Preview -->
+    <section id="preview" class="hidden">
+      <h2 class="text-lg font-semibold mb-2">Preview</h2>
+      <div class="flex gap-6 items-start justify-center mb-4">
+        <div>
+          <p class="text-sm text-gray-500 mb-1">Original</p>
+          <img id="original-image" class="max-w-xs rounded shadow" />
+        </div>
+        <div>
+          <p class="text-sm text-gray-500 mb-1">Studio Ghibli Style</p>
+          <img id="ghibli-image" class="max-w-xs rounded shadow border border-indigo-300" />
+        </div>
+      </div>
+      <div class="text-center">
+        <button id="retry" class="text-sm text-gray-600 underline mr-4">Try Another Style</button>
+      </div>
+    </section>
+
+    <!-- Save Options -->
+    <section id="save-options" class="hidden mt-8 border-t pt-6">
+      <h2 class="text-lg font-semibold mb-2">Save Your Creation</h2>
+      <div class="flex flex-col gap-4">
+        <button id="save-to-existing" class="bg-green-600 text-white px-4 py-2 rounded">Add to Existing Memory</button>
+        <button id="save-new-memory" class="border px-4 py-2 rounded">Save as New Memory</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="/scripts/ghibli.js" type="module"></script>
+</body>
+</html>
