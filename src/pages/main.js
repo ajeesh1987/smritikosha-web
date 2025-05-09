@@ -36,7 +36,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     ghibliBtn.className = 'bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition';
     ghibliBtn.style.marginLeft = '0.5rem';
     ghibliBtn.onclick = () => {
-      window.location.href = '/ghibli.html';
+      window.location.href = '/pages/ghibli.html';
     };
   
     addMemoryBtn.parentNode.insertBefore(ghibliBtn, addMemoryBtn.nextSibling);
