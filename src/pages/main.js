@@ -28,7 +28,20 @@ window.addEventListener('DOMContentLoaded', async () => {
   } catch (err) {
     console.warn('⚠️ Profile setup skipped due to error:', err.message);
   }
+  const addMemoryBtn = document.getElementById('add-memory-btn');
 
+  if (addMemoryBtn) {
+    const ghibliBtn = document.createElement('button');
+    ghibliBtn.textContent = '✨ Ghibli-fy an Image';
+    ghibliBtn.className = 'bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition';
+    ghibliBtn.style.marginLeft = '0.5rem';
+    ghibliBtn.onclick = () => {
+      window.location.href = '/ghibli.html';
+    };
+  
+    addMemoryBtn.parentNode.insertBefore(ghibliBtn, addMemoryBtn.nextSibling);
+  }
+  
   await loadMemories();
 });
 const summarizeBtn = document.getElementById('summarize-memory');
@@ -100,7 +113,6 @@ const profileMenu = document.getElementById('profile-menu');
 const logoutBtn = document.getElementById('logout-btn');
 const locationInput = document.getElementById('image-location');
 const suggestionsBox = document.getElementById('location-suggestions');
-const addMemoryBtn = document.getElementById('add-memory-btn');
 
 let modalImages = [], modalLocations = [], modalDescriptions = [], modalIds = [];
 let currentImageIndex = 0;
