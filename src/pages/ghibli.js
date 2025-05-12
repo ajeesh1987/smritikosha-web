@@ -1,6 +1,5 @@
 import { supabase } from '../../lib/supabaseClient.js';
 
-
 const state = {
   user: null,
   memories: [],
@@ -113,7 +112,8 @@ function bindUI() {
         alert('Error: ' + text);
         return;
       }
-            if (result.imageUrl) {
+
+      if (result.imageUrl) {
         originalImg.src = state.selectedImageUrl;
         ghibliImg.src = result.imageUrl;
         ghibliImg.setAttribute('download', '');

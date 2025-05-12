@@ -1,65 +1,40 @@
-// public/js/ghibli.js
-import { createClient } from '@supabase/supabase-js';
+// /api/memory/generateGhibli.js
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
+import { OpenAI } from 'openai';
 
-const state = {
-  user: null,
-  selectedFile: null,
-  previewUrl: null,
-  ghibliUrl: null,
-};
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-async function init() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    window.location.href = '/login.html';
-    return;
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
   }
-  state.user = user;
-  bindUI();
-}
 
-function bindUI() {
-  const uploadInput = document.getElementById('ghibli-upload');
-  const generateBtn = document.getElementById('generate-ghibli');
-  const previewImg = document.getElementById('preview-img');
+  try {
+    const { imageUrl } = req.body;
 
-  uploadInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      state.selectedFile = file;
-      state.previewUrl = URL.createObjectURL(file);
-      previewImg.src = state.previewUrl;
+    if (!imageUrl || typeof imageUrl !== 'string') {
+      return res.status(400).json({ error: 'Missing or invalid imageUrl' });
     }
-  });
 
-  generateBtn.addEventListener('click', async () => {
-    if (!state.selectedFile) return alert('Please upload an image.');
-    generateBtn.disabled = true;
-    generateBtn.textContent = 'Generating...';
+    const prompt = `Studio Ghibli style illustration of a poetic moment captured in this image: ${imageUrl}. 
+Warm tones, soft lighting, nature-inspired, detailed background — inspired by Hayao Miyazaki's visual storytelling.`;
 
-    const formData = new FormData();
-    formData.append('image', state.selectedFile);
+    const response = await openai.images.generate({
+      model: 'dall-e-3',
+      prompt,
+      n: 1,
+      size: '1024x1024',
+    });
 
-    try {
-      const res = await fetch('/api/ghibli-generate', {
-        method: 'POST',
-        body: formData,
-      });
-      const { imageUrl } = await res.json();
-      document.getElementById('ghibli-img').src = imageUrl;
-      state.ghibliUrl = imageUrl;
-    } catch (err) {
-      alert('Failed to generate Ghibli image.');
-    } finally {
-      generateBtn.disabled = false;
-      generateBtn.textContent = 'Generate';
+    const resultUrl = response?.data?.[0]?.url;
+
+    if (!resultUrl) {
+      return res.status(500).json({ error: 'Image generation failed' });
     }
-  });
-}
 
-document.addEventListener('DOMContentLoaded', init);
+    return res.status(200).json({ imageUrl: resultUrl });
+  } catch (err) {
+    console.error('Error in generateGhibli:', err.message);
+    return res.status(500).json({ error: 'Server error', detail: err.message });
+  }
+}
