@@ -1,5 +1,4 @@
 // /api/memory/generateGhibli.js
-
 import { OpenAI } from 'openai';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -29,12 +28,24 @@ Warm tones, soft lighting, nature-inspired, detailed background — inspired by 
     const resultUrl = response?.data?.[0]?.url;
 
     if (!resultUrl) {
-      return res.status(500).json({ error: 'Image generation failed' });
+      console.error('OpenAI returned no image URL:', response);
+      return res.status(502).json({ error: 'OpenAI image generation returned no result' });
     }
 
     return res.status(200).json({ imageUrl: resultUrl });
+
   } catch (err) {
-    console.error('Error in generateGhibli:', err.message);
-    return res.status(500).json({ error: 'Server error', detail: err.message });
+    const isOpenAIError = err?.status || err?.response;
+    const details = isOpenAIError
+      ? (err.response?.data || err.message || 'OpenAI error')
+      : (err.message || 'Unknown server error');
+
+    console.error('🔥 Ghibli API Error:', details);
+
+    return res.status(500).json({
+      error: 'Server error',
+      source: isOpenAIError ? 'openai' : 'internal',
+      detail: details,
+    });
   }
 }
