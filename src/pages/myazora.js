@@ -129,7 +129,7 @@ function bindUI() {
       alert('Something went wrong.');
     } finally {
       generateBtn.disabled = false;
-      generateBtn.textContent = '✨ Create Ghibli Version';
+      generateBtn.textContent = '✨ Create Myazora Version';
     }
   });
 
