@@ -25,7 +25,7 @@ export default defineConfig({
         signup: path.resolve(__dirname, 'signup.html'),
         main: path.resolve(__dirname, 'main.html'),
         map: path.resolve(__dirname, 'map.html'),
-        ghibli: path.resolve(__dirname, 'public/pages/ghibli.html')
+        ghibli: path.resolve(__dirname, 'ghibli.html')
       }
     }
   }
