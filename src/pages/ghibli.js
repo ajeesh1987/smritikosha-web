@@ -97,14 +97,23 @@ function bindUI() {
     generateBtn.textContent = 'Generating...';
 
     try {
-      const res = await fetch('/api/ghibli-generate', {
+      const res = await fetch('/api/memory/generateGhibli', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageUrl: state.selectedImageUrl }),
       });
 
-      const result = await res.json();
-      if (result.imageUrl) {
+      const text = await res.text();
+      console.log('RAW API RESPONSE:', text);
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (err) {
+        console.error('Failed to parse JSON:', err);
+        alert('Error: ' + text);
+        return;
+      }
+            if (result.imageUrl) {
         originalImg.src = state.selectedImageUrl;
         ghibliImg.src = result.imageUrl;
         ghibliImg.setAttribute('download', '');
