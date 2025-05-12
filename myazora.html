@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Studio Ghibli Maker - SmritiKosha</title>
+  <title>Myazora Mode - SmritiKosha</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/png" href="/assets/favicon.png" />
 </head>
 <body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 min-h-screen p-6">
 
-  <!-- Logo (dynamically loaded like in main.html) -->
+  <!-- Logo -->
   <div id="global-logo" class="mb-6"></div>
   <script>
     fetch('/components/logo.html')
@@ -25,7 +25,7 @@
     <!-- Header -->
     <div class="flex justify-between items-center">
       <a href="/pages/main.html" class="text-indigo-700 font-medium hover:underline text-sm">&larr; Back to Memories</a>
-      <h1 class="text-2xl font-bold text-indigo-700">Studio Ghibli Maker</h1>
+      <h1 class="text-2xl font-bold text-indigo-700">Myazora Mode</h1>
       <div></div>
     </div>
 
@@ -42,8 +42,8 @@
 
     <!-- Generation Button -->
     <section class="text-center">
-      <button id="generate-ghibli" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded disabled:opacity-50 transition">
-        ✨ Create Ghibli Version
+      <button id="generate-myazora" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded disabled:opacity-50 transition">
+        ✨ Myazorify an Image
       </button>
     </section>
 
@@ -56,8 +56,8 @@
           <img id="original-image" class="max-w-xs rounded shadow border" />
         </div>
         <div>
-          <p class="text-sm text-gray-500 mb-1">Studio Ghibli Style</p>
-          <img id="ghibli-image" class="max-w-xs rounded shadow border border-indigo-300" />
+          <p class="text-sm text-gray-500 mb-1">Myazora Style</p>
+          <img id="myazora-image" class="max-w-xs rounded shadow border border-indigo-300" />
         </div>
       </div>
       <div class="text-center">

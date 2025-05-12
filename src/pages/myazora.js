@@ -29,7 +29,6 @@ async function loadMemories() {
     return;
   }
 
-  state.memories = data;
   const picker = document.getElementById('memory-picker');
   picker.innerHTML = '<option value="">Select memory...</option>';
   data.forEach(mem => {
@@ -84,9 +83,9 @@ async function loadMemoryImages(memoryId) {
 }
 
 function bindUI() {
-  const generateBtn = document.getElementById('generate-ghibli');
+  const generateBtn = document.getElementById('generate-myazora');
   const originalImg = document.getElementById('original-image');
-  const ghibliImg = document.getElementById('ghibli-image');
+  const myazoraImg = document.getElementById('myazora-image');
   const previewSection = document.getElementById('preview');
   const retryBtn = document.getElementById('retry');
 
@@ -115,10 +114,10 @@ function bindUI() {
 
       if (result.imageUrl) {
         originalImg.src = state.selectedImageUrl;
-        ghibliImg.src = result.imageUrl;
-        ghibliImg.setAttribute('download', '');
-        ghibliImg.setAttribute('alt', 'Ghibli style image');
-        ghibliImg.setAttribute('title', 'Right-click to save');
+        myazoraImg.src = result.imageUrl;
+        myazoraImg.setAttribute('download', '');
+        myazoraImg.setAttribute('alt', 'Myazora style image');
+        myazoraImg.setAttribute('title', 'Right-click to save');
 
         previewSection.classList.remove('hidden');
       } else {
@@ -129,7 +128,7 @@ function bindUI() {
       alert('Something went wrong.');
     } finally {
       generateBtn.disabled = false;
-      generateBtn.textContent = '✨ Create Myazora Version';
+      generateBtn.textContent = '✨ Myazorify an Image';
     }
   });
 
