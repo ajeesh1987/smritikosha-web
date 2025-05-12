@@ -1,9 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../../lib/supabaseClient.js';
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
 
 const state = {
   user: null,
