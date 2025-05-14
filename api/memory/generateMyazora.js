@@ -17,7 +17,7 @@ export default async function handler(req, res) {
 
     // Return mock Ghibli-style image
     return res.status(200).json({
-      imageUrl: 'https://cdn.pixabay.com/photo/2020/08/04/11/44/castle-5463516_1280.jpg'
+      imageUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?fit=crop&w=640&q=80'
     });
 
   } catch (err) {
