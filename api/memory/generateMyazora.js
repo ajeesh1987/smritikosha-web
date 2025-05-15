@@ -31,22 +31,25 @@ export default async function handler(req, res) {
       body: JSON.stringify(payload)
     });
 
-    const rpResult = await rpResponse.json();
+    const text = await rpResponse.text();
 
-    if (!rpResponse.ok || !rpResult.output?.image) {
-      console.error('RunPod generation failed:', rpResult);
-      return res.status(502).json({
-        error: 'Image generation failed',
-        detail: rpResult
-      });
+    let rpResult;
+    try {
+      rpResult = JSON.parse(text);
+    } catch (parseErr) {
+      console.error('❌ Failed to parse RunPod response:', text);
+      return res.status(502).json({ error: 'Invalid JSON from RunPod', raw: text });
     }
 
-    return res.status(200).json({ imageUrl: rpResult.output.image }); // base64 string with data:image/png;base64,...
+    if (!rpResponse.ok || !rpResult.output?.image) {
+      console.error('⚠️ RunPod generation failed:', rpResult);
+      return res.status(502).json({ error: 'Image generation failed', detail: rpResult });
+    }
+
+    return res.status(200).json({ imageUrl: rpResult.output.image });
+
   } catch (err) {
     console.error('🔥 Myazora API Error:', err);
-    return res.status(500).json({
-      error: 'Server error',
-      detail: err.message || err
-    });
+    return res.status(500).json({ error: 'Server error', detail: err.message || err });
   }
 }
