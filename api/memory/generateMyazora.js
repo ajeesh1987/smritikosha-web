@@ -1,9 +1,6 @@
-// /api/memory/generateMyazora.js
 import fetch from 'node-fetch';
 
-const ENDPOINT_ID = process.env.RUNPOD_ENDPOINT_ID;
-const RUNPOD_API_KEY = process.env.RUNPOD_API_KEY;
-const RUNPOD_ENDPOINT = `https://api.runpod.ai/v2/${ENDPOINT_ID}/run`;
+const RUNPOD_ENDPOINT = process.env.MYAZORA_POD_URL;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -17,17 +14,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing or invalid imageUrl' });
     }
 
-    const payload = {
-      input: { image_url: imageUrl } // 👈 ensure this matches your handler.py
-    };
-
     const rpResponse = await fetch(RUNPOD_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${RUNPOD_API_KEY}`
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ image_url: imageUrl })
     });
 
     const text = await rpResponse.text();
