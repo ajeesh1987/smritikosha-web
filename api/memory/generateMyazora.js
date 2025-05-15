@@ -11,8 +11,11 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing or invalid imageUrl' });
     }
 
-    const podUrl = process.env.MYAZORA_POD_URL; // Example: https://nrib28luns7es8-3000.proxy.runpod.net/
-
+    const podUrl = process.env.MYAZORA_POD_URL;
+    if (!podUrl) {
+      console.error('❌ MYAZORA_POD_URL is not defined in environment variables.');
+    }
+    
     const response = await fetch(podUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
