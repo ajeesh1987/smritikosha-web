@@ -1,3 +1,5 @@
+// /api/memory/generateMyazora.js
+
 import fetch from 'node-fetch';
 
 const ENDPOINT_ID = process.env.RUNPOD_ENDPOINT_ID;
@@ -16,6 +18,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing or invalid imageUrl' });
     }
 
+    // Payload format expected by your RunPod FastAPI server
     const payload = {
       input: {
         image_url: imageUrl
@@ -33,23 +36,25 @@ export default async function handler(req, res) {
 
     const text = await rpResponse.text();
 
-    let rpResult;
+    let parsed;
     try {
-      rpResult = JSON.parse(text);
-    } catch (parseErr) {
-      console.error('❌ Failed to parse RunPod response:', text);
-      return res.status(502).json({ error: 'Invalid JSON from RunPod', raw: text });
+      parsed = JSON.parse(text);
+    } catch (err) {
+      console.error('❌ Failed to parse RunPod response:', err);
+      return res.status(502).json({ error: 'Invalid response from image generation API', detail: text });
     }
 
-    if (!rpResponse.ok || !rpResult.output?.image) {
-      console.error('⚠️ RunPod generation failed:', rpResult);
-      return res.status(502).json({ error: 'Image generation failed', detail: rpResult });
+    if (!rpResponse.ok || !parsed.image) {
+      return res.status(502).json({ error: 'Image generation failed', detail: parsed });
     }
 
-    return res.status(200).json({ imageUrl: rpResult.output.image });
+    return res.status(200).json({ imageUrl: parsed.image });
 
   } catch (err) {
     console.error('🔥 Myazora API Error:', err);
-    return res.status(500).json({ error: 'Server error', detail: err.message || err });
+    return res.status(500).json({
+      error: 'Server error',
+      detail: err.message || err
+    });
   }
 }
