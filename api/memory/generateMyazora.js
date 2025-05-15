@@ -1,3 +1,4 @@
+// /api/memory/generateMyazora.js
 import fetch from 'node-fetch';
 
 const RUNPOD_ENDPOINT = process.env.MYAZORA_POD_URL;
@@ -16,9 +17,7 @@ export default async function handler(req, res) {
 
     const rpResponse = await fetch(RUNPOD_ENDPOINT, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ image_url: imageUrl })
     });
 
@@ -44,7 +43,7 @@ export default async function handler(req, res) {
       });
     }
 
-    const base64 = json.image;
+    const base64 = json.imageBase64;
     if (!base64) {
       console.error('❌ No image returned in JSON:', json);
       return res.status(502).json({ error: 'RunPod returned no image', detail: json });
