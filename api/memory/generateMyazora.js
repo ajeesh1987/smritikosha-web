@@ -1,5 +1,4 @@
 // /api/memory/generateMyazora.js
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
@@ -12,16 +11,25 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing or invalid imageUrl' });
     }
 
-    // Simulate processing delay (2 seconds)
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    const podUrl = process.env.MYAZORA_POD_URL; // Example: https://nrib28luns7es8-3000.proxy.runpod.net/
 
-    // Return mock Ghibli-style image
-    return res.status(200).json({
-      imageUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?fit=crop&w=640&q=80'
+    const response = await fetch(podUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image_url: imageUrl })
     });
 
+    const result = await response.json();
+
+    if (!response.ok || !result.image) {
+      console.error('Myazora pod error:', result);
+      return res.status(502).json({ error: 'Image generation failed', detail: result });
+    }
+
+    return res.status(200).json({ imageUrl: result.image });
+
   } catch (err) {
-    console.error('🔥 Myazora Mock Error:', err);
+    console.error('🔥 Myazora API Error:', err);
     return res.status(500).json({ error: 'Server error', detail: err.message || err });
   }
 }
