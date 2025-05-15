@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     }
 
     const payload = {
-      input: { image_url: imageUrl } // 👈 match the param your handler.py expects
+      input: { image_url: imageUrl } // 👈 ensure this matches your handler.py
     };
 
     const rpResponse = await fetch(RUNPOD_ENDPOINT, {
@@ -30,19 +30,31 @@ export default async function handler(req, res) {
       body: JSON.stringify(payload)
     });
 
-    const text = await rpResponse.text(); // Read raw text first
-    let json;
+    const text = await rpResponse.text();
 
+    if (!text || text.trim() === '') {
+      console.error(`❌ Empty response from RunPod. Status: ${rpResponse.status}`);
+      return res.status(502).json({
+        error: 'Empty response from RunPod',
+        status: rpResponse.status
+      });
+    }
+
+    let json;
     try {
       json = JSON.parse(text);
     } catch (e) {
       console.error('❌ Failed to parse RunPod response:', e);
       console.error('Raw response text:', text);
-      return res.status(502).json({ error: 'RunPod response not JSON', detail: text });
+      return res.status(502).json({
+        error: 'RunPod response was not valid JSON',
+        detail: text
+      });
     }
 
     const base64 = json.image;
     if (!base64) {
+      console.error('❌ No image returned in JSON:', json);
       return res.status(502).json({ error: 'RunPod returned no image', detail: json });
     }
 
