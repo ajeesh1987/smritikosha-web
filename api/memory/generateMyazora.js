@@ -1,4 +1,9 @@
-// /api/memory/generateMyazora.js
+import fetch from 'node-fetch';
+
+const ENDPOINT_ID = process.env.RUNPOD_ENDPOINT_ID;
+const RUNPOD_API_KEY = process.env.RUNPOD_API_KEY;
+const RUNPOD_ENDPOINT = `https://api.runpod.ai/v2/${ENDPOINT_ID}/run`;
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
@@ -11,28 +16,37 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing or invalid imageUrl' });
     }
 
-    const podUrl = process.env.MYAZORA_POD_URL;
-    if (!podUrl) {
-      console.error('❌ MYAZORA_POD_URL is not defined in environment variables.');
-    }
-    
-    const response = await fetch(podUrl, {
+    const payload = {
+      input: {
+        image_url: imageUrl
+      }
+    };
+
+    const rpResponse = await fetch(RUNPOD_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image_url: imageUrl })
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${RUNPOD_API_KEY}`
+      },
+      body: JSON.stringify(payload)
     });
 
-    const result = await response.json();
+    const rpResult = await rpResponse.json();
 
-    if (!response.ok || !result.image) {
-      console.error('Myazora pod error:', result);
-      return res.status(502).json({ error: 'Image generation failed', detail: result });
+    if (!rpResponse.ok || !rpResult.output?.image) {
+      console.error('RunPod generation failed:', rpResult);
+      return res.status(502).json({
+        error: 'Image generation failed',
+        detail: rpResult
+      });
     }
 
-    return res.status(200).json({ imageUrl: result.image });
-
+    return res.status(200).json({ imageUrl: rpResult.output.image }); // base64 string with data:image/png;base64,...
   } catch (err) {
     console.error('🔥 Myazora API Error:', err);
-    return res.status(500).json({ error: 'Server error', detail: err.message || err });
+    return res.status(500).json({
+      error: 'Server error',
+      detail: err.message || err
+    });
   }
 }
