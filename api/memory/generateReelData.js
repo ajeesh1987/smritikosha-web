@@ -1,4 +1,4 @@
-// /api/memory/generateReelData.js
+//generating reel data
 import { OpenAI } from 'openai';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -11,14 +11,22 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
  */
 export async function getReelVisualFlow(memoryId, userId, supabase) {
   const { data: images, error } = await supabase
-    .from('memory_images')
-    .select('id, image_path, location, description, tags, capture_date')
-    .eq('memory_id', memoryId)
-    .eq('user_id', userId)
-    .order('capture_date', { ascending: true });
+  .from('memory_images')
+  .select('id, image_path, location, description, tags, capture_date')
+  .eq('memory_id', memoryId)
+  .eq('user_id', userId)
+  .order('capture_date', { ascending: true });
 
-  if (error) throw new Error('Failed to fetch memory images');
-  if (!images || images.length === 0) return [];
+if (error) {
+  console.error('Supabase fetch error:', error);
+  throw new Error('Failed to fetch memory images');
+}
+
+if (!Array.isArray(images) || images.length === 0) {
+  console.warn('No images found for this memory.');
+  return [];
+}
+
 
   const formattedImages = (
     await Promise.all(
@@ -103,7 +111,14 @@ export async function getReelVisualFlow(memoryId, userId, supabase) {
   }
 
   Here is the metadata for the photos:
-  ${JSON.stringify(formattedImages, null, 2)}
+${formattedImages.map((img, i) => `
+[Image ${i + 1}]
+- URL: ${img.url}
+- Location: ${img.location}
+- Description: ${img.description}
+- Tags: ${img.tags}
+- Date: ${img.date}
+`).join('\n')}
 
   Return ONLY the JSON object.`.trim();
 
@@ -113,12 +128,14 @@ export async function getReelVisualFlow(memoryId, userId, supabase) {
     temperature: 0.9,
   });
 
-  const raw = completion.choices[0].message.content.trim();
-  console.log('AI RAW RESPONSE:', raw);
+  const raw = completion.choices?.[0]?.message?.content?.trim() || '';
 
-  const jsonStart = raw.indexOf('{');
-  const jsonEnd = raw.lastIndexOf('}');
-  const safeJson = raw.slice(jsonStart, jsonEnd + 1);
+const match = raw.match(/\{[\s\S]*\}/);
+if (!match) {
+  throw new Error("No JSON object found in AI response");
+}
+const safeJson = match[0];
+
 
   try {
     const parsed = JSON.parse(safeJson);
@@ -135,25 +152,44 @@ export async function getReelVisualFlow(memoryId, userId, supabase) {
     }
 
     // Inject generated Ghibli-style images (if needed)
-    for (const frame of parsed.visualFlow) {
-      if (frame.effect === 'ghibli') {
-        try {
-          const imgPrompt = `Studio Ghibli style illustration of: ${frame.caption || 'a poetic moment at ' + (frame.location || 'a beautiful place')}`;
-          const result = await openai.images.generate({
-            model: "dall-e-3",
-            prompt: imgPrompt,
-            n: 1,
-            size: "1024x1024"
-          });
-    
-          if (result?.data?.[0]?.url) {
-            frame.imageUrl = result.data[0].url;
-          }
-        } catch (genErr) {
-          console.warn('Failed to generate Ghibli-style image:', frame.caption, genErr.message);
-        }
+   await Promise.all(parsed.visualFlow.map(async (frame) => {
+  if (frame.effect === 'ghibli') {
+    try {
+      const imgPrompt = `Studio Ghibli style illustration of: ${frame.caption || 'a poetic moment at ' + (frame.location || 'a beautiful place')}`;
+      const result = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: imgPrompt,
+        n: 1,
+        size: "1024x1024"
+      });
+
+      if (result?.data?.[0]?.url) {
+        frame.imageUrl = result.data[0].url;
       }
+    } catch (genErr) {
+      console.warn('Failed to generate Ghibli-style image:', frame.caption, genErr.message);
     }
+  }
+}));
+// --- Optional: Handle extra Ghibli-style interpreted frame ---
+if (parsed.ghibliEnhancedFrame?.prompt) {
+  try {
+    const result = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: parsed.ghibliEnhancedFrame.prompt,
+      n: 1,
+      size: "1024x1024"
+    });
+
+    if (result?.data?.[0]?.url) {
+      parsed.ghibliEnhancedFrame.imageUrl = result.data[0].url;
+    }
+  } catch (genErr) {
+    console.warn("Failed to generate extra Ghibli frame:", genErr.message);
+  }
+}
+
+  
     
 
     return parsed;
