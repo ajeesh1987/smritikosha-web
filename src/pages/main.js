@@ -5,6 +5,8 @@ import { showToast } from '../ui/toast.js';
 import { startSessionTimeout } from './sessionTimeout.js';
 import { setupImageModalEvents } from '../ui/imageModal.js';
 
+console.log('URL:', import.meta.env.VITE_SUPABASE_URL);
+console.log('Key:', import.meta.env.VITE_SUPABASE_ANON_KEY?.slice(0, 10));
 
 startSessionTimeout(60); // configurable
 setupImageModalEvents();
