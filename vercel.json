@@ -1,10 +1,13 @@
 {
-    "routes": [
-      {
-        "src": "/api/(.*)",
-        "dest": "/api/$1",
-        "methods": ["GET", "POST", "OPTIONS"]
-      }
-    ]
-  }
-  
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1",
+      "methods": ["GET", "POST", "OPTIONS"]
+    },
+    {
+      "src": "/pages/(.*)",
+      "dest": "/pages/$1"
+    }
+  ]
+}

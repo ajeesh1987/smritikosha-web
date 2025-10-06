@@ -31,7 +31,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     console.warn('⚠️ Profile setup skipped due to error:', err.message);
   }
   const addMemoryBtn = document.getElementById('add-memory-btn');
-
+if (!addMemoryBtn) {
+  console.warn('❌ add-memory-btn not found in DOM!');
+} else {
+  console.log('✅ Found add-memory-btn');
+  addMemoryBtn.addEventListener('click', openMemoryModal);
+}
   if (addMemoryBtn) {
     const ghibliBtn = document.createElement('button');
     ghibliBtn.textContent = '✨ Myazora-fy an Image';
