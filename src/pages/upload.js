@@ -94,7 +94,7 @@ imageForm.addEventListener('submit', async e => {
     const alreadyExists = existingImages.some(img => img.image_path.split('/').pop().includes(safeName));
     if (alreadyExists) throw new Error('Same image already exists in this memory.');
 
-    const filePath = `${user.id}/${Date.now()}_${safeName}`;
+const filePath = `${user.id}/${currentMemoryId}/${Date.now()}_${safeName}`;
     const { error: uploadErr } = await supabase.storage.from('memory-images').upload(filePath, file);
     if (uploadErr) throw new Error('Upload failed');
 
