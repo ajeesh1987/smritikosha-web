@@ -12,9 +12,9 @@ startSessionTimeout(60); // configurable
 setupImageModalEvents();
 
 window.addEventListener('DOMContentLoaded', async () => {
-  //  only run loadMemories if we're on main.html
-  if (!window.location.pathname.includes('main.html')) return;
-
+const path = window.location.pathname;
+  // Run only on main.html or /main or similar paths
+  if (!/main(\.html)?$/.test(path)) return;
   const { data: sessionData } = await supabase.auth.getSession();
   const user = sessionData?.session?.user;
 
