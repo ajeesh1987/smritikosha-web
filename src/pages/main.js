@@ -5,9 +5,6 @@ import { showToast } from '../ui/toast.js';
 import { startSessionTimeout } from './sessionTimeout.js';
 import { setupImageModalEvents } from '../ui/imageModal.js';
 
-console.log('URL:', import.meta.env.VITE_SUPABASE_URL);
-console.log('Key:', import.meta.env.VITE_SUPABASE_ANON_KEY?.slice(0, 10));
-
 startSessionTimeout(60);
 setupImageModalEvents();
 
@@ -47,18 +44,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // ✅ Fix: Cancel button listener must be attached *after* DOM load
   const cancelBtn = document.getElementById('cancel-memory-btn');
-  console.log('Cancel button found:', !!cancelBtn);
 
   if (cancelBtn) {
     cancelBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      console.log('Cancel clicked');
       window.closeMemoryModal();
     });
   }
 });
-
 const summarizeBtn = document.getElementById('summarize-memory');
 if (summarizeBtn) {
   summarizeBtn.classList.remove('hidden'); // Ensure the button is visible
@@ -367,22 +361,34 @@ document.addEventListener('click', e => {
 
 // Memory modal helpers
 window.openMemoryModal = () => {
+  if (!memoryModal) return;
+  memoryModal.style.display = 'flex';  // ensures it’s visible again
   memoryModal.classList.remove('hidden');
-  memoryModal.classList.add('flex'); // ensure modal uses Flex layout
-  document.getElementById('memory-title').focus(); // optional: auto-focus input
+  memoryModal.classList.add('flex');
+  document.getElementById('memory-title')?.focus();
 };
+
 
 addMemoryBtn?.addEventListener('click', openMemoryModal);
 window.closeMemoryModal = () => {
+  if (!memoryModal) return;
+
+  // Force-hide regardless of Tailwind state
   memoryModal.classList.add('hidden');
   memoryModal.classList.remove('flex');
-  if (memoryForm) memoryForm.reset();
+  memoryModal.style.display = 'none';
+
+  // Optional cleanup
+  memoryForm?.reset();
   const submitBtn = document.getElementById('memory-submit-btn');
   if (submitBtn) {
     submitBtn.textContent = 'Create';
     submitBtn.disabled = false;
   }
+
+  console.log('Modal classes after close:', memoryModal.classList.value);
 };
+
 
 window.openImageUpload = openImageUpload;
 
