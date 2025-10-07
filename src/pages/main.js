@@ -118,6 +118,9 @@ const profileMenu = document.getElementById('profile-menu');
 const logoutBtn = document.getElementById('logout-btn');
 const locationInput = document.getElementById('image-location');
 const suggestionsBox = document.getElementById('location-suggestions');
+document.getElementById('cancel-memory-btn')?.addEventListener('click', () => {
+  window.closeMemoryModal();
+});
 
 let modalImages = [], modalLocations = [], modalDescriptions = [], modalIds = [];
 let currentImageIndex = 0;
