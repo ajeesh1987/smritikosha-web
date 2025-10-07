@@ -22,6 +22,6 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
-  // ✅ Login succeeded
+  //  Login succeeded
   window.location.href = './main.html';
 });

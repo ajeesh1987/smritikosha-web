@@ -1,4 +1,3 @@
-
 import { supabase } from '../../lib/supabaseClient.js';
 
 export async function checkAndCreateUserProfile(user) {
@@ -10,7 +9,7 @@ export async function checkAndCreateUserProfile(user) {
       .maybeSingle();
 
     if (profileError) {
-      console.error('❌ Profile lookup failed:', profileError.message);
+      console.error(' Profile lookup failed:', profileError.message);
       return;
     }
 
@@ -35,12 +34,12 @@ export async function checkAndCreateUserProfile(user) {
         }], { returning: 'minimal' });
 
       if (insertError) {
-        console.error('❌ Profile insert failed:', insertError.message);
+        console.error(' Profile insert failed:', insertError.message);
       } else {
-        console.log('✅ Profile created');
+        console.log(' Profile created');
       }
     } else {
-      console.log('✅ Profile exists');
+      console.log(' Profile exists');
     }
   } catch (err) {
     console.error('Unhandled error in profile logic:', err);

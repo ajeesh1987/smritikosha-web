@@ -88,7 +88,7 @@ export function playReel({ title, theme, mood, musicStyle, visualFlow }) {
     titleCard.className = "absolute inset-0 flex flex-col items-center justify-center bg-white text-gray-800";
     titleCard.innerHTML = `
       <h1 class="text-4xl md:text-6xl font-bold mb-3">${title}</h1>
-      <p class="text-lg text-gray-500 italic">${theme} — ${mood}</p>
+      <p class="text-lg text-gray-500 italic">${theme}  ${mood}</p>
     `;
     overlay.appendChild(titleCard);
 

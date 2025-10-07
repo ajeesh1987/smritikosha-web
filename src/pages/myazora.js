@@ -128,7 +128,7 @@ function bindUI() {
       alert('Something went wrong.');
     } finally {
       generateBtn.disabled = false;
-      generateBtn.textContent = '✨ Myazorify an Image';
+      generateBtn.textContent = ' Myazorify an Image';
     }
   });
 

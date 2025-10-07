@@ -8,7 +8,7 @@ export function startSessionTimeout(minutes = 30) {
   const resetTimer = () => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(async () => {
-      console.log('🔒 Session timeout reached. Logging out...');
+      console.log(' Session timeout reached. Logging out...');
       await supabase.auth.signOut();
       window.location.href = '/pages/login.html';
     }, ms);

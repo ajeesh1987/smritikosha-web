@@ -48,7 +48,7 @@ form.addEventListener('submit', async (e) => {
   } else {
     errorMsg.innerHTML = `
     <div class="bg-green-50 border border-green-300 text-green-800 px-4 py-3 rounded-md text-sm">
-      ✅ Signup successful! Please check your email to verify your account.
+       Signup successful! Please check your email to verify your account.
     </div>
   `;
       form.reset();

@@ -1,5 +1,4 @@
-// ✅ map.js
-console.log('🧪 map.js loaded');
+console.log(' map.js loaded');
 
 import { setupFilterOptions, setupFilterEventHandlers, getFilterValues } from './map-filter.js';
 import { supabase } from '../../lib/supabaseClient.js';
@@ -13,7 +12,7 @@ let currentMarkers = [];
 setupFilterOptions();
 setupFilterEventHandlers(() => {
   const filters = getFilterValues();
-  console.log('📦 Filters:', filters);
+  console.log(' Filters:', filters);
   applyFilters(filters);
 });
 
@@ -67,9 +66,9 @@ map.addControl(new maplibregl.NavigationControl());
 map.addControl(new maplibregl.AttributionControl({
   compact: true,
   customAttribution: [
-    '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>',
-    '© <a href="https://maplibre.org/" target="_blank" rel="noopener">MapLibre</a>',
-    'India GeoJSON © <a href="https://data.gov.in/" target="_blank" rel="noopener">Government of India</a>'
+    ' <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>',
+    ' <a href="https://maplibre.org/" target="_blank" rel="noopener">MapLibre</a>',
+    'India GeoJSON  <a href="https://data.gov.in/" target="_blank" rel="noopener">Government of India</a>'
   ]
 }));
 
@@ -135,7 +134,7 @@ async function loadMarkers(filters = {}) {
   const { data: images, error } = await query;
 
   if (error) {
-    console.error('❌ Failed to load images:', error);
+    console.error(' Failed to load images:', error);
     return;
   }
 

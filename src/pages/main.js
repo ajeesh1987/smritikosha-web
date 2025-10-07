@@ -1,9 +1,9 @@
 import { supabase } from '../../lib/supabaseClient.js';
-import { checkAndCreateUserProfile } from './profile.js'; // ✅ correct path
+import { checkAndCreateUserProfile } from './profile.js';
 import { openImageUpload, closeImageUpload } from './upload.js';
 import { showToast } from '../ui/toast.js';
 import { startSessionTimeout } from './sessionTimeout.js';
-import { setupImageModalEvents } from '../ui/imageModal.js';
+import { setupImageModalEvents, openImageModalFromMap } from '../ui/imageModal.js';
 
 console.log('URL:', import.meta.env.VITE_SUPABASE_URL);
 console.log('Key:', import.meta.env.VITE_SUPABASE_ANON_KEY?.slice(0, 10));
@@ -12,7 +12,7 @@ startSessionTimeout(60); // configurable
 setupImageModalEvents();
 
 window.addEventListener('DOMContentLoaded', async () => {
-  // ✅ only run loadMemories if we're on main.html
+  //  only run loadMemories if we're on main.html
   if (!window.location.pathname.includes('main.html')) return;
 
   const { data: sessionData } = await supabase.auth.getSession();
@@ -27,7 +27,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   try {
     await checkAndCreateUserProfile(user);
   } catch (err) {
-    console.warn('⚠️ Profile setup skipped due to error:', err.message);
+    console.warn(' Profile setup skipped due to error:', err.message);
   }
 
   const addMemoryBtn = document.getElementById('add-memory-btn');
@@ -35,7 +35,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     addMemoryBtn.addEventListener('click', openMemoryModal);
 
     const ghibliBtn = document.createElement('button');
-    ghibliBtn.textContent = '✨ Myazora-fy an Image';
+    ghibliBtn.textContent = ' Myazora-fy an Image';
     ghibliBtn.className = 'bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition';
     ghibliBtn.style.marginLeft = '0.5rem';
     ghibliBtn.onclick = () => {
@@ -45,7 +45,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     addMemoryBtn.parentNode.insertBefore(ghibliBtn, addMemoryBtn.nextSibling);
   }
 
-  // ✅ Cancel button logic placed independently
+  //  Cancel button logic placed independently
 const cancelBtn = document.getElementById('cancel-memory-btn');
 if (cancelBtn) {
   cancelBtn.addEventListener('click', async () => {
@@ -155,7 +155,7 @@ function toggleLoading(show) {
   }
 }
 
-// 👇 Enhancing displaySummary function in main.js to show buttons
+//  Enhancing displaySummary function in main.js to show buttons
 function displaySummary(memoryId, summary) {
   let container = document.querySelector(`[data-summary-id="${memoryId}"]`);
 
@@ -202,14 +202,14 @@ function displaySummary(memoryId, summary) {
 
       const result = await res.json();
       if (res.ok) {
-        statusText.textContent = '✅ Saved';
+        statusText.textContent = ' Saved';
       } else {
         console.error(result.error);
-        statusText.textContent = '❌ Failed to save';
+        statusText.textContent = ' Failed to save';
       }
     } catch (err) {
       console.error(err);
-      statusText.textContent = '❌ Error';
+      statusText.textContent = ' Error';
     } finally {
       saveBtn.disabled = false;
       setTimeout(() => (statusText.textContent = ''), 2000);
@@ -238,11 +238,11 @@ function displaySummary(memoryId, summary) {
         displaySummary(memoryId, result.summary);
       } else {
         console.error(result.error);
-        statusText.textContent = '❌ Retry failed';
+        statusText.textContent = ' Retry failed';
       }
     } catch (err) {
       console.error(err);
-      statusText.textContent = '❌ Error';
+      statusText.textContent = ' Error';
     } finally {
       retryBtn.disabled = false;
       setTimeout(() => (statusText.textContent = ''), 2000);
@@ -563,7 +563,7 @@ async function loadMemories() {
   const { data: images } = await supabase
   .from('memory_images')
   .select('*')
-  .eq('user_id', user.id); // ✅ filter to only user's images
+  .eq('user_id', user.id); //  filter to only user's images
   memoryList.innerHTML = '';
 
   for (const memory of memories) {
@@ -595,7 +595,7 @@ async function loadMemories() {
           <button onclick="deleteMemory('${memory.id}')"><i class="fas fa-trash text-red-500 hover:text-red-700"></i></button>
         </div>
       </div>
-      ${memory.location ? `<p class='text-sm text-gray-600 mb-1'>📍 ${memory.location}</p>` : ''}
+      ${memory.location ? `<p class='text-sm text-gray-600 mb-1'> ${memory.location}</p>` : ''}
       ${memory.tags ? `<div class="mb-2">${memory.tags.split(/[, ]+/).map(tag => `<span class='inline-block bg-indigo-100 text-indigo-700 text-xs font-medium mr-1 px-2 py-1 rounded-full'>${tag}</span>`).join('')}</div>` : ''}
       <div class="flex flex-wrap gap-2">
         ${valid.map((url, i) => `
@@ -650,7 +650,7 @@ onclick="openImageModal(event, '${url}', ${i})"
   
           const reelData = await res.json();
   
-          // ⬇️ Launch the reel using updated playReel
+          //  Launch the reel using updated playReel
           import('../ui/reelPlayer.js').then(({ playReel }) => {
             playReel({
               title: reelData.title,
@@ -734,7 +734,6 @@ document.getElementById('image-modal').addEventListener('click', e => {
 memoryModal.addEventListener('click', e => {
   if (e.target === memoryModal) closeMemoryModal();
 });
-import { openImageModalFromMap } from '../ui/imageModal.js';
 
 window.openImageModal = function (event, clickedUrl, indexGuess = 0) {
   if (!event.target.matches('img')) return;
@@ -781,15 +780,17 @@ window.closeImageModal = function () {
 };
 
 modalPrev?.addEventListener('click', () => {
-  if (modalImages.length > 1) {     // ✅ use modalImages
+  if (modalImages.length > 1) {     //  use modalImages
     currentImageIndex = (currentImageIndex - 1 + modalImages.length) % modalImages.length;
-    updateImageModalContent();       // ✅ use updateImageModalContent
+    updateImageModalContent();       //  use updateImageModalContent
   }
 });
 
 modalNext?.addEventListener('click', () => {
-  if (modalImages.length > 1) {     // ✅ use modalImages
+  if (modalImages.length > 1) {     //  use modalImages
     currentImageIndex = (currentImageIndex + 1) % modalImages.length;
-    updateImageModalContent();       // ✅ use updateImageModalContent
+    updateImageModalContent();       //  use updateImageModalContent
   }
 });
+});
+

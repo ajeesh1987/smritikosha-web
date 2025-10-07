@@ -1,4 +1,3 @@
-// ✅ map-filter.js
 import { supabase } from '../../lib/supabaseClient.js';
 
 export async function setupFilterOptions() {
@@ -54,7 +53,7 @@ export async function setupFilterOptions() {
     countrySelect.appendChild(option);
   }
 
-  // ⛔ Prevent future dates on both fields
+  //  Prevent future dates on both fields
   const today = new Date().toISOString().split('T')[0];
   const dateFrom = document.getElementById('date-from');
   const dateTo = document.getElementById('date-to');
@@ -62,7 +61,7 @@ export async function setupFilterOptions() {
   dateFrom.max = today;
   dateTo.max = today;
 
-  // 🔄 Ensure dateTo is >= dateFrom
+  //  Ensure dateTo is >= dateFrom
   dateFrom.addEventListener('change', () => {
     const fromVal = dateFrom.value;
     dateTo.min = fromVal;

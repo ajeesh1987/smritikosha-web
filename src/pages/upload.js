@@ -25,7 +25,7 @@ let currentMemoryId = null;
 export function openImageUpload(memoryId) {
     currentMemoryId = memoryId;
     imageForm.reset();
-    fileInput.value = ''; // <-- 🔥 this is important!
+    fileInput.value = ''; // <--  this is important!
     document.getElementById('image-upload-modal').classList.remove('hidden');
     submitBtn.textContent = 'Upload';
     submitBtn.disabled = false;
@@ -46,7 +46,7 @@ fileInput.addEventListener('input', async () => {
     let fallbackUsed = false;
   
     try {
-      console.log('📂 Input triggered, file:', file.name);
+      console.log(' Input triggered, file:', file.name);
       const parsed = await exifr.parse(file, ['DateTimeOriginal']);
   
       if (parsed?.DateTimeOriginal) {

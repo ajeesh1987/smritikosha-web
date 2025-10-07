@@ -8,7 +8,7 @@ export async function openImageModalFromMap(imageId) {
   const modalInfoPanel = document.getElementById('modal-info-panel');
 
   if (!imageModal || !modalImg || !modalLocation || !modalDescription || !modalInfoPanel) {
-    console.warn('❌ Modal elements not found in DOM');
+    console.warn(' Modal elements not found in DOM');
     return;
   }
 
@@ -22,7 +22,7 @@ export async function openImageModalFromMap(imageId) {
     .single();
 
   if (error || !image) {
-    console.error('❌ Could not fetch image:', error);
+    console.error(' Could not fetch image:', error);
     return;
   }
 
@@ -32,7 +32,7 @@ export async function openImageModalFromMap(imageId) {
     .createSignedUrl(image.image_path, 3600);
 
   if (!urlData?.signedUrl) {
-    console.error('⚠️ No signed URL found');
+    console.error(' No signed URL found');
     return;
   }
 
