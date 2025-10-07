@@ -15,7 +15,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   // ✅ only run loadMemories if we're on main.html
   if (!window.location.pathname.includes('main.html')) return;
 
-
   const { data: sessionData } = await supabase.auth.getSession();
   const user = sessionData?.session?.user;
 
@@ -30,12 +29,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   } catch (err) {
     console.warn('⚠️ Profile setup skipped due to error:', err.message);
   }
+
   const addMemoryBtn = document.getElementById('add-memory-btn');
-if (!addMemoryBtn) {
-} else {
-  addMemoryBtn.addEventListener('click', openMemoryModal);
-}
   if (addMemoryBtn) {
+    addMemoryBtn.addEventListener('click', openMemoryModal);
+
     const ghibliBtn = document.createElement('button');
     ghibliBtn.textContent = '✨ Myazora-fy an Image';
     ghibliBtn.className = 'bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition';
@@ -43,12 +41,19 @@ if (!addMemoryBtn) {
     ghibliBtn.onclick = () => {
       window.location.href = '/myazora.html';
     };
-  
+
     addMemoryBtn.parentNode.insertBefore(ghibliBtn, addMemoryBtn.nextSibling);
   }
-  
+
+  // ✅ Cancel button logic placed independently
+  const cancelBtn = document.getElementById('cancel-memory-btn');
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', () => window.closeMemoryModal());
+  }
+
   await loadMemories();
 });
+
 const summarizeBtn = document.getElementById('summarize-memory');
 if (summarizeBtn) {
   summarizeBtn.classList.remove('hidden'); // Ensure the button is visible
@@ -118,9 +123,7 @@ const profileMenu = document.getElementById('profile-menu');
 const logoutBtn = document.getElementById('logout-btn');
 const locationInput = document.getElementById('image-location');
 const suggestionsBox = document.getElementById('location-suggestions');
-document.getElementById('cancel-memory-btn')?.addEventListener('click', () => {
-  window.closeMemoryModal();
-});
+
 
 let modalImages = [], modalLocations = [], modalDescriptions = [], modalIds = [];
 let currentImageIndex = 0;
