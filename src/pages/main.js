@@ -46,13 +46,25 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   // ✅ Cancel button logic placed independently
-  const cancelBtn = document.getElementById('cancel-memory-btn');
-  if (cancelBtn) {
-    cancelBtn.addEventListener('click', () => window.closeMemoryModal());
-  }
+const cancelBtn = document.getElementById('cancel-memory-btn');
+if (cancelBtn) {
+  cancelBtn.addEventListener('click', async () => {
+    // Hide the modal
+    const memoryModal = document.getElementById('memory-modal');
+    memoryModal.classList.add('hidden');
 
-  await loadMemories();
-});
+    // Reset the form
+    const memoryForm = document.getElementById('memory-form');
+    memoryForm.reset();
+    document.getElementById('memory-submit-btn').textContent = 'Create';
+    document.getElementById('memory-submit-btn').disabled = false;
+
+    // Reload memories
+    await loadMemories();
+  });
+}
+
+
 
 const summarizeBtn = document.getElementById('summarize-memory');
 if (summarizeBtn) {
