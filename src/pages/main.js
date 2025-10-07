@@ -120,6 +120,8 @@ const logoutBtn = document.getElementById('logout-btn');
 const locationInput = document.getElementById('image-location');
 const suggestionsBox = document.getElementById('location-suggestions');
 const cancelBtn = document.getElementById('cancel-memory-btn');
+console.log('Cancel button:', cancelBtn);
+
 cancelBtn?.addEventListener('click', (e) => {
   e.preventDefault();
   e.stopPropagation();
