@@ -469,18 +469,47 @@ window.showConfirm = function (message) {
 
 
 window.deleteMemory = async id => {
-  const confirmed = await showConfirm('Delete memory and its images?');
-if (!confirmed) return;
+  const confirmed = await showConfirm('Delete memory and all its images?');
+  if (!confirmed) return;
 
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    showToast('User not found', false);
+    return;
+  }
+
+  // 1️⃣ Delete from Supabase storage (entire memory folder)
+  try {
+    const folderPath = `${user.id}/${id}`;
+    const { error: storageErr } = await supabase.storage
+      .from('memory-images')
+      .remove([folderPath]); // Supabase automatically deletes folder contents
+
+    if (storageErr) {
+      console.warn('⚠️ Storage folder delete failed:', storageErr.message);
+    } else {
+      console.log(`🗑️ Deleted folder: ${folderPath}`);
+    }
+  } catch (err) {
+    console.warn('⚠️ Storage delete skipped or failed:', err.message);
+  }
+
+  // 2️⃣ Delete database rows (images + memory)
   await supabase.from('memory_images').delete().eq('memory_id', id);
   const { error } = await supabase.from('memories').delete().eq('id', id);
+
+  // 3️⃣ UI cleanup
   if (!error) {
     const card = document.querySelector(`[data-memory-id="${id}"]`);
     card?.classList.add('opacity-0');
     setTimeout(() => card?.remove(), 300);
     showToast('Memory deleted');
+  } else {
+    console.error('Delete failed:', error.message);
+    showToast('Failed to delete memory', false);
   }
 };
+
 
 window.deleteImage = async (id, btn) => {
   const confirmed = await window.showConfirm('Delete this image?');
