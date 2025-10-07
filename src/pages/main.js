@@ -1,5 +1,5 @@
 import { supabase } from '../../lib/supabaseClient.js';
-import { checkAndCreateUserProfile } from './profile.js'; // ✅ correct path
+import { checkAndCreateUserProfile } from './profile.js';
 import { openImageUpload, closeImageUpload } from './upload.js';
 import { showToast } from '../ui/toast.js';
 import { startSessionTimeout } from './sessionTimeout.js';
@@ -8,14 +8,12 @@ import { setupImageModalEvents } from '../ui/imageModal.js';
 console.log('URL:', import.meta.env.VITE_SUPABASE_URL);
 console.log('Key:', import.meta.env.VITE_SUPABASE_ANON_KEY?.slice(0, 10));
 
-startSessionTimeout(60); // configurable
+startSessionTimeout(60);
 setupImageModalEvents();
 
 window.addEventListener('DOMContentLoaded', async () => {
   const path = window.location.pathname;
-  // Run only on main.html or /main or similar paths
   if (!/main(\.html)?$/.test(path)) return;
-
 
   const { data: sessionData } = await supabase.auth.getSession();
   const user = sessionData?.session?.user;
@@ -31,25 +29,36 @@ window.addEventListener('DOMContentLoaded', async () => {
   } catch (err) {
     console.warn('⚠️ Profile setup skipped due to error:', err.message);
   }
+
   const addMemoryBtn = document.getElementById('add-memory-btn');
-if (!addMemoryBtn) {
-} else {
-  addMemoryBtn.addEventListener('click', openMemoryModal);
-}
   if (addMemoryBtn) {
+    addMemoryBtn.addEventListener('click', openMemoryModal);
+
     const ghibliBtn = document.createElement('button');
     ghibliBtn.textContent = '✨ Myazora-fy an Image';
     ghibliBtn.className = 'bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition';
     ghibliBtn.style.marginLeft = '0.5rem';
-    ghibliBtn.onclick = () => {
-      window.location.href = '/myazora.html';
-    };
-  
+    ghibliBtn.onclick = () => window.location.href = '/myazora.html';
     addMemoryBtn.parentNode.insertBefore(ghibliBtn, addMemoryBtn.nextSibling);
   }
-  
+
+  // ✅ Load memories before binding cancel, so DOM is guaranteed ready
   await loadMemories();
+
+  // ✅ Fix: Cancel button listener must be attached *after* DOM load
+  const cancelBtn = document.getElementById('cancel-memory-btn');
+  console.log('Cancel button found:', !!cancelBtn);
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Cancel clicked');
+      window.closeMemoryModal();
+    });
+  }
 });
+
 const summarizeBtn = document.getElementById('summarize-memory');
 if (summarizeBtn) {
   summarizeBtn.classList.remove('hidden'); // Ensure the button is visible
@@ -119,14 +128,7 @@ const profileMenu = document.getElementById('profile-menu');
 const logoutBtn = document.getElementById('logout-btn');
 const locationInput = document.getElementById('image-location');
 const suggestionsBox = document.getElementById('location-suggestions');
-const cancelBtn = document.getElementById('cancel-memory-btn');
-console.log('Cancel button:', cancelBtn);
 
-cancelBtn?.addEventListener('click', (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  window.closeMemoryModal();
-});
 
 
 let modalImages = [], modalLocations = [], modalDescriptions = [], modalIds = [];
