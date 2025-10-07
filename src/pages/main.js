@@ -5,8 +5,46 @@ import { showToast } from '../ui/toast.js';
 import { startSessionTimeout } from './sessionTimeout.js';
 import { setupImageModalEvents } from '../ui/imageModal.js';
 
+const memoryList = document.getElementById('memory-list');
+const memoryModal = document.getElementById('memory-modal');
+const imageModal = document.getElementById('image-modal');
+const memoryForm = document.getElementById('memory-form');
+const toast = document.getElementById('toast');
+const modalImg = document.getElementById('modal-image');
+const modalLocation = document.getElementById('modal-location');
+const modalDescription = document.getElementById('modal-description');
+const modalInfoPanel = document.getElementById('modal-info-panel');
+const modalPrev = document.getElementById('modal-prev');
+const modalNext = document.getElementById('modal-next');
+const profileBtn = document.getElementById('profile-btn');
+const profileMenu = document.getElementById('profile-menu');
+const logoutBtn = document.getElementById('logout-btn');
+const locationInput = document.getElementById('image-location');
+const suggestionsBox = document.getElementById('location-suggestions');
 startSessionTimeout(60);
 setupImageModalEvents();
+// Memory modal helpers
+window.openMemoryModal = () => {
+  if (!memoryModal) return;
+  memoryModal.style.display = 'flex';
+  memoryModal.classList.remove('hidden');
+  memoryModal.classList.add('flex');
+  document.getElementById('memory-title')?.focus();
+};
+
+window.closeMemoryModal = () => {
+  if (!memoryModal) return;
+  memoryModal.classList.add('hidden');
+  memoryModal.classList.remove('flex');
+  memoryModal.style.display = 'none';
+  memoryForm?.reset();
+  const submitBtn = document.getElementById('memory-submit-btn');
+  if (submitBtn) {
+    submitBtn.textContent = 'Create';
+    submitBtn.disabled = false;
+  }
+  console.log('Modal classes after close:', memoryModal.classList.value);
+};
 
 window.addEventListener('DOMContentLoaded', async () => {
   const path = window.location.pathname;
@@ -52,7 +90,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       window.closeMemoryModal();
     });
   }
-});
 const summarizeBtn = document.getElementById('summarize-memory');
 if (summarizeBtn) {
   summarizeBtn.classList.remove('hidden'); // Ensure the button is visible
@@ -98,6 +135,8 @@ summarizeBtn?.addEventListener("click", async () => {
   }
 });
 
+});
+
 // Function to get the memory ID (ensure this is correct in your modal context)
 function getMemoryId() {
   return document.getElementById("memory-id").value; // Ensure the memory ID is set properly in your modal
@@ -106,22 +145,6 @@ function getMemoryId() {
 
 
 
-const memoryList = document.getElementById('memory-list');
-const memoryModal = document.getElementById('memory-modal');
-const imageModal = document.getElementById('image-modal');
-const memoryForm = document.getElementById('memory-form');
-const toast = document.getElementById('toast');
-const modalImg = document.getElementById('modal-image');
-const modalLocation = document.getElementById('modal-location');
-const modalDescription = document.getElementById('modal-description');
-const modalInfoPanel = document.getElementById('modal-info-panel');
-const modalPrev = document.getElementById('modal-prev');
-const modalNext = document.getElementById('modal-next');
-const profileBtn = document.getElementById('profile-btn');
-const profileMenu = document.getElementById('profile-menu');
-const logoutBtn = document.getElementById('logout-btn');
-const locationInput = document.getElementById('image-location');
-const suggestionsBox = document.getElementById('location-suggestions');
 
 
 
@@ -359,35 +382,10 @@ document.addEventListener('click', e => {
   if (!locationInput.contains(e.target) && !suggestionsBox.contains(e.target)) suggestionsBox.classList.add('hidden');
 });
 
-// Memory modal helpers
-window.openMemoryModal = () => {
-  if (!memoryModal) return;
-  memoryModal.style.display = 'flex';  // ensures it’s visible again
-  memoryModal.classList.remove('hidden');
-  memoryModal.classList.add('flex');
-  document.getElementById('memory-title')?.focus();
-};
 
 
-addMemoryBtn?.addEventListener('click', openMemoryModal);
-window.closeMemoryModal = () => {
-  if (!memoryModal) return;
 
-  // Force-hide regardless of Tailwind state
-  memoryModal.classList.add('hidden');
-  memoryModal.classList.remove('flex');
-  memoryModal.style.display = 'none';
 
-  // Optional cleanup
-  memoryForm?.reset();
-  const submitBtn = document.getElementById('memory-submit-btn');
-  if (submitBtn) {
-    submitBtn.textContent = 'Create';
-    submitBtn.disabled = false;
-  }
-
-  console.log('Modal classes after close:', memoryModal.classList.value);
-};
 
 
 window.openImageUpload = openImageUpload;
@@ -432,6 +430,7 @@ memoryForm?.addEventListener('submit', async e => {
 window.closeMemoryModal();
     await loadMemories(); // Refresh the memory list
   }
+
 
   submitBtn.textContent = 'Create';
   submitBtn.disabled = false;
@@ -738,9 +737,12 @@ document.getElementById('image-modal').addEventListener('click', e => {
 
 });
 
-memoryModal.addEventListener('click', e => {
-  if (e.target === memoryModal) window.closeMemoryModal();
-});
+if (memoryModal) {
+  memoryModal.addEventListener('click', e => {
+    if (e.target === memoryModal) window.closeMemoryModal();
+  });
+}
+
 
 import { openImageModalFromMap } from '../ui/imageModal.js';
 
