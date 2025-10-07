@@ -51,6 +51,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const { data: sessionData } = await supabase.auth.getSession();
   const user = sessionData?.session?.user;
+window.currentUser = user;
 
   if (!user) {
     console.warn('No active session. Redirecting...');
@@ -108,24 +109,23 @@ summarizeBtn?.addEventListener("click", async () => {
 
   try {
     // Send a POST request to summarize the memory
-    const response = await fetch("/api/memory/summarize", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${getAuthToken()}`, // Authorization token from localStorage/session
-      },
-      body: JSON.stringify({ memoryId }),
-    });
+    const { data: { session } } = await supabase.auth.getSession();
+const token = session?.access_token;
 
-    if (!response.ok) {
-      throw new Error("Failed to summarize the memory");
-    }
+const response = await fetch("/api/memory/summarize", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`,
+  },
+  body: JSON.stringify({ memoryId }),
+});
 
-    const result = await response.json();
-    const { summary } = result;
+if (!response.ok) throw new Error("Failed to summarize");
+const { summary } = await response.json();
+displaySummary(memoryId, summary);
 
-    // Display the summary to the user
-    displaySummary(summary);
+
   } catch (error) {
     console.error("Error summarizing memory:", error);
   } finally {
@@ -303,6 +303,8 @@ window.addEventListener('keydown', e => {
 if (e.key === 'Escape') window.closeImageModal();
   }
 });
+let touchStartX = 0;
+
 modalImg.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
 modalImg.addEventListener('touchend', e => {
   const deltaX = e.changedTouches[0].screenX - touchStartX;
@@ -413,13 +415,15 @@ memoryForm?.addEventListener('submit', async e => {
     return;
   }
 
-  const { error } = await supabase.from('memories').insert([{
-    title,
-    location,
-    tags,
-    description,  
-    user_id: user.id
-  }]);
+ const { error } = await supabase.from('memories').insert([{
+  title,
+  location,
+  tags,
+  description,
+  user_id: user.id,
+  created_at: new Date().toISOString() // add this
+}]);
+
 
   if (error) {
     console.error('Error adding memory:', error.message);
@@ -489,20 +493,22 @@ window.deleteMemory = async (id) => {
   }
 
   // 2) Delete those files from storage in batches
-  try {
-    const paths = (imgs || []).map(i => i.image_path);
+ // 2) Delete those files from storage (batch in chunks)
+try {
+  const paths = (imgs || []).map(i => i.image_path);
+  if (paths.length > 0) {
     for (let i = 0; i < paths.length; i += 100) {
       const batch = paths.slice(i, i + 100);
-      if (batch.length > 0) {
-        const { error: delErr } = await supabase.storage
-          .from('memory-images')
-          .remove(batch);
-        if (delErr) console.warn('Storage delete batch failed:', delErr.message);
-      }
+      const { error: delErr } = await supabase.storage
+        .from('memory-images')
+        .remove(batch);
+      if (delErr) console.warn('Storage delete batch failed:', delErr.message);
     }
-  } catch (err) {
-    console.warn('Storage deletion error:', err.message);
   }
+} catch (err) {
+  console.warn('Storage deletion error:', err.message);
+}
+
 
   // 3) (Optional fallback) If there were no DB rows (legacy case),
   // try listing the folder and deleting whatever is inside.

@@ -38,6 +38,18 @@ export function closeImageUpload() {
   submitBtn.textContent = 'Upload';
   submitBtn.disabled = false;
 }
+const uploadModal = document.getElementById('image-upload-modal');
+
+if (uploadModal) {
+  uploadModal.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeImageUpload();
+  });
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeImageUpload();
+});
+
 fileInput.addEventListener('input', async () => {
     const file = fileInput.files[0];
     const captureDateInput = document.getElementById('image-capture-date');
@@ -82,8 +94,13 @@ imageForm.addEventListener('submit', async e => {
     if (!file) throw new Error('Select an image');
 
     const safeName = file.name.replace(/\s+/g, '-').replace(/[^\w.-]/g, '');
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
+  let user = window.currentUser;
+if (!user) {
+  const { data } = await supabase.auth.getUser();
+  user = data?.user;
+}
+if (!user) throw new Error('User not authenticated');
+
 
     const { data: existingImages } = await supabase
       .from('memory_images')
@@ -91,7 +108,7 @@ imageForm.addEventListener('submit', async e => {
       .eq('memory_id', currentMemoryId)
       .eq('user_id', user.id);
 
-    const alreadyExists = existingImages.some(img => img.image_path.split('/').pop().includes(safeName));
+const alreadyExists = (existingImages || []).some(img => img.image_path.endsWith(safeName));
     if (alreadyExists) throw new Error('Same image already exists in this memory.');
 
 const filePath = `${user.id}/${currentMemoryId}/${Date.now()}_${safeName}`;
