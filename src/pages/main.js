@@ -119,9 +119,13 @@ const profileMenu = document.getElementById('profile-menu');
 const logoutBtn = document.getElementById('logout-btn');
 const locationInput = document.getElementById('image-location');
 const suggestionsBox = document.getElementById('location-suggestions');
-document.getElementById('cancel-memory-btn')?.addEventListener('click', () => {
+const cancelBtn = document.getElementById('cancel-memory-btn');
+cancelBtn?.addEventListener('click', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
   window.closeMemoryModal();
 });
+
 
 let modalImages = [], modalLocations = [], modalDescriptions = [], modalIds = [];
 let currentImageIndex = 0;
@@ -276,7 +280,7 @@ window.addEventListener('keydown', e => {
   if (!imageModal.classList.contains('hidden')) {
     if (e.key === 'ArrowLeft') modalPrev.click();
     if (e.key === 'ArrowRight') modalNext.click();
-    if (e.key === 'Escape') closeImageModal();
+if (e.key === 'Escape') window.closeImageModal();
   }
 });
 modalImg.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
@@ -367,10 +371,15 @@ window.openMemoryModal = () => {
 addMemoryBtn?.addEventListener('click', openMemoryModal);
 window.closeMemoryModal = () => {
   memoryModal.classList.add('hidden');
-  memoryForm.reset();
-  document.getElementById('memory-submit-btn').textContent = 'Create';
-  document.getElementById('memory-submit-btn').disabled = false;
+  memoryModal.classList.remove('flex');
+  if (memoryForm) memoryForm.reset();
+  const submitBtn = document.getElementById('memory-submit-btn');
+  if (submitBtn) {
+    submitBtn.textContent = 'Create';
+    submitBtn.disabled = false;
+  }
 };
+
 window.openImageUpload = openImageUpload;
 
 window.closeImageUpload = closeImageUpload;
@@ -410,7 +419,7 @@ memoryForm?.addEventListener('submit', async e => {
     showToast('Failed to add memory', false);
   } else {
     showToast('Memory added');
-    closeMemoryModal();
+window.closeMemoryModal();
     await loadMemories(); // Refresh the memory list
   }
 
@@ -706,20 +715,23 @@ window.loadMemories = loadMemories;
 // Close memory modal on Escape key or outside click
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !memoryModal.classList.contains('hidden')) {
-    closeMemoryModal();
-  }
-});
-// Close image modal if clicked outside the image
-document.getElementById('image-modal').addEventListener('click', e => {
-  // Only close if the backdrop itself is clicked (not the image or info panel)
-  if (e.target === e.currentTarget) {
-    closeImageModal();
+    window.closeMemoryModal();
   }
 });
 
-memoryModal.addEventListener('click', e => {
-  if (e.target === memoryModal) closeMemoryModal();
+// Close image modal if clicked outside the image
+document.getElementById('image-modal').addEventListener('click', e => {
+  // Only close if the backdrop itself is clicked (not the image or info panel)
+ if (e.target === e.currentTarget) {
+  window.closeImageModal();
+}
+
 });
+
+memoryModal.addEventListener('click', e => {
+  if (e.target === memoryModal) window.closeMemoryModal();
+});
+
 import { openImageModalFromMap } from '../ui/imageModal.js';
 
 window.openImageModal = function (event, clickedUrl, indexGuess = 0) {
