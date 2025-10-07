@@ -468,7 +468,7 @@ window.showConfirm = function (message) {
 
 
 
-window.deleteMemory = async id => {
+window.deleteMemory = async (id) => {
   const confirmed = await showConfirm('Delete memory and all its images?');
   if (!confirmed) return;
 
@@ -478,37 +478,69 @@ window.deleteMemory = async id => {
     return;
   }
 
-  // 1️⃣ Delete from Supabase storage (entire memory folder)
-  try {
-    const folderPath = `${user.id}/${id}`;
-    const { error: storageErr } = await supabase.storage
-      .from('memory-images')
-      .remove([folderPath]); // Supabase automatically deletes folder contents
+  // 1) Get all storage keys (exact file paths) from DB for this memory
+  const { data: imgs, error: imgsErr } = await supabase
+    .from('memory_images')
+    .select('image_path')
+    .eq('memory_id', id);
 
-    if (storageErr) {
-      console.warn('⚠️ Storage folder delete failed:', storageErr.message);
-    } else {
-      console.log(`🗑️ Deleted folder: ${folderPath}`);
-    }
-  } catch (err) {
-    console.warn('⚠️ Storage delete skipped or failed:', err.message);
+  if (imgsErr) {
+    console.warn('Could not list memory images:', imgsErr.message);
   }
 
-  // 2️⃣ Delete database rows (images + memory)
-  await supabase.from('memory_images').delete().eq('memory_id', id);
-  const { error } = await supabase.from('memories').delete().eq('id', id);
+  // 2) Delete those files from storage in batches
+  try {
+    const paths = (imgs || []).map(i => i.image_path);
+    for (let i = 0; i < paths.length; i += 100) {
+      const batch = paths.slice(i, i + 100);
+      if (batch.length > 0) {
+        const { error: delErr } = await supabase.storage
+          .from('memory-images')
+          .remove(batch);
+        if (delErr) console.warn('Storage delete batch failed:', delErr.message);
+      }
+    }
+  } catch (err) {
+    console.warn('Storage deletion error:', err.message);
+  }
 
-  // 3️⃣ UI cleanup
-  if (!error) {
+  // 3) (Optional fallback) If there were no DB rows (legacy case),
+  // try listing the folder and deleting whatever is inside.
+  if (!imgs || imgs.length === 0) {
+    try {
+      const prefix = `${user.id}/${id}`;
+      const { data: listed, error: listErr } = await supabase.storage
+        .from('memory-images')
+        .list(prefix); // lists one level inside <userId>/<memoryId>
+
+      if (!listErr && listed && listed.length > 0) {
+        const folderFileKeys = listed.map(obj => `${prefix}/${obj.name}`);
+        const { error: delErr2 } = await supabase.storage
+          .from('memory-images')
+          .remove(folderFileKeys);
+        if (delErr2) console.warn('Fallback storage delete failed:', delErr2.message);
+      }
+    } catch (e) {
+      console.warn('Fallback list/remove failed:', e.message);
+    }
+  }
+
+  // 4) Delete DB rows
+  await supabase.from('memory_images').delete().eq('memory_id', id);
+  const { error: memErr } = await supabase.from('memories').delete().eq('id', id);
+
+  // 5) UI cleanup
+  if (!memErr) {
     const card = document.querySelector(`[data-memory-id="${id}"]`);
     card?.classList.add('opacity-0');
     setTimeout(() => card?.remove(), 300);
     showToast('Memory deleted');
   } else {
-    console.error('Delete failed:', error.message);
+    console.error('Delete failed:', memErr.message);
     showToast('Failed to delete memory', false);
   }
 };
+
 
 
 window.deleteImage = async (id, btn) => {
