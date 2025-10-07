@@ -43,7 +43,6 @@ window.closeMemoryModal = () => {
     submitBtn.textContent = 'Create';
     submitBtn.disabled = false;
   }
-  console.log('Modal classes after close:', memoryModal.classList.value);
 };
 
 window.addEventListener('DOMContentLoaded', async () => {
