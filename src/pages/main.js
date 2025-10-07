@@ -32,9 +32,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
   const addMemoryBtn = document.getElementById('add-memory-btn');
 if (!addMemoryBtn) {
-  console.warn('❌ add-memory-btn not found in DOM!');
 } else {
-  console.log('✅ Found add-memory-btn');
   addMemoryBtn.addEventListener('click', openMemoryModal);
 }
   if (addMemoryBtn) {
