@@ -326,64 +326,73 @@ document.addEventListener('click', e => {
   }
 });
 
-// AUTOCOMPLETE
-let debounceTimeout, activeSuggestionIndex = -1;
-locationInput?.addEventListener('input', () => {
-  const query = locationInput.value.trim();
-  clearTimeout(debounceTimeout);
-  if (query.length < 3) return suggestionsBox.classList.add('hidden');
-  debounceTimeout = setTimeout(async () => {
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
-    const results = await res.json();
-    suggestionsBox.innerHTML = '';
-    results.slice(0, 5).forEach((place, i) => {
-      const li = document.createElement('li');
-      li.innerHTML = `<div class='flex gap-2 px-3 py-2 hover:bg-indigo-50'><i class='fas fa-map-marker-alt text-indigo-500'></i><span>${place.display_name}</span></div>`;
-      li.className = 'cursor-pointer';
-      li.dataset.lat = place.lat;
-      li.dataset.lon = place.lon;
-      li.dataset.index = i;
-      li.onclick = () => {
-        locationInput.value = place.display_name;
-        locationInput.dataset.lat = place.lat;
-        locationInput.dataset.lon = place.lon;
-        suggestionsBox.classList.add('hidden');
-      };
-      suggestionsBox.appendChild(li);
-    });
-    activeSuggestionIndex = -1;
-    suggestionsBox.classList.remove('hidden');
-  }, 300);
-});
-locationInput?.addEventListener('keydown', e => {
-  const items = suggestionsBox.querySelectorAll('li');
-  if (suggestionsBox.classList.contains('hidden') || items.length === 0) return;
-  if (e.key === 'ArrowDown') {
-    e.preventDefault();
-    activeSuggestionIndex = (activeSuggestionIndex + 1) % items.length;
-    updateActiveSuggestion(items);
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault();
-    activeSuggestionIndex = (activeSuggestionIndex - 1 + items.length) % items.length;
-    updateActiveSuggestion(items);
-  } else if (e.key === 'Enter') {
-    e.preventDefault();
-    if (activeSuggestionIndex >= 0) items[activeSuggestionIndex].click();
-  } else if (e.key === 'Escape') {
-    suggestionsBox.classList.add('hidden');
-  }
-});
-function updateActiveSuggestion(items) {
-  items.forEach((el, i) => {
-    el.classList.toggle('bg-indigo-100', i === activeSuggestionIndex);
-    if (i === activeSuggestionIndex) el.scrollIntoView({ block: 'nearest' });
+
+
+// Reuse autocomplete for both image and memory location inputs
+function setupLocationAutocomplete(inputId, suggestionsId) {
+  const input = document.getElementById(inputId);
+  const suggestions = document.getElementById(suggestionsId);
+  if (!input || !suggestions) return;
+
+  let debounceTimeout, activeIndex = -1;
+
+  input.addEventListener('input', () => {
+    const query = input.value.trim();
+    clearTimeout(debounceTimeout);
+    if (query.length < 3) return suggestions.classList.add('hidden');
+
+    debounceTimeout = setTimeout(async () => {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+      const results = await res.json();
+      suggestions.innerHTML = '';
+      results.slice(0, 5).forEach((place, i) => {
+        const li = document.createElement('li');
+        li.className = 'cursor-pointer px-3 py-2 hover:bg-indigo-50 flex gap-2';
+        li.innerHTML = `<i class='fas fa-map-marker-alt text-indigo-500'></i><span>${place.display_name}</span>`;
+        li.dataset.lat = place.lat;
+        li.dataset.lon = place.lon;
+        li.onclick = () => {
+          input.value = place.display_name;
+          input.dataset.lat = place.lat;
+          input.dataset.lon = place.lon;
+          suggestions.classList.add('hidden');
+        };
+        suggestions.appendChild(li);
+      });
+      activeIndex = -1;
+      suggestions.classList.remove('hidden');
+    }, 300);
+  });
+
+  input.addEventListener('keydown', e => {
+    const items = suggestions.querySelectorAll('li');
+    if (suggestions.classList.contains('hidden') || items.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeIndex = (activeIndex + 1) % items.length;
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeIndex = (activeIndex - 1 + items.length) % items.length;
+    } else if (e.key === 'Enter' && activeIndex >= 0) {
+      e.preventDefault();
+      items[activeIndex].click();
+    } else if (e.key === 'Escape') {
+      suggestions.classList.add('hidden');
+    }
+
+    items.forEach((el, i) => el.classList.toggle('bg-indigo-100', i === activeIndex));
+  });
+
+  document.addEventListener('click', e => {
+    if (!input.contains(e.target) && !suggestions.contains(e.target))
+      suggestions.classList.add('hidden');
   });
 }
-document.addEventListener('click', e => {
-  if (!locationInput.contains(e.target) && !suggestionsBox.contains(e.target)) suggestionsBox.classList.add('hidden');
-});
 
-
+// ✅ Initialize for both forms
+setupLocationAutocomplete('image-location', 'location-suggestions');
+setupLocationAutocomplete('memory-location', 'memory-location-suggestions');
 
 
 
