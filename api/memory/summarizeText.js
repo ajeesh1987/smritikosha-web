@@ -1,5 +1,6 @@
 import { getMemoryDetails, summarizeText } from './utils.js';
 import { createClient } from '@supabase/supabase-js';
+console.log("🔍 Using Supabase URL:", process.env.SUPABASE_URL);
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
