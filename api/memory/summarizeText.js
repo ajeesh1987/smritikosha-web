@@ -17,6 +17,9 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY, // ✅ correct one
   { global: { headers: { Authorization: `Bearer ${token}` } } }
 );
+console.log("🔍 ENV URL:", process.env.SUPABASE_URL);
+console.log("🔍 ENV KEY (first 10 chars):", process.env.SUPABASE_SERVICE_ROLE_KEY?.substring(0, 10));
+console.log("🔍 Token (first 20 chars):", token.substring(0, 20));
 
 const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 if (authError || !user) {
