@@ -1,21 +1,36 @@
 // /api/memory/summarize.js
-
-import { summarizeText } from "./summarizeText.js"; // Import the summarizeText function
-import { getMemoryImages } from "./reel.js"; // Import the image fetcher
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { title, memory_text, tags, locations } = req.body;
+  const token = req.headers.authorization?.split(' ')[1];
+  const { memoryId } = req.body;
+
+  if (!memoryId) {
+    return res.status(400).json({ error: "Memory ID is required." });
+  }
 
   try {
-    // Summarize text
-    const summary = await summarizeText(title, memory_text, tags, locations);
+    // Forward the request internally to summarizeText.js
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/memory/summarizeText`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify({ memoryId }),
+    });
 
-    return res.status(200).json({ summary });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Summarization failed");
+    }
+
+    return res.status(200).json(result);
+  } catch (err) {
+    console.error("❌ Summarize proxy error:", err);
+    return res.status(500).json({ error: err.message });
   }
 }
