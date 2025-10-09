@@ -14,12 +14,16 @@ export default async function handler(req, res) {
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY,
+  process.env.SUPABASE_SERVICE_ROLE_KEY, // ✅ correct one
   { global: { headers: { Authorization: `Bearer ${token}` } } }
 );
 
 const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-  if (authError || !user) return res.status(401).json({ error: "Unauthorized: invalid token." });
+if (authError || !user) {
+  console.error("❌ Auth error:", authError?.message);
+  return res.status(401).json({ error: "Unauthorized: invalid token." });
+}
+
 
   if (!memoryId) return res.status(400).json({ error: "Memory ID is required." });
 
