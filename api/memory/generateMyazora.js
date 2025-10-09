@@ -43,11 +43,12 @@ export default async function handler(req, res) {
       });
     }
 
-    const base64 = json.imageBase64;
-    if (!base64) {
-      console.error('❌ No image returned in JSON:', json);
-      return res.status(502).json({ error: 'RunPod returned no image', detail: json });
-    }
+    const base64 = json.image || json.imageBase64;
+if (!base64) {
+  console.error('❌ No image returned in JSON:', json);
+  return res.status(502).json({ error: 'RunPod returned no image', detail: json });
+}
+
 
     return res.status(200).json({ imageUrl: base64 });
 
