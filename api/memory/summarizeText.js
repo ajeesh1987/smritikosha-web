@@ -18,7 +18,7 @@ const supabase = createClient(
   { global: { headers: { Authorization: `Bearer ${token}` } } }
 );
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+const { data: { user }, error: authError } = await supabase.auth.getUser(token);
   if (authError || !user) return res.status(401).json({ error: "Unauthorized: invalid token." });
 
   if (!memoryId) return res.status(400).json({ error: "Memory ID is required." });
