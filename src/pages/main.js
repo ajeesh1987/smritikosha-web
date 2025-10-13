@@ -668,24 +668,39 @@ const related = images.filter(i => String(i.memory_id) === String(memory.id));
       <div class="flex justify-between items-start mb-2">
         <h3 class='text-lg font-bold text-indigo-700'>${memory.title}</h3>
         <div class="flex gap-2">
-     ${
-  memory.title && memory.description && memory.location
-    ? `
-      ${related.length > 0
-        ? `<button class="summarize-btn text-indigo-600 hover:text-indigo-800" data-memory-id="${memory.id}" title="Summarize this memory">
-             <i class="fas fa-magic"></i>
-           </button>`
-        : ''
-      }
-      ${related.length >= 3
-        ? `<button class="reel-btn text-purple-600 hover:text-purple-800" data-memory-id="${memory.id}" title="Create Reel">
-             <i class="fas fa-film"></i>
-           </button>`
-        : ''
-      }
-      `
-    : ''
+  ${
+  (() => {
+    const hasDescriptiveInfo =
+      Boolean(memory.description || memory.tags || memory.location) ||
+      related.some(img => img.description || img.tags || img.location);
+
+    const hasImages = related.length > 0;
+    const hasEnoughForReel = related.length >= 3;
+
+    let html = '';
+
+    if (hasDescriptiveInfo && hasImages) {
+      html += `
+        <button class="summarize-btn text-indigo-600 hover:text-indigo-800" 
+                data-memory-id="${memory.id}" 
+                title="Summarize this memory">
+          <i class="fas fa-magic"></i>
+        </button>`;
+    }
+
+    if (hasEnoughForReel) {
+      html += `
+        <button class="reel-btn text-purple-600 hover:text-purple-800" 
+                data-memory-id="${memory.id}" 
+                title="Create Reel">
+          <i class="fas fa-film"></i>
+        </button>`;
+    }
+
+    return html;
+  })()
 }
+
 
 <button onclick="openImageUpload('${memory.id}')"><i class="fas fa-plus text-indigo-600 hover:text-indigo-800"></i></button>
           <button onclick="deleteMemory('${memory.id}')"><i class="fas fa-trash text-red-500 hover:text-red-700"></i></button>
