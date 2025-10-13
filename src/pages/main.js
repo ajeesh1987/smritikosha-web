@@ -650,6 +650,13 @@ const related = images.filter(i => String(i.memory_id) === String(memory.id));
     const urls = await Promise.all(
       related.map(img => supabase.storage.from('memory-images').createSignedUrl(img.image_path, 3600).then(({ data }) => data?.signedUrl))
     );
+    console.log(memory.id, {
+  title: memory.title,
+  desc: memory.description,
+  loc: memory.location,
+  related: related.length
+});
+
     const valid = urls.filter(Boolean);
     const locations = related.map(i => i.location || '');
     const descriptions = related.map(i => i.description || '');
