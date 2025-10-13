@@ -646,7 +646,7 @@ async function loadMemories() {
   memoryList.innerHTML = '';
 
   for (const memory of memories) {
-    const related = images.filter(i => i.memory_id === memory.id);
+const related = images.filter(i => String(i.memory_id) === String(memory.id));
     const urls = await Promise.all(
       related.map(img => supabase.storage.from('memory-images').createSignedUrl(img.image_path, 3600).then(({ data }) => data?.signedUrl))
     );
