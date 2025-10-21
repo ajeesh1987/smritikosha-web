@@ -21,9 +21,9 @@ const profileMenu = document.getElementById('profile-menu');
 const logoutBtn = document.getElementById('logout-btn');
 const locationInput = document.getElementById('image-location');
 const suggestionsBox = document.getElementById('location-suggestions');
-startSessionTimeout(60);
-setupImageModalEvents();
-// Memory modal helpers
+
+setupImageModalEvents(); 
+
 window.openMemoryModal = () => {
   if (!memoryModal) return;
   memoryModal.style.display = 'flex';
@@ -51,19 +51,35 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const { data: sessionData } = await supabase.auth.getSession();
   const user = sessionData?.session?.user;
-window.currentUser = user;
+  window.currentUser = user;
 
   if (!user) {
-    console.warn('No active session. Redirecting...');
-    window.location.href = '/login.html';
+    window.location.replace('/pages/login.html');
     return;
   }
+
+  // absolute expiry guard
+  const expiresAt = Number(localStorage.getItem('sk.session.expiresAt') || 0);
+  const issuedAt = Number(localStorage.getItem('sk.session.issuedAt') || 0);
+  const ABSOLUTE_MAX_MINUTES = 30;
+
+  if (!expiresAt || Date.now() > expiresAt || (issuedAt && Date.now() - issuedAt > ABSOLUTE_MAX_MINUTES * 60 * 1000)) {
+    await supabase.auth.signOut();
+    window.location.replace('/pages/login.html');
+    return;
+  }
+
+  // safe to proceed
+  startSessionTimeout(30);
 
   try {
     await checkAndCreateUserProfile(user);
   } catch (err) {
-    console.warn('⚠️ Profile setup skipped due to error:', err.message);
+    console.warn('Profile setup skipped:', err.message);
   }
+
+  // continue with loadMemories etc...
+
 
   const addMemoryBtn = document.getElementById('add-memory-btn');
   if (addMemoryBtn) {
