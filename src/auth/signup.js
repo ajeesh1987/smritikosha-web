@@ -30,6 +30,8 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
+  const verifyUrl = `${window.location.origin}/verify-email.html`;
+
   const { error } = await supabase.auth.signUp({
     email,
     password,
@@ -39,18 +41,31 @@ form.addEventListener('submit', async (e) => {
         country,
         terms_accepted_at: new Date().toISOString()
       },
-      emailRedirectTo: 'http://localhost:5173/verify-email.html'
+      emailRedirectTo: verifyUrl
     }
   });
 
   if (error) {
+    if (error.message.includes('rate') || error.status === 429) {
+      errorMsg.textContent = 'Too many attempts. Please try again later.';
+      return;
+    }
+    if (error.message.toLowerCase().includes('password')) {
+      errorMsg.textContent = 'Password is too weak. Use at least 8 chars with numbers and letters.';
+      return;
+    }
+    if (error.message.toLowerCase().includes('already registered')) {
+      errorMsg.textContent = 'Email is already registered.';
+      return;
+    }
     errorMsg.textContent = `Sign up failed: ${error.message}`;
-  } else {
-    errorMsg.innerHTML = `
+    return;
+  }
+
+  errorMsg.innerHTML = `
     <div class="bg-green-50 border border-green-300 text-green-800 px-4 py-3 rounded-md text-sm">
-       Signup successful! Please check your email to verify your account.
+      Signup successful. Please check your email to verify your account.
     </div>
   `;
-      form.reset();
-  }
+  form.reset();
 });
