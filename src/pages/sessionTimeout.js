@@ -10,7 +10,7 @@ export function startSessionTimeout(minutes = 30) {
     timeoutId = setTimeout(async () => {
       console.log(' Session timeout reached. Logging out...');
       await supabase.auth.signOut();
-      window.location.href = '/pages/login.html';
+      window.location.href = '/login.html';
     }, ms);
   };
 
