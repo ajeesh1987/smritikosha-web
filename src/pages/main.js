@@ -54,7 +54,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   window.currentUser = user;
 
   if (!user) {
-    window.location.replace('/pages/login.html');
+    window.location.replace('/login.html');
     return;
   }
 
@@ -65,7 +65,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   if (!expiresAt || Date.now() > expiresAt || (issuedAt && Date.now() - issuedAt > ABSOLUTE_MAX_MINUTES * 60 * 1000)) {
     await supabase.auth.signOut();
-    window.location.replace('/pages/login.html');
+    window.location.replace('/login.html');
     return;
   }
 
