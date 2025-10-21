@@ -70,7 +70,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   // safe to proceed
-  startSessionTimeout(60);
+  startSessionTimeout(1);
 
   try {
     await checkAndCreateUserProfile(user);
