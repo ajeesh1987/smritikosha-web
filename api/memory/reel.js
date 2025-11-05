@@ -15,12 +15,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing memory ID or auth token' });
   }
 
+  // anon key so RLS applies to getMemoryDetails and any selects inside getReelVisualFlow
   const supabase = createClient(
     process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
-    {
-      global: { headers: { Authorization: `Bearer ${token}` } },
-    }
+    process.env.SUPABASE_ANON_KEY,
+    { global: { headers: { Authorization: `Bearer ${token}` } } }
   );
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -30,6 +29,10 @@ export default async function handler(req, res) {
 
   try {
     const memory = await getMemoryDetails(memoryId, supabase);
+    if (!memory) {
+      return res.status(404).json({ error: 'Memory not found' });
+    }
+
     const { title, description, tags, location } = memory;
 
     const summary = await summarizeText(title, description, tags, location);
@@ -39,10 +42,11 @@ export default async function handler(req, res) {
       memoryId,
       title,
       summary,
-      ...reelData, // includes theme, mood, musicStyle, visualFlow
-      memoryTags: tags?.split(/[, ]+/).filter(Boolean) || [],
+      ...reelData,
+      memoryTags: Array.isArray(tags)
+        ? tags
+        : (tags?.split(/[, ]+/).filter(Boolean) || []),
     });
-
   } catch (error) {
     console.error('Reel generation error:', error);
     return res.status(500).json({ error: 'Failed to generate memory reel.' });
