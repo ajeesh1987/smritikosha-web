@@ -1,6 +1,6 @@
 // /api/memory/saveReel.js
 import { createClient } from '@supabase/supabase-js';
-import { insertReel, buildRenderParams } from '../_lib/reelsRepo.js';
+import { insertReel, buildRenderParams } from '../../reelsRepo.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
