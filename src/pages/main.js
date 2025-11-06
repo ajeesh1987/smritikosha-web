@@ -4,7 +4,7 @@ import { openImageUpload, closeImageUpload } from './upload.js';
 import { showToast } from '../ui/toast.js';
 import { startSessionTimeout } from './sessionTimeout.js';
 import { setupImageModalEvents } from '../ui/imageModal.js';
-import { mountReelActionsForMemory } from '..reelUI.js';
+import { mountReelActionsForMemory } from '../memory/reelUI.js';
 
 const memoryList = document.getElementById('memory-list');
 const memoryModal = document.getElementById('memory-modal');
