@@ -1,8 +1,84 @@
 // src/memory/reelUI.js
-import { saveReel } from '../../api/memory/saveReel';
-import { publishReel } from '../../api/memory/publishReel.js';
-import { downloadReelEphemeral, downloadReelSaved } from '../../api/memory/downloadReel.js';
 
+// Generic POST helper that returns either JSON or a Blob
+async function postJSONorBlob(path, body) {
+  const res = await fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body ?? {}),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`Request failed ${res.status} ${text}`);
+  }
+  const ct = res.headers.get('content-type') || '';
+  if (ct.includes('application/json')) return res.json();
+  return res.blob();
+}
+
+// API wrappers
+
+async function saveReel(payload) {
+  const data = await postJSONorBlob('/api/memory/saveReel', payload);
+  if (!data || !data.reelId) throw new Error('Missing reelId in response');
+  return data.reelId;
+}
+
+async function publishReel({ reelId }) {
+  const data = await postJSONorBlob('/api/memory/publishReel', { reelId });
+  // Expecting { viewUrl, videoUrl }
+  return data || {};
+}
+
+async function downloadReelSaved({ reelId, fileName }) {
+  const out = await postJSONorBlob('/api/memory/downloadReel', { reelId });
+  await handleDownload(out, fileName);
+}
+
+async function downloadReelEphemeral({ previewData, title }) {
+  const out = await postJSONorBlob('/api/memory/downloadReel', {
+    previewData,
+    title,
+    mode: 'ephemeral',
+  });
+  const fileName = `${(title || 'smritikosha_reel').replace(/\s+/g, '_')}.mp4`;
+  await handleDownload(out, fileName);
+}
+
+// If API returns a Blob, download it
+// If API returns JSON with a url, fetch and download or just open it
+async function handleDownload(out, fileName) {
+  if (out instanceof Blob) {
+    const url = URL.createObjectURL(out);
+    triggerDownload(url, fileName);
+    URL.revokeObjectURL(url);
+    return;
+  }
+  if (out && out.url) {
+    // Try to fetch and save with filename, fallback to opening the URL
+    try {
+      const res = await fetch(out.url);
+      if (!res.ok) throw new Error('Bad status for signed URL');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      triggerDownload(url, fileName);
+      URL.revokeObjectURL(url);
+    } catch {
+      window.open(out.url, '_blank', 'noopener,noreferrer');
+    }
+    return;
+  }
+  throw new Error('Unexpected download response');
+}
+
+function triggerDownload(url, fileName) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName || 'download.mp4';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
 
 // memoryId -> { reelId, previewData }
 const reelState = new Map();
@@ -45,7 +121,7 @@ export function mountReelActionsForMemory(memoryId, previewData) {
         memoryId,
         title: previewData.title,
         summary: previewData.summary,
-        previewData
+        previewData,
       });
       reelState.set(memoryId, { ...st, reelId });
       setStatus('Saved');
@@ -67,26 +143,35 @@ export function mountReelActionsForMemory(memoryId, previewData) {
           memoryId,
           title: previewData.title,
           summary: previewData.summary,
-          previewData
+          previewData,
         });
         st = { ...st, reelId };
         reelState.set(memoryId, st);
       }
 
-const { viewUrl, videoUrl } = await publishReel({ reelId });
-const shareLink = viewUrl || videoUrl; // fallback if view page is not live yet
+      const { viewUrl, videoUrl } = await publishReel({ reelId });
+      const urlToShare = viewUrl || videoUrl;
 
       try {
-        if (navigator.share) {
-          await navigator.share({ title: previewData.title || 'My SmritiKosha Reel', url: viewUrl });
+        if (navigator.share && urlToShare) {
+          await navigator.share({
+            title: previewData.title || 'My SmritiKosha Reel',
+            url: urlToShare,
+          });
           setStatus('Shared');
-        } else {
-          await navigator.clipboard.writeText(viewUrl);
+        } else if (urlToShare) {
+          await navigator.clipboard.writeText(urlToShare);
           setStatus('Link copied');
+        } else {
+          throw new Error('No shareable URL returned');
         }
       } catch {
-        await navigator.clipboard.writeText(viewUrl);
-        setStatus('Link copied');
+        if (urlToShare) {
+          await navigator.clipboard.writeText(urlToShare);
+          setStatus('Link copied');
+        } else {
+          setStatus('Share failed');
+        }
       }
     } catch (e) {
       console.error(e);
@@ -99,9 +184,15 @@ const shareLink = viewUrl || videoUrl; // fallback if view page is not live yet
       const st = reelState.get(memoryId);
       const { reelId, previewData } = st || {};
       if (reelId) {
-        await downloadReelSaved({ reelId, fileName: `${(previewData?.title || 'smritikosha_reel').replace(/\s+/g, '_')}.mp4` });
+        await downloadReelSaved({
+          reelId,
+          fileName: `${(previewData?.title || 'smritikosha_reel').replace(/\s+/g, '_')}.mp4`,
+        });
       } else {
-        await downloadReelEphemeral({ previewData, title: previewData?.title });
+        await downloadReelEphemeral({
+          previewData,
+          title: previewData?.title,
+        });
       }
       setStatus('Download started');
     } catch (e) {
