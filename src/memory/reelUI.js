@@ -1,7 +1,7 @@
 // src/memory/reelUI.js
-import { saveReel } from './saveReel.js';
-import { publishReel } from './publishReel.js';
-import { downloadReelEphemeral, downloadReelSaved } from './downloadReel.js';
+import { saveReel } from '../../api/memory/saveReel';
+import { publishReel } from '../../api/memory/publishReel.js';
+import { downloadReelEphemeral, downloadReelSaved } from '../../api/memory/downloadReel.js';
 
 
 // memoryId -> { reelId, previewData }
