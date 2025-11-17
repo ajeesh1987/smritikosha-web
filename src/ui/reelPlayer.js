@@ -21,22 +21,22 @@ export function playReel(previewData) {
   frameLayer.className = "absolute inset-0 flex items-center justify-center";
   overlay.appendChild(frameLayer);
 
-  // Actions container at the bottom of the reel
-  const actionsContainer = document.createElement("div");
-  actionsContainer.className =
-    "absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center";
-  overlay.appendChild(actionsContainer);
+  // Top right controls bar: Close + Save / Share / Download
+  const controlsBar = document.createElement("div");
+  controlsBar.className =
+    "absolute top-4 right-4 flex items-center gap-2 z-10";
+  overlay.appendChild(controlsBar);
 
-  // Close button in the top right
+  // Close button inside the controls bar
   const closeBtn = document.createElement("button");
   closeBtn.className =
-    "absolute top-4 right-4 px-3 py-1 rounded-full bg-black/50 text-white text-sm backdrop-blur";
+    "px-3 py-1 rounded-full bg-black/60 text-white text-sm backdrop-blur hover:bg-black";
   closeBtn.textContent = "Close";
-  overlay.appendChild(closeBtn);
+  controlsBar.appendChild(closeBtn);
 
-  // Mount save/share/download into the reel view
+  // Mount save/share/download into the same top-right bar
   if (memoryId) {
-    mountReelActionsForReel(memoryId, previewData, actionsContainer);
+    mountReelActionsForReel(memoryId, previewData, controlsBar);
   }
 
   const track = Math.random() > 0.5 ? "1" : "2";
@@ -78,7 +78,7 @@ export function playReel(previewData) {
         return;
       }
 
-      // Only clear the frame layer, not actions or close button
+      // Only clear the frame layer, not controls
       frameLayer.innerHTML = "";
       const block = visualFlow[index];
 
