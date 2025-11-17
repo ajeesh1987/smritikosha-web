@@ -27,7 +27,14 @@ export function playReel(previewData) {
     "absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center";
   overlay.appendChild(actionsContainer);
 
-  // Mount save share download into the reel view
+  // Close button in the top right
+  const closeBtn = document.createElement("button");
+  closeBtn.className =
+    "absolute top-4 right-4 px-3 py-1 rounded-full bg-black/50 text-white text-sm backdrop-blur";
+  closeBtn.textContent = "Close";
+  overlay.appendChild(closeBtn);
+
+  // Mount save/share/download into the reel view
   if (memoryId) {
     mountReelActionsForReel(memoryId, previewData, actionsContainer);
   }
@@ -39,6 +46,18 @@ export function playReel(previewData) {
   audio.play();
   gsap.to(audio, { volume: 0.4, duration: 3 });
 
+  // Close handler: fade audio out and hide overlay
+  const closeReel = () => {
+    gsap.to(audio, {
+      volume: 0,
+      duration: 0.8,
+      onComplete: () => audio.pause(),
+    });
+    container.classList.add("hidden");
+  };
+
+  closeBtn.onclick = closeReel;
+
   let index = 0;
   const preloadImages = visualFlow.map((v) => {
     const img = new Image();
@@ -49,16 +68,17 @@ export function playReel(previewData) {
   Promise.all(preloadImages).then(() => {
     const playNext = () => {
       if (index >= visualFlow.length) {
+        // Reel ended: fade audio but keep view open,
+        // user can now decide to Save / Share / Download or Close
         gsap.to(audio, {
           volume: 0,
           duration: 2,
           onComplete: () => audio.pause(),
         });
-        setTimeout(() => container.classList.add("hidden"), 1000);
         return;
       }
 
-      // Only clear the frame layer, not actions
+      // Only clear the frame layer, not actions or close button
       frameLayer.innerHTML = "";
       const block = visualFlow[index];
 

@@ -4,7 +4,6 @@ import { openImageUpload, closeImageUpload } from './upload.js';
 import { showToast } from '../ui/toast.js';
 import { startSessionTimeout } from './sessionTimeout.js';
 import { setupImageModalEvents } from '../ui/imageModal.js';
-import { mountReelActionsForMemory } from '../memory/reelUI.js';
 
 const memoryList = document.getElementById('memory-list');
 const memoryModal = document.getElementById('memory-modal');
@@ -776,19 +775,13 @@ onclick="openImageModal(event, '${url}', ${i})"
   
           if (!res.ok) throw new Error('Failed to load reel');
   
-          const reelData = await res.json();
-  mountReelActionsForMemory(memoryId, reelData);
+        const reelData = await res.json();
 
-          // ⬇️ Launch the reel using updated playReel
-          import('../ui/reelPlayer.js').then(({ playReel }) => {
-            playReel({
-              title: reelData.title,
-              theme: reelData.theme,
-              mood: reelData.mood,
-              musicStyle: reelData.musicStyle,
-              visualFlow: reelData.visualFlow,
-            });
-          });
+// Launch the reel and pass full data (includes memoryId)
+import('../ui/reelPlayer.js').then(({ playReel }) => {
+  playReel(reelData);
+});
+
 
         } catch (err) {
           console.error('Reel generation failed:', err);
