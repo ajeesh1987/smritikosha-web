@@ -5,7 +5,7 @@ import {
   publishReel as apiPublishReel,
   downloadReelSaved as apiDownloadReelSaved,
   downloadReelEphemeral as apiDownloadReelEphemeral,
-} from './reelActions.js';
+} from '../..api/memory/reelActions.js';
 
 
 // memoryId -> { reelId, previewData }
