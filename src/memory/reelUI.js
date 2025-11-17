@@ -5,7 +5,8 @@ import {
   publishReel as apiPublishReel,
   downloadReelSaved as apiDownloadReelSaved,
   downloadReelEphemeral as apiDownloadReelEphemeral,
-} from './reelActions';
+} from './reelActions.js';
+
 
 // memoryId -> { reelId, previewData }
 const reelState = new Map();

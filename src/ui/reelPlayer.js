@@ -1,6 +1,6 @@
 // src/ui/reelPlayer.js
 import { gsap } from "gsap";
-import { mountReelActionsForReel } from "../memory/reelUI";
+import { mountReelActionsForReel } from "../memory/reelUI.js";
 
 export function playReel(previewData) {
   const { memoryId, title, theme, mood, musicStyle, visualFlow } = previewData;
