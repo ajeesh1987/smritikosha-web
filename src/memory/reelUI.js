@@ -7,15 +7,19 @@ import {
   downloadReelEphemeral as apiDownloadReelEphemeral,
 } from './reelActions';
 
+// memoryId -> { reelId, previewData }
 const reelState = new Map();
 
 
-export function mountReelActionsForMemory(memoryId, previewData) {
-  reelState.set(memoryId, { reelId: null, previewData });
+function createReelActionsBar(rootEl, memoryId, previewData) {
+  if (!rootEl || !previewData) return;
 
-  const card = document.querySelector(`[data-memory-id="${memoryId}"]`);
-  if (!card) return;
-  if (card.querySelector('.sk-reel-actions')) return;
+  // If we already mounted once on this container, do nothing
+  if (rootEl.querySelector('.sk-reel-actions')) return;
+
+  // Ensure state entry exists and always keep latest previewData
+  const existing = reelState.get(memoryId) || { reelId: null, previewData: null };
+  reelState.set(memoryId, { ...existing, previewData });
 
   const bar = document.createElement('div');
   bar.className = 'sk-reel-actions mt-3 flex gap-2 items-center';
@@ -25,7 +29,7 @@ export function mountReelActionsForMemory(memoryId, previewData) {
     <button class="sk-reel-download bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded text-sm">Download</button>
     <span class="sk-reel-status text-xs text-gray-500 ml-2"></span>
   `;
-  card.appendChild(bar);
+  rootEl.appendChild(bar);
 
   const elSave = bar.querySelector('.sk-reel-save');
   const elShare = bar.querySelector('.sk-reel-share');
@@ -44,14 +48,14 @@ export function mountReelActionsForMemory(memoryId, previewData) {
   elSave.onclick = async () => {
     try {
       const st = reelState.get(memoryId);
-      const { previewData } = st || {};
-      if (!previewData) return;
+      const { previewData: pd } = st || {};
+      if (!pd) return;
 
       const reelId = await apiSaveReel({
         memoryId,
-        title: previewData.title,
-        summary: previewData.summary,
-        previewData,
+        title: pd.title,
+        summary: pd.summary,
+        previewData: pd,
       });
 
       reelState.set(memoryId, { ...st, reelId });
@@ -65,18 +69,18 @@ export function mountReelActionsForMemory(memoryId, previewData) {
   elShare.onclick = async () => {
     try {
       let st = reelState.get(memoryId);
-      const { previewData } = st || {};
-      if (!previewData) return;
+      const { previewData: pd } = st || {};
+      if (!pd) return;
 
       let { reelId } = st || {};
 
-      // Save first if we do not yet have a reelId
+      // Save first if there is no reel yet
       if (!reelId) {
         reelId = await apiSaveReel({
           memoryId,
-          title: previewData.title,
-          summary: previewData.summary,
-          previewData,
+          title: pd.title,
+          summary: pd.summary,
+          previewData: pd,
         });
         st = { ...st, reelId };
         reelState.set(memoryId, st);
@@ -88,7 +92,7 @@ export function mountReelActionsForMemory(memoryId, previewData) {
       try {
         if (navigator.share && urlToShare) {
           await navigator.share({
-            title: previewData.title || 'My SmritiKosha Reel',
+            title: pd.title || 'My SmritiKosha Reel',
             url: urlToShare,
           });
           setStatus('Shared');
@@ -115,18 +119,18 @@ export function mountReelActionsForMemory(memoryId, previewData) {
   elDown.onclick = async () => {
     try {
       const st = reelState.get(memoryId);
-      const { reelId, previewData } = st || {};
-      if (!previewData) return;
+      const { reelId, previewData: pd } = st || {};
+      if (!pd) return;
 
       if (reelId) {
         await apiDownloadReelSaved({
           reelId,
-          fileName: `${(previewData.title || 'smritikosha_reel').replace(/\s+/g, '_')}.mp4`,
+          fileName: `${(pd.title || 'smritikosha_reel').replace(/\s+/g, '_')}.mp4`,
         });
       } else {
         await apiDownloadReelEphemeral({
-          previewData,
-          title: previewData.title,
+          previewData: pd,
+          title: pd.title,
         });
       }
 
@@ -136,6 +140,19 @@ export function mountReelActionsForMemory(memoryId, previewData) {
       setStatus('Download failed');
     }
   };
+}
+
+
+export function mountReelActionsForMemory(memoryId, previewData) {
+  const card = document.querySelector(`[data-memory-id="${memoryId}"]`);
+  if (!card) return;
+  createReelActionsBar(card, memoryId, previewData);
+}
+
+
+export function mountReelActionsForReel(memoryId, previewData, containerEl) {
+  if (!containerEl) return;
+  createReelActionsBar(containerEl, memoryId, previewData);
 }
 
 export function unmountReelActionsForMemory(memoryId) {
