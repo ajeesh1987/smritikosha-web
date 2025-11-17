@@ -1,6 +1,6 @@
 // src/memory/reelUI.js
 
-import { supabase } from "../lib/supabaseClient";
+import { supabase } from '../../lib/supabaseClient.js';
 
 // --------- API helpers (client side, with auth) ----------
 
