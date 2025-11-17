@@ -1,29 +1,126 @@
 // src/memory/reelUI.js
 
-import {
-  saveReel as apiSaveReel,
-  publishReel as apiPublishReel,
-  downloadReelSaved as apiDownloadReelSaved,
-  downloadReelEphemeral as apiDownloadReelEphemeral,
-} from '../..api/memory/reelActions.js';
+import { supabase } from "../lib/supabaseClient";
 
+// --------- API helpers (client side, with auth) ----------
+
+async function getToken() {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token;
+}
+
+async function saveReelApi({ memoryId, title, summary, previewData }) {
+  const token = await getToken();
+  if (!token) throw new Error("Not authenticated");
+
+  const res = await fetch("/api/memory/saveReel", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      memoryId,
+      title,
+      summary,
+      reelData: previewData,
+    }),
+  });
+
+  if (!res.ok) throw new Error("Save failed");
+  const { reelId } = await res.json();
+  if (!reelId) throw new Error("Missing reelId");
+  return reelId;
+}
+
+async function publishReelApi({ reelId }) {
+  const token = await getToken();
+  if (!token) throw new Error("Not authenticated");
+
+  const res = await fetch("/api/memory/publishReel", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ reelId }),
+  });
+
+  if (!res.ok) throw new Error("Publish failed");
+  return res.json(); // { viewUrl, posterUrl, videoUrl, reelId }
+}
+
+async function downloadReelSavedApi({ reelId, fileName }) {
+  const token = await getToken();
+  if (!token) throw new Error("Not authenticated");
+
+  const res = await fetch("/api/memory/downloadReel", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ reelId }),
+  });
+
+  if (!res.ok) throw new Error("Download prep failed");
+  const { downloadUrl, fileName: serverName } = await res.json();
+
+  const a = document.createElement("a");
+  a.href = downloadUrl;
+  a.download = fileName || serverName || "smritikosha_reel.mp4";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+async function downloadReelEphemeralApi({ previewData, title }) {
+  const token = await getToken();
+  if (!token) throw new Error("Not authenticated");
+
+  const res = await fetch("/api/memory/downloadReel", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      ephemeral: true,
+      renderParams: previewData,
+      title,
+    }),
+  });
+
+  if (!res.ok) throw new Error("Download stream failed");
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${(title || "smritikosha_reel").replace(/\s+/g, "_")}.mp4`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// --------- State ---------
 
 // memoryId -> { reelId, previewData }
 const reelState = new Map();
 
+// --------- Shared UI helper ----------
 
 function createReelActionsBar(rootEl, memoryId, previewData) {
   if (!rootEl || !previewData) return;
 
-  // If we already mounted once on this container, do nothing
-  if (rootEl.querySelector('.sk-reel-actions')) return;
+  if (rootEl.querySelector(".sk-reel-actions")) return;
 
-  // Ensure state entry exists and always keep latest previewData
   const existing = reelState.get(memoryId) || { reelId: null, previewData: null };
   reelState.set(memoryId, { ...existing, previewData });
 
-  const bar = document.createElement('div');
-  bar.className = 'sk-reel-actions mt-3 flex gap-2 items-center';
+  const bar = document.createElement("div");
+  bar.className = "sk-reel-actions mt-3 flex gap-2 items-center";
   bar.innerHTML = `
     <button class="sk-reel-save bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm">Save</button>
     <button class="sk-reel-share bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm">Share</button>
@@ -32,17 +129,17 @@ function createReelActionsBar(rootEl, memoryId, previewData) {
   `;
   rootEl.appendChild(bar);
 
-  const elSave = bar.querySelector('.sk-reel-save');
-  const elShare = bar.querySelector('.sk-reel-share');
-  const elDown = bar.querySelector('.sk-reel-download');
-  const elStatus = bar.querySelector('.sk-reel-status');
+  const elSave = bar.querySelector(".sk-reel-save");
+  const elShare = bar.querySelector(".sk-reel-share");
+  const elDown = bar.querySelector(".sk-reel-download");
+  const elStatus = bar.querySelector(".sk-reel-status");
 
   const setStatus = (msg) => {
     elStatus.textContent = msg;
     clearTimeout(elStatus._t);
     if (!msg) return;
     elStatus._t = setTimeout(() => {
-      elStatus.textContent = '';
+      elStatus.textContent = "";
     }, 2000);
   };
 
@@ -52,7 +149,7 @@ function createReelActionsBar(rootEl, memoryId, previewData) {
       const { previewData: pd } = st || {};
       if (!pd) return;
 
-      const reelId = await apiSaveReel({
+      const reelId = await saveReelApi({
         memoryId,
         title: pd.title,
         summary: pd.summary,
@@ -60,10 +157,10 @@ function createReelActionsBar(rootEl, memoryId, previewData) {
       });
 
       reelState.set(memoryId, { ...st, reelId });
-      setStatus('Saved');
+      setStatus("Saved");
     } catch (e) {
       console.error(e);
-      setStatus('Save failed');
+      setStatus("Save failed");
     }
   };
 
@@ -75,9 +172,8 @@ function createReelActionsBar(rootEl, memoryId, previewData) {
 
       let { reelId } = st || {};
 
-      // Save first if there is no reel yet
       if (!reelId) {
-        reelId = await apiSaveReel({
+        reelId = await saveReelApi({
           memoryId,
           title: pd.title,
           summary: pd.summary,
@@ -87,33 +183,33 @@ function createReelActionsBar(rootEl, memoryId, previewData) {
         reelState.set(memoryId, st);
       }
 
-      const { viewUrl, videoUrl } = await apiPublishReel({ reelId });
+      const { viewUrl, videoUrl } = await publishReelApi({ reelId });
       const urlToShare = viewUrl || videoUrl;
 
       try {
         if (navigator.share && urlToShare) {
           await navigator.share({
-            title: pd.title || 'My SmritiKosha Reel',
+            title: pd.title || "My SmritiKosha Reel",
             url: urlToShare,
           });
-          setStatus('Shared');
+          setStatus("Shared");
         } else if (urlToShare) {
           await navigator.clipboard.writeText(urlToShare);
-          setStatus('Link copied');
+          setStatus("Link copied");
         } else {
-          throw new Error('No shareable URL returned');
+          throw new Error("No shareable URL returned");
         }
       } catch {
         if (urlToShare) {
           await navigator.clipboard.writeText(urlToShare);
-          setStatus('Link copied');
+          setStatus("Link copied");
         } else {
-          setStatus('Share failed');
+          setStatus("Share failed");
         }
       }
     } catch (e) {
       console.error(e);
-      setStatus('Share failed');
+      setStatus("Share failed");
     }
   };
 
@@ -124,32 +220,32 @@ function createReelActionsBar(rootEl, memoryId, previewData) {
       if (!pd) return;
 
       if (reelId) {
-        await apiDownloadReelSaved({
+        await downloadReelSavedApi({
           reelId,
-          fileName: `${(pd.title || 'smritikosha_reel').replace(/\s+/g, '_')}.mp4`,
+          fileName: `${(pd.title || "smritikosha_reel").replace(/\s+/g, "_")}.mp4`,
         });
       } else {
-        await apiDownloadReelEphemeral({
+        await downloadReelEphemeralApi({
           previewData: pd,
           title: pd.title,
         });
       }
 
-      setStatus('Download started');
+      setStatus("Download started");
     } catch (e) {
       console.error(e);
-      setStatus('Download failed');
+      setStatus("Download failed");
     }
   };
 }
 
+// --------- Public mounts ----------
 
 export function mountReelActionsForMemory(memoryId, previewData) {
   const card = document.querySelector(`[data-memory-id="${memoryId}"]`);
   if (!card) return;
   createReelActionsBar(card, memoryId, previewData);
 }
-
 
 export function mountReelActionsForReel(memoryId, previewData, containerEl) {
   if (!containerEl) return;
@@ -158,6 +254,6 @@ export function mountReelActionsForReel(memoryId, previewData, containerEl) {
 
 export function unmountReelActionsForMemory(memoryId) {
   const card = document.querySelector(`[data-memory-id="${memoryId}"]`);
-  card?.querySelector('.sk-reel-actions')?.remove();
+  card?.querySelector(".sk-reel-actions")?.remove();
   reelState.delete(memoryId);
 }
