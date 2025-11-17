@@ -1,6 +1,6 @@
 // src/memory/reelUI.js
 
-import { supabase } from '../../lib/supabaseClient.js';
+import { supabase } from "../../lib/supabaseClient.js";
 
 // --------- API helpers (client side, with auth) ----------
 
@@ -27,7 +27,12 @@ async function saveReelApi({ memoryId, title, summary, previewData }) {
     }),
   });
 
-  if (!res.ok) throw new Error("Save failed");
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => "");
+    console.error("saveReel error:", res.status, errBody);
+    throw new Error("Save failed");
+  }
+
   const { reelId } = await res.json();
   if (!reelId) throw new Error("Missing reelId");
   return reelId;
@@ -46,7 +51,12 @@ async function publishReelApi({ reelId }) {
     body: JSON.stringify({ reelId }),
   });
 
-  if (!res.ok) throw new Error("Publish failed");
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => "");
+    console.error("publishReel error:", res.status, errBody);
+    throw new Error("Publish failed");
+  }
+
   return res.json(); // { viewUrl, posterUrl, videoUrl, reelId }
 }
 
@@ -63,7 +73,12 @@ async function downloadReelSavedApi({ reelId, fileName }) {
     body: JSON.stringify({ reelId }),
   });
 
-  if (!res.ok) throw new Error("Download prep failed");
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => "");
+    console.error("downloadReel(saved) error:", res.status, errBody);
+    throw new Error("Download prep failed");
+  }
+
   const { downloadUrl, fileName: serverName } = await res.json();
 
   const a = document.createElement("a");
@@ -91,7 +106,11 @@ async function downloadReelEphemeralApi({ previewData, title }) {
     }),
   });
 
-  if (!res.ok) throw new Error("Download stream failed");
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => "");
+    console.error("downloadReel(ephemeral) error:", res.status, errBody);
+    throw new Error("Download stream failed");
+  }
 
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);
@@ -219,12 +238,22 @@ function createReelActionsBar(rootEl, memoryId, previewData) {
       const { reelId, previewData: pd } = st || {};
       if (!pd) return;
 
+      // If we have a saved reel, try private download first, then fallback to ephemeral
       if (reelId) {
-        await downloadReelSavedApi({
-          reelId,
-          fileName: `${(pd.title || "smritikosha_reel").replace(/\s+/g, "_")}.mp4`,
-        });
+        try {
+          await downloadReelSavedApi({
+            reelId,
+            fileName: `${(pd.title || "smritikosha_reel").replace(/\s+/g, "_")}.mp4`,
+          });
+        } catch (savedErr) {
+          console.warn("Saved download failed, falling back to ephemeral:", savedErr);
+          await downloadReelEphemeralApi({
+            previewData: pd,
+            title: pd.title,
+          });
+        }
       } else {
+        // No saved reel yet → go straight to ephemeral render
         await downloadReelEphemeralApi({
           previewData: pd,
           title: pd.title,

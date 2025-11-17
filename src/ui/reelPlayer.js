@@ -21,23 +21,23 @@ export function playReel(previewData) {
   frameLayer.className = "absolute inset-0 flex items-center justify-center";
   overlay.appendChild(frameLayer);
 
-  // Top right controls bar: Close + Save / Share / Download
+  // Top right controls bar
   const controlsBar = document.createElement("div");
   controlsBar.className =
     "absolute top-4 right-4 flex items-center gap-2 z-10";
   overlay.appendChild(controlsBar);
 
-  // Close button inside the controls bar
+  // 1) Mount Save / Share / Download into the controls bar
+  if (memoryId) {
+    mountReelActionsForReel(memoryId, previewData, controlsBar);
+  }
+
+  // 2) Then add Close so it appears AFTER Download
   const closeBtn = document.createElement("button");
   closeBtn.className =
     "px-3 py-1 rounded-full bg-black/60 text-white text-sm backdrop-blur hover:bg-black";
   closeBtn.textContent = "Close";
   controlsBar.appendChild(closeBtn);
-
-  // Mount save/share/download into the same top-right bar
-  if (memoryId) {
-    mountReelActionsForReel(memoryId, previewData, controlsBar);
-  }
 
   const track = Math.random() > 0.5 ? "1" : "2";
   const audio = new Audio(`/music/${track}.mp3`);
@@ -46,7 +46,6 @@ export function playReel(previewData) {
   audio.play();
   gsap.to(audio, { volume: 0.4, duration: 3 });
 
-  // Close handler: fade audio out and hide overlay
   const closeReel = () => {
     gsap.to(audio, {
       volume: 0,
@@ -68,8 +67,7 @@ export function playReel(previewData) {
   Promise.all(preloadImages).then(() => {
     const playNext = () => {
       if (index >= visualFlow.length) {
-        // Reel ended: fade audio but keep view open,
-        // user can now decide to Save / Share / Download or Close
+        // Reel ended: fade audio, keep UI open
         gsap.to(audio, {
           volume: 0,
           duration: 2,
@@ -78,7 +76,6 @@ export function playReel(previewData) {
         return;
       }
 
-      // Only clear the frame layer, not controls
       frameLayer.innerHTML = "";
       const block = visualFlow[index];
 
