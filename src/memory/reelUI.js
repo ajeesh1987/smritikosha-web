@@ -1,8 +1,9 @@
 // src/memory/reelUI.js
 
 import { supabase } from "../../lib/supabaseClient.js";
+import { exportReelToVideo } from "./reelExport.js";
 
-// --------- API helpers (client side, with auth) ----------
+// --------- API helpers ----------
 
 async function getToken() {
   const { data } = await supabase.auth.getSession();
@@ -38,91 +39,6 @@ async function saveReelApi({ memoryId, title, summary, previewData }) {
   return reelId;
 }
 
-async function publishReelApi({ reelId }) {
-  const token = await getToken();
-  if (!token) throw new Error("Not authenticated");
-
-  const res = await fetch("/api/memory/publishReel", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ reelId }),
-  });
-
-  if (!res.ok) {
-    const errBody = await res.text().catch(() => "");
-    console.error("publishReel error:", res.status, errBody);
-    throw new Error("Publish failed");
-  }
-
-  return res.json(); // { viewUrl, posterUrl, videoUrl, reelId }
-}
-
-async function downloadReelSavedApi({ reelId, fileName }) {
-  const token = await getToken();
-  if (!token) throw new Error("Not authenticated");
-
-  const res = await fetch("/api/memory/downloadReel", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ reelId }),
-  });
-
-  if (!res.ok) {
-    const errBody = await res.text().catch(() => "");
-    console.error("downloadReel(saved) error:", res.status, errBody);
-    throw new Error("Download prep failed");
-  }
-
-  const { downloadUrl, fileName: serverName } = await res.json();
-
-  const a = document.createElement("a");
-  a.href = downloadUrl;
-  a.download = fileName || serverName || "smritikosha_reel.mp4";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-}
-
-async function downloadReelEphemeralApi({ previewData, title }) {
-  const token = await getToken();
-  if (!token) throw new Error("Not authenticated");
-
-  const res = await fetch("/api/memory/downloadReel", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({
-      ephemeral: true,
-      renderParams: previewData,
-      title,
-    }),
-  });
-
-  if (!res.ok) {
-    const errBody = await res.text().catch(() => "");
-    console.error("downloadReel(ephemeral) error:", res.status, errBody);
-    throw new Error("Download stream failed");
-  }
-
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${(title || "smritikosha_reel").replace(/\s+/g, "_")}.mp4`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
 // --------- State ---------
 
 // memoryId -> { reelId, previewData }
@@ -132,7 +48,6 @@ const reelState = new Map();
 
 function createReelActionsBar(rootEl, memoryId, previewData) {
   if (!rootEl || !previewData) return;
-
   if (rootEl.querySelector(".sk-reel-actions")) return;
 
   const existing = reelState.get(memoryId) || { reelId: null, previewData: null };
@@ -159,9 +74,10 @@ function createReelActionsBar(rootEl, memoryId, previewData) {
     if (!msg) return;
     elStatus._t = setTimeout(() => {
       elStatus.textContent = "";
-    }, 2000);
+    }, 2500);
   };
 
+  // SAVE → keep using backend so reels table is populated
   elSave.onclick = async () => {
     try {
       const st = reelState.get(memoryId);
@@ -183,48 +99,29 @@ function createReelActionsBar(rootEl, memoryId, previewData) {
     }
   };
 
+  // SHARE → for MVP, share app link (no server render yet)
   elShare.onclick = async () => {
     try {
-      let st = reelState.get(memoryId);
+      const st = reelState.get(memoryId);
       const { previewData: pd } = st || {};
-      if (!pd) return;
 
-      let { reelId } = st || {};
+      const baseUrl = window.location.origin || "https://smritikosha.com";
+      const shareUrl = baseUrl;
+      const shareTitle = pd?.title || "My SmritiKosha Reel";
+      const shareText = `I created a memory reel in SmritiKosha: ${shareTitle}`;
 
-      if (!reelId) {
-        reelId = await saveReelApi({
-          memoryId,
-          title: pd.title,
-          summary: pd.summary,
-          previewData: pd,
+      if (navigator.share) {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
         });
-        st = { ...st, reelId };
-        reelState.set(memoryId, st);
-      }
-
-      const { viewUrl, videoUrl } = await publishReelApi({ reelId });
-      const urlToShare = viewUrl || videoUrl;
-
-      try {
-        if (navigator.share && urlToShare) {
-          await navigator.share({
-            title: pd.title || "My SmritiKosha Reel",
-            url: urlToShare,
-          });
-          setStatus("Shared");
-        } else if (urlToShare) {
-          await navigator.clipboard.writeText(urlToShare);
-          setStatus("Link copied");
-        } else {
-          throw new Error("No shareable URL returned");
-        }
-      } catch {
-        if (urlToShare) {
-          await navigator.clipboard.writeText(urlToShare);
-          setStatus("Link copied");
-        } else {
-          setStatus("Share failed");
-        }
+        setStatus("Shared");
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        setStatus("Link copied");
+      } else {
+        setStatus("Share not supported");
       }
     } catch (e) {
       console.error(e);
@@ -232,38 +129,26 @@ function createReelActionsBar(rootEl, memoryId, previewData) {
     }
   };
 
+  // DOWNLOAD → browser-side export to video (canvas + MediaRecorder)
   elDown.onclick = async () => {
     try {
       const st = reelState.get(memoryId);
-      const { reelId, previewData: pd } = st || {};
+      const { previewData: pd } = st || {};
       if (!pd) return;
 
-      // If we have a saved reel, try private download first, then fallback to ephemeral
-      if (reelId) {
-        try {
-          await downloadReelSavedApi({
-            reelId,
-            fileName: `${(pd.title || "smritikosha_reel").replace(/\s+/g, "_")}.mp4`,
-          });
-        } catch (savedErr) {
-          console.warn("Saved download failed, falling back to ephemeral:", savedErr);
-          await downloadReelEphemeralApi({
-            previewData: pd,
-            title: pd.title,
-          });
-        }
-      } else {
-        // No saved reel yet → go straight to ephemeral render
-        await downloadReelEphemeralApi({
-          previewData: pd,
-          title: pd.title,
-        });
-      }
-
+      setStatus("Exporting video...");
+      await exportReelToVideo(
+        pd,
+        (pd.title || "smritikosha_reel").replace(/\s+/g, "_")
+      );
       setStatus("Download started");
     } catch (e) {
-      console.error(e);
-      setStatus("Download failed");
+      console.error("Browser export failed:", e);
+      if (e?.message?.includes("not support")) {
+        setStatus("Download not supported on this browser");
+      } else {
+        setStatus("Download failed");
+      }
     }
   };
 }
