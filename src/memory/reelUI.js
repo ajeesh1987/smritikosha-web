@@ -1,7 +1,7 @@
 // src/memory/reelUI.js
 
 import { supabase } from "../../lib/supabaseClient.js";
-import { exportReelToVideo } from "./reelExport.js";
+import { exportReelToVideo } from "../..api/memory/reelExport.js";
 
 // --------- API helpers ----------
 
