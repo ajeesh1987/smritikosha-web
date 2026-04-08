@@ -1,5 +1,5 @@
 // src/memory/reelActions.js
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../lib/supabaseClient.js';
 
 async function getToken() {
   const { data } = await supabase.auth.getSession();
