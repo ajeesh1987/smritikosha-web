@@ -1,6 +1,6 @@
 // src/ui/reelPlayer.js
 import { gsap } from "gsap";
-import { mountReelActionsForReel } from "../memory/reelUI.js";
+import { mountReelActionsForReel, unmountReelActionsForMemory } from "../memory/reelUI.js";
 
 export function playReel(previewData) {
   const { memoryId, title, theme, mood, musicStyle, visualFlow } = previewData;
@@ -53,6 +53,7 @@ export function playReel(previewData) {
       onComplete: () => audio.pause(),
     });
     container.classList.add("hidden");
+    if (memoryId) unmountReelActionsForMemory(memoryId);
   };
 
   closeBtn.onclick = closeReel;

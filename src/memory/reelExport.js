@@ -40,7 +40,6 @@ function drawTitleCard(ctx, width, height, title, theme, mood) {
 }
 
 function drawFrame(ctx, width, height, img, caption) {
-  // white background
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, width, height);
 
@@ -51,13 +50,11 @@ function drawFrame(ctx, width, height, img, caption) {
 
     let drawWidth, drawHeight, dx, dy;
     if (imgRatio > canvasRatio) {
-      // image is wider than canvas
       drawWidth = width;
       drawHeight = width / imgRatio;
       dx = 0;
       dy = (height - drawHeight) / 2;
     } else {
-      // image is taller than canvas
       drawHeight = height;
       drawWidth = height * imgRatio;
       dx = (width - drawWidth) / 2;
@@ -158,12 +155,15 @@ export async function exportReelToVideo(previewData, fileNameOverride) {
   } finally {
     recorder.stop();
     await onStopPromise;
+    stream.getTracks().forEach((t) => t.stop());
   }
 
   const blob = new Blob(chunks, { type: mimeType });
   const ext = mimeType.includes("mp4") ? "mp4" : "webm";
   const safeBase =
-    (fileNameOverride || title || "smritikosha_reel").replace(/\s+/g, "_") || "smritikosha_reel";
+    fileNameOverride ||
+    (title || "smritikosha_reel").replace(/\s+/g, "_") ||
+    "smritikosha_reel";
   const fileName = `${safeBase}.${ext}`;
 
   const url = URL.createObjectURL(blob);
@@ -173,5 +173,5 @@ export async function exportReelToVideo(previewData, fileNameOverride) {
   document.body.appendChild(a);
   a.click();
   a.remove();
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 100);
 }

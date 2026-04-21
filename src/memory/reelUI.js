@@ -104,6 +104,7 @@ function createReelActionsBar(rootEl, memoryId, previewData) {
     try {
       const st = reelState.get(memoryId);
       const { previewData: pd } = st || {};
+      if (!pd) return;
 
       const baseUrl = window.location.origin || "https://smritikosha.com";
       const shareUrl = baseUrl;
@@ -129,7 +130,6 @@ function createReelActionsBar(rootEl, memoryId, previewData) {
     }
   };
 
-  // DOWNLOAD → browser-side export to video (canvas + MediaRecorder)
   elDown.onclick = async () => {
     try {
       const st = reelState.get(memoryId);

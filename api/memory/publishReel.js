@@ -46,24 +46,25 @@ export default async function handler(req, res) {
       const checksum =
         result.checksum ?? crypto.createHash('sha1').update(mp4Buf).digest('hex');
 
-      const upVid = await supabase.storage
-        .from('reels-public')
-        .upload(paths.publicVideo, mp4Buf, {
-          contentType: 'video/mp4',
-          upsert: true,
-        });
-      if (upVid.error) throw upVid.error;
-
-      if (jpgBuf) {
-        const upPoster = await supabase.storage
+      const [upVid, upPoster] = await Promise.all([
+        supabase.storage
           .from('reels-public')
-          .upload(paths.publicPoster, jpgBuf, {
-            contentType: 'image/jpeg',
+          .upload(paths.publicVideo, mp4Buf, {
+            contentType: 'video/mp4',
             upsert: true,
-          });
-        if (upPoster.error) throw upPoster.error;
-        finalPosterPath = paths.publicPoster;
-      }
+          }),
+        jpgBuf
+          ? supabase.storage
+              .from('reels-public')
+              .upload(paths.publicPoster, jpgBuf, {
+                contentType: 'image/jpeg',
+                upsert: true,
+              })
+          : Promise.resolve({ error: null }),
+      ]);
+      if (upVid.error) throw upVid.error;
+      if (jpgBuf && upPoster.error) throw upPoster.error;
+      if (jpgBuf) finalPosterPath = paths.publicPoster;
 
       finalVideoPath = paths.publicVideo;
 
