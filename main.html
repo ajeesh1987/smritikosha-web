@@ -92,8 +92,13 @@
     .upload-zone.drag-over { border-color: #7c3aed; background: rgba(124,58,237,0.09); }
     .upload-zone.has-file { border-style: solid; border-color: rgba(124,58,237,0.40); background: rgba(124,58,237,0.06); }
 
+    /* Modal panel — frosted white glass */
+    .modal-panel { background: rgba(255,255,255,0.96); backdrop-filter: blur(40px) saturate(1.6); -webkit-backdrop-filter: blur(40px) saturate(1.6); border: 1px solid rgba(255,255,255,1); box-shadow: 0 24px 64px rgba(124,58,237,0.13), 0 4px 20px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9); }
+    .modal-panel .sk-input { background: rgba(124,58,237,0.035); border-color: rgba(124,58,237,0.12); }
+    .modal-panel .sk-input:focus { background: #fff; }
+
     /* Modal footer separator */
-    .modal-footer { border-top: 1px solid rgba(124,58,237,0.08); padding-top: 1rem; margin-top: 0.5rem; }
+    .modal-footer { border-top: 1px solid rgba(124,58,237,0.07); padding-top: 1rem; margin-top: 0.5rem; }
 
     /* Scrollable modal body */
     .modal-scroll { max-height: 88vh; overflow-y: auto; }
@@ -174,7 +179,7 @@
 
   <!-- ── MEMORY MODAL ── -->
   <div id="memory-modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4">
-    <div class="glass-strong rounded-2xl shadow-2xl w-full max-w-lg animate-fadeInUp overflow-hidden">
+    <div class="modal-panel rounded-2xl w-full max-w-lg animate-fadeInUp overflow-hidden">
 
       <!-- Accent bar -->
       <div class="modal-accent"></div>
@@ -256,7 +261,7 @@
 
   <!-- ── IMAGE UPLOAD MODAL ── -->
   <div id="image-upload-modal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center z-50 p-4">
-    <div class="glass-strong rounded-2xl shadow-2xl w-full max-w-lg animate-fadeInUp overflow-hidden modal-scroll">
+    <div class="modal-panel rounded-2xl w-full max-w-lg animate-fadeInUp overflow-hidden modal-scroll">
 
       <!-- Accent bar -->
       <div class="modal-accent"></div>
@@ -397,7 +402,7 @@
 
   <!-- ── CONFIRM DIALOG ── -->
   <div id="confirm-dialog" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
-    <div class="glass-strong rounded-2xl p-6 shadow-2xl w-full max-w-sm animate-fadeInUp">
+    <div class="modal-panel rounded-2xl p-6 w-full max-w-sm animate-fadeInUp">
       <p id="confirm-message" class="text-gray-700 text-sm mb-5">Are you sure?</p>
       <div class="flex justify-end gap-3">
         <button id="confirm-cancel" class="btn-ghost text-sm font-medium px-4 py-2 rounded-xl">Cancel</button>
@@ -408,7 +413,7 @@
 
   <!-- ── YEAR IN REVIEW PICKER MODAL ── -->
   <div id="yir-picker-modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4">
-    <div class="glass-strong rounded-2xl shadow-2xl p-6 w-full max-w-sm animate-fadeInUp">
+    <div class="modal-panel rounded-2xl p-6 w-full max-w-sm animate-fadeInUp">
       <h3 class="text-lg font-bold mb-1" style="background:linear-gradient(135deg,#f59e0b,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Year in Review</h3>
       <p class="text-xs text-gray-400 mb-4">Relive your best moments from a year.</p>
       <label class="modal-label">Select a year</label>
