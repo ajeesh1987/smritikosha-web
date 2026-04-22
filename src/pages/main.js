@@ -842,6 +842,89 @@ bindSummarizeButtonEvents();
 }
 window.loadMemories = loadMemories;
 
+// ─── Year in Review — ad-hoc trigger ─────────────────────────────────────────
+
+(function setupYirTrigger() {
+  const triggerBtn = document.getElementById('yir-trigger-btn');
+  const modal      = document.getElementById('yir-picker-modal');
+  const select     = document.getElementById('yir-year-select');
+  const cancelBtn  = document.getElementById('yir-picker-cancel');
+  const goBtn      = document.getElementById('yir-picker-go');
+  if (!triggerBtn || !modal) return;
+
+  // Populate year options: last 5 years, most recent first
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear - 1; y >= currentYear - 5; y--) {
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    select.appendChild(opt);
+  }
+
+  triggerBtn.onclick = () => {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  };
+
+  cancelBtn.onclick = () => {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  };
+
+  modal.addEventListener('click', e => {
+    if (e.target === modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  });
+
+  goBtn.onclick = async () => {
+    const year = Number(select.value);
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    await generateAndPlayYir(year);
+  };
+})();
+
+async function generateAndPlayYir(year) {
+  const btn = document.getElementById('yir-trigger-btn');
+  const originalText = btn.textContent;
+  btn.textContent = 'Generating...';
+  btn.disabled = true;
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+
+    const res = await fetch('/api/yearInReview/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ year }),
+    });
+
+    if (!res.ok) throw new Error('Generation failed');
+    const reelData = await res.json();
+
+    if (reelData.empty) {
+      showToast(`No memories found for ${year}`, false);
+      return;
+    }
+
+    import('../ui/reelPlayer.js').then(({ playReel }) => {
+      playReel(reelData);
+    });
+  } catch (err) {
+    console.error('Year in Review error:', err);
+    showToast('Could not generate Year in Review', false);
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+}
+
 // ─── Year in Review ──────────────────────────────────────────────────────────
 
 async function checkYearInReview(user) {
