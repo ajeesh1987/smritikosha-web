@@ -881,13 +881,15 @@ function refreshButtonStates() {
     yirBtn.classList.toggle('hidden', !(memoryCards.length >= 1 && totalImages >= 3));
   }
 
-  // Reel button per memory card — needs 3+ images in that card
+  // Reel and summarize buttons per memory card
   memoryCards.forEach(card => {
+    const count = card.querySelectorAll('[data-image-id]').length;
+
     const reelBtn = card.querySelector('.reel-btn');
-    if (reelBtn) {
-      const count = card.querySelectorAll('[data-image-id]').length;
-      reelBtn.classList.toggle('hidden', count < 3);
-    }
+    if (reelBtn) reelBtn.classList.toggle('hidden', count < 3);
+
+    const summarizeBtn = card.querySelector('.summarize-btn');
+    if (summarizeBtn) summarizeBtn.classList.toggle('hidden', count < 1);
   });
 }
 
