@@ -1,12 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/png" href="/assets/favicon.png" />
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Your Memories | SmritiKosha</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -15,262 +13,289 @@
           fontFamily: { sans: ['Inter', 'sans-serif'] },
           animation: {
             fadeInUp: 'fadeInUp 0.3s ease-out both',
+            blob: 'blob 12s infinite ease-in-out',
           },
           keyframes: {
             fadeInUp: {
-              '0%': { opacity: '0', transform: 'translateY(10px) scale(0.95)' },
+              '0%': { opacity: '0', transform: 'translateY(10px) scale(0.97)' },
               '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+            },
+            blob: {
+              '0%,100%': { transform: 'translate(0,0) scale(1)' },
+              '33%': { transform: 'translate(40px,-28px) scale(1.06)' },
+              '66%': { transform: 'translate(-18px,18px) scale(0.96)' },
             },
           },
         },
       },
-    }
+    };
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
   <style>
+    body { background-color: #f3f4f6; }
+
+    /* Blobs */
+    .blob-1 { background: radial-gradient(circle, rgba(167,139,250,0.35) 0%, transparent 70%); }
+    .blob-2 { background: radial-gradient(circle, rgba(34,211,238,0.22) 0%, transparent 70%); }
+
+    /* Glass panels */
+    .glass { background: rgba(255,255,255,0.62); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.82); }
+    .glass-strong { background: rgba(255,255,255,0.78); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border: 1px solid rgba(255,255,255,0.92); }
+
+    /* Gradient accent */
+    .gradient-text { background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    /* Buttons */
+    .btn-primary { background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); color: #fff; box-shadow: 0 4px 14px rgba(124,58,237,0.25); transition: opacity 0.2s, transform 0.15s; }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-ghost { background: rgba(255,255,255,0.60); border: 1px solid rgba(124,58,237,0.15); color: #4c1d95; transition: background 0.2s; }
+    .btn-ghost:hover { background: rgba(255,255,255,0.90); }
+    .btn-danger { background: #ef4444; color: #fff; transition: opacity 0.2s; }
+    .btn-danger:hover { opacity: 0.88; }
+
+    /* Inputs */
+    .sk-input { background: rgba(255,255,255,0.70); border: 1px solid rgba(124,58,237,0.15); color: #1e1b4b; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; padding: 0.5rem 0.875rem; border-radius: 0.75rem; font-size: 0.875rem; }
+    .sk-input::placeholder { color: rgba(100,80,180,0.35); }
+    .sk-input:focus { outline: none; border-color: rgba(124,58,237,0.50); box-shadow: 0 0 0 3px rgba(124,58,237,0.10); background: rgba(255,255,255,0.95); }
+
     /* Loading Spinner */
-    #loading-spinner {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 50;
-      display: none;
-    }
-  
-    .loader {
-      border: 4px solid #f3f3f3; /* Light grey */
-      border-top: 4px solid #3498db; /* Blue */
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 2s linear infinite;
-    }
-  
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+    #loading-spinner { position: fixed; inset: 0; background: rgba(15,10,40,0.45); display: flex; justify-content: center; align-items: center; z-index: 9999; display: none; }
+    .loader { border: 3px solid rgba(124,58,237,0.15); border-top: 3px solid #7c3aed; border-radius: 50%; width: 44px; height: 44px; animation: spin 0.8s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Memory cards (JS-generated) inherit these */
+    .memory-card { background: rgba(255,255,255,0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.88); border-radius: 1.25rem; box-shadow: 0 2px 16px rgba(124,58,237,0.07); transition: transform 0.2s, box-shadow 0.2s; }
+    .memory-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(124,58,237,0.13); }
+
+    /* Toast */
+    #toast { transition: opacity 0.3s; }
+
+    /* Modal label style */
+    .modal-label { display: block; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: #7c3aed; margin-bottom: 0.25rem; }
+
+    /* Scrollable modal body */
+    .modal-scroll { max-height: 80vh; overflow-y: auto; }
   </style>
-  
-  
-  
 </head>
-<body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 min-h-screen p-6">
+<body class="font-sans min-h-screen">
+
+  <!-- Background blobs -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+    <div class="blob-1 absolute w-[600px] h-[600px] rounded-full -top-64 -left-48 animate-blob opacity-70"></div>
+    <div class="blob-2 absolute w-[500px] h-[500px] rounded-full -bottom-48 -right-48 animate-blob opacity-50" style="animation-delay:5s"></div>
+  </div>
+
   <div id="global-logo"></div>
   <script>
-    fetch('/components/logo.html')
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById('global-logo').innerHTML = html;
-      });
+    fetch('/components/logo.html').then(r => r.text()).then(h => { document.getElementById('global-logo').innerHTML = h; });
   </script>
-  
-  <div class="max-w-5xl mx-auto space-y-8">
-    
+
+  <div class="relative max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-      <h1 class="text-3xl font-bold text-indigo-700">Your Memories</h1>
+      <h1 class="text-3xl font-bold gradient-text">Your Memories</h1>
       <div class="flex items-center gap-3">
-        
-        <button id="yir-trigger-btn" class="hidden bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+        <button id="yir-trigger-btn"
+          class="hidden text-sm font-medium px-4 py-2 rounded-xl transition"
+          style="background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);color:#fff;box-shadow:0 4px 14px rgba(245,158,11,0.28);">
           Year in Review
         </button>
-        <button id="add-memory-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+        <button id="add-memory-btn"
+          class="btn-primary text-sm font-medium px-4 py-2 rounded-xl">
           + Add Memory
         </button>
         <div class="relative">
-          <button id="profile-btn" class="flex items-center gap-2 px-4 py-2 bg-white text-indigo-700 rounded-lg shadow hover:bg-indigo-100 text-sm">
-            <i class="fas fa-user-circle text-xl"></i>
+          <button id="profile-btn"
+            class="btn-ghost flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium">
+            <i class="fas fa-user-circle text-lg"></i>
             <span class="hidden sm:inline">Profile</span>
           </button>
-          <div id="profile-menu" class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg py-2 hidden z-50">
-            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
-            <button id="logout-btn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100">Logout</button>
+          <div id="profile-menu"
+            class="absolute right-0 mt-2 w-40 glass-strong rounded-xl shadow-xl py-2 hidden z-50">
+            <a href="#" class="block px-4 py-2 text-sm text-violet-800 hover:bg-violet-50 rounded-lg mx-1">Settings</a>
+            <button id="logout-btn"
+              class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg mx-1">
+              Logout
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Year in Review banner — shown on Jan 1st when a pending reel exists -->
-    <div id="yir-banner" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4 shadow-sm"></div>
+    <!-- Year in Review banner — shown on Jan 1st -->
+    <div id="yir-banner" class="hidden glass rounded-2xl border border-amber-200/60 p-4"></div>
 
     <!-- Memory Grid -->
     <div id="memory-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-    
+
   </div>
-  <div id="map-feature-card" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 hidden w-[90%] max-w-md">
-    <a href="/map.html" class="block bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-5 rounded-2xl shadow-2xl hover:shadow-xl transition duration-300">
+
+  <!-- Map feature card -->
+  <div id="map-feature-card" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 hidden w-[90%] max-w-md">
+    <a href="/map.html"
+      class="block btn-primary p-5 rounded-2xl shadow-2xl">
       <div class="flex items-center gap-4">
-        <div class="text-3xl">
-          <i class="fas fa-map-marked-alt"></i>
-        </div>
-        
+        <div class="text-3xl opacity-90"><i class="fas fa-map-marked-alt"></i></div>
         <div>
-          <h2 class="text-lg font-semibold">Explore Memories on a Map</h2>
-          <p class="text-sm opacity-90">Visualize your memories by location — immersive, premium, and delightful.</p>
+          <h2 class="text-base font-semibold">Explore Memories on a Map</h2>
+          <p class="text-xs opacity-80 mt-0.5">Visualize your memories by location.</p>
         </div>
       </div>
     </a>
   </div>
-  <!-- Loading Spinner inside the Modal -->
-<div id="loading-spinner" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-  <div class="loader"></div>
-</div>
 
-  
-  <!-- Memory Modal -->
-  <div id="memory-modal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-lg animate-fadeInUp">
-      <h3 class="text-xl font-semibold text-indigo-700 mb-4">Add a Memory</h3>
-      <!-- Inside the #memory-modal div, below the description textarea -->
+  <!-- Loading Spinner -->
+  <div id="loading-spinner" class="fixed inset-0 flex items-center justify-center z-[9999] hidden" style="background:rgba(15,10,40,0.45)">
+    <div class="loader"></div>
+  </div>
 
+  <!-- ── MEMORY MODAL ── -->
+  <div id="memory-modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4">
+    <div class="glass-strong rounded-2xl shadow-2xl p-6 w-full max-w-lg animate-fadeInUp">
+      <h3 class="text-lg font-bold gradient-text mb-5">Add a Memory</h3>
       <input type="hidden" id="memory-id" />
-
       <form id="memory-form" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium">Memory Title <span class="text-red-500">*</span></label>
-          <input type="text" id="memory-title" maxlength="50" required class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none" />
+          <label class="modal-label">Memory Title <span class="text-red-400 normal-case">*</span></label>
+          <input type="text" id="memory-title" maxlength="50" required class="sk-input" placeholder="What will you call this memory?" />
+        </div>
+        <div class="relative">
+          <label class="modal-label">Location</label>
+          <input type="text" id="memory-location" maxlength="30" class="sk-input" placeholder="Where was this?" autocomplete="off" />
+          <ul id="memory-location-suggestions" class="absolute glass-strong border border-violet-100 rounded-xl shadow-lg hidden z-50 w-full max-h-48 overflow-y-auto mt-1"></ul>
         </div>
         <div>
-          <label class="block text-sm font-medium">Location</label>
-          <input type="text" id="memory-location" maxlength="30" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none" />
-        <ul id="memory-location-suggestions" class="absolute bg-white border border-gray-200 rounded shadow-md hidden z-50 w-full max-h-48 overflow-y-auto"></ul>
-
+          <label class="modal-label">Tags</label>
+          <input type="text" id="memory-tags" class="sk-input" placeholder="vacation family summer" />
         </div>
         <div>
-          <label class="block text-sm font-medium">Tags</label>
-          <input type="text" id="memory-tags" placeholder="vacation family summer" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none" />
+          <label class="modal-label">Description</label>
+          <textarea id="memory-description" rows="3" class="sk-input resize-none" placeholder="What made this moment special?"></textarea>
         </div>
-        <div>
-          <label class="block text-sm font-medium">Description</label>
-          <textarea id="memory-description" rows="3" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none"></textarea>
-        </div>
-        <div class="flex justify-end gap-3 pt-2">
-          <button type="button" id="cancel-memory-btn" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Cancel</button>
-          <button type="submit" id="memory-submit-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Create</button>
+        <div class="flex justify-end gap-3 pt-1">
+          <button type="button" id="cancel-memory-btn" class="btn-ghost text-sm font-medium px-4 py-2 rounded-xl">Cancel</button>
+          <button type="submit" id="memory-submit-btn" class="btn-primary text-sm font-medium px-5 py-2.5 rounded-xl">Create</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Image Upload Modal -->
-  <div id="image-upload-modal" class="fixed inset-0 bg-black bg-opacity-40 hidden flex items-center justify-center z-50">
-   
-    <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-lg animate-fadeInUp">
-      <h3 class="text-xl font-semibold text-indigo-700 mb-4">Add Image to Memory</h3>
+  <!-- ── IMAGE UPLOAD MODAL ── -->
+  <div id="image-upload-modal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center z-50 p-4">
+    <div class="glass-strong rounded-2xl shadow-2xl p-6 w-full max-w-lg animate-fadeInUp modal-scroll">
+      <h3 class="text-lg font-bold gradient-text mb-5">Add Image to Memory</h3>
       <form id="image-form" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium">Upload Image <span class="text-red-500">*</span></label>
-          <input type="file" id="upload-image" accept="image/*" required class="w-full" />
+          <label class="modal-label">Upload Image <span class="text-red-400 normal-case">*</span></label>
+          <input type="file" id="upload-image" accept="image/*" required class="sk-input cursor-pointer" />
         </div>
         <div class="relative">
-          <label class="block text-sm font-medium">Location</label>
-          <input type="text" id="image-location" maxlength="50" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none" placeholder="Search for a location..." autocomplete="off" />
-          <ul id="location-suggestions" class="bg-white border border-gray-300 mt-1 rounded-md shadow-md absolute z-50 hidden max-h-60 overflow-y-auto"></ul>
+          <label class="modal-label">Location</label>
+          <input type="text" id="image-location" maxlength="50" class="sk-input" placeholder="Search for a location…" autocomplete="off" />
+          <ul id="location-suggestions" class="glass-strong border border-violet-100 rounded-xl shadow-lg mt-1 absolute z-50 hidden max-h-60 overflow-y-auto w-full"></ul>
         </div>
         <div>
-          <label class="block text-sm font-medium">Tags</label>
-          <input type="text" id="image-tags" placeholder="sunset beach" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none" />
+          <label class="modal-label">Tags</label>
+          <input type="text" id="image-tags" class="sk-input" placeholder="sunset beach" />
         </div>
         <div>
-          <label class="block text-sm font-medium">Description</label>
-          <textarea id="image-description" rows="3" class="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:outline-none"></textarea>
-          <label for="image-capture-date" class="block text-sm font-medium text-gray-700 flex items-center gap-2">
+          <label class="modal-label">Description</label>
+          <textarea id="image-description" rows="3" class="sk-input resize-none" placeholder="Describe this moment…"></textarea>
+        </div>
+        <div>
+          <label class="modal-label flex items-center gap-1.5">
             Capture Date
-            <span class="relative group cursor-pointer">
-              <i class="fas fa-info-circle text-gray-400 hover:text-indigo-600"></i>
-              <div class="absolute left-6 top-1 z-10 hidden group-hover:block w-64 bg-white text-xs text-gray-700 border border-gray-300 p-2 rounded shadow-md">
-                This date is extracted from the image metadata. If not available, today's date is used. You can manually edit it.
+            <span class="relative group cursor-pointer normal-case font-normal">
+              <i class="fas fa-info-circle text-violet-300 hover:text-violet-500 text-xs"></i>
+              <div class="absolute left-5 top-0 z-10 hidden group-hover:block w-64 glass-strong text-xs text-gray-600 border border-violet-100 p-2.5 rounded-xl shadow-md">
+                Extracted from image metadata. If unavailable, today's date is used. You can manually edit it.
               </div>
             </span>
           </label>
-          <input 
-            type="date" 
-            id="image-capture-date" 
-            name="image-capture-date" 
-            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" 
-            max="" />
-          <small class="text-xs text-gray-500 mt-1 block">You can adjust the date if needed.</small>
-          
-          
+          <input type="date" id="image-capture-date" name="image-capture-date" class="sk-input mt-0.5" max="" />
+          <small class="text-xs text-violet-400 mt-1 block">You can adjust the date if needed.</small>
         </div>
-        <div class="flex justify-end gap-3 pt-2">
-          <button type="button" onclick="closeImageUpload()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Cancel</button>
-          <button type="submit" id="image-submit-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Upload</button>
+        <div class="flex justify-end gap-3 pt-1">
+          <button type="button" onclick="closeImageUpload()" class="btn-ghost text-sm font-medium px-4 py-2 rounded-xl">Cancel</button>
+          <button type="submit" id="image-submit-btn" class="btn-primary text-sm font-medium px-5 py-2.5 rounded-xl">Upload</button>
         </div>
       </form>
     </div>
   </div>
 
+  <!-- ── IMAGE VIEWER MODAL ── -->
+  <div id="image-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="relative w-full max-w-5xl max-h-[90vh] flex flex-col md:flex-row glass rounded-2xl p-5 mx-4 gap-5 shadow-2xl">
 
+      <!-- Prev -->
+      <button id="modal-prev"
+        class="absolute left-4 top-1/2 -translate-y-1/2 text-white text-2xl font-bold bg-black/50 hover:bg-black/70 rounded-full w-10 h-10 flex items-center justify-center z-50 backdrop-blur-sm">
+        &#10094;
+      </button>
 
+      <!-- Close -->
+      <button onclick="closeImageModal()" id="modal-close"
+        class="absolute top-4 right-4 text-white text-xl font-bold bg-black/50 hover:bg-red-600 rounded-full w-9 h-9 flex items-center justify-center z-50 backdrop-blur-sm">
+        &times;
+      </button>
 
- <!-- Image Modal -->
-<div id="image-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
-  <div class="relative w-full max-w-6xl max-h-[90vh] flex flex-col md:flex-row bg-white p-6 rounded-lg shadow-lg mx-4 md:mx-auto gap-6">
+      <!-- Next -->
+      <button id="modal-next"
+        class="absolute right-4 top-1/2 -translate-y-1/2 text-white text-2xl font-bold bg-black/50 hover:bg-black/70 rounded-full w-10 h-10 flex items-center justify-center z-50 backdrop-blur-sm">
+        &#10095;
+      </button>
 
-    <!-- Left arrow -->
-    <button id="modal-prev" class="absolute left-6 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black/50 hover:bg-black/70 rounded-full w-12 h-12 flex items-center justify-center z-50 shadow-lg backdrop-blur">
-      &#10094;
-    </button>
+      <!-- Image -->
+      <div class="flex flex-col items-center justify-center w-full md:w-2/3">
+        <img id="modal-image" src="" class="max-h-[70vh] w-full object-contain rounded-xl shadow-lg" />
+        <p id="modal-location" class="text-sm text-violet-400 font-medium mt-3 text-center"></p>
+      </div>
 
-    <!-- Close button -->
-    <button onclick="closeImageModal()" id="modal-close" class="absolute top-6 right-6 text-white text-2xl font-bold bg-black/50 hover:bg-red-600 rounded-full w-10 h-10 flex items-center justify-center z-50 shadow-lg backdrop-blur">
-      &times;
-    </button>
-
-    <!-- Right arrow -->
-    <button id="modal-next" class="absolute right-6 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black/50 hover:bg-black/70 rounded-full w-12 h-12 flex items-center justify-center z-50 shadow-lg backdrop-blur">
-      &#10095;
-    </button>
-
-    <!-- Image and location -->
-    <div class="flex flex-col items-center justify-center w-full md:w-2/3">
-      <img id="modal-image" src="" class="max-h-[70vh] w-full object-contain rounded-lg shadow" />
-      <p id="modal-location" class="text-sm text-indigo-600 font-medium mt-4 text-center"></p>
+      <!-- Info panel -->
+      <div id="modal-info-panel" class="glass-strong text-gray-700 p-4 rounded-xl w-full md:w-1/3 self-center hidden">
+        <p id="modal-description" class="text-sm leading-relaxed whitespace-pre-line break-words"></p>
+      </div>
     </div>
-
-    <!-- Description panel -->
-    <div id="modal-info-panel" class="bg-white text-gray-800 p-4 rounded-lg shadow w-full md:w-1/3 self-center hidden">
-      <p id="modal-description" class="text-sm leading-relaxed whitespace-pre-line break-words"></p>
-    </div>
-
   </div>
-</div>
 
   <!-- Toast -->
-  <div id="toast" class="fixed bottom-4 right-4 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 pointer-events-none transition duration-300 z-50"></div>
+  <div id="toast"
+    class="fixed bottom-5 right-5 btn-primary px-4 py-2.5 rounded-xl shadow-lg opacity-0 pointer-events-none text-sm font-medium z-50">
+  </div>
+
+  <!-- ── CONFIRM DIALOG ── -->
+  <div id="confirm-dialog" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+    <div class="glass-strong rounded-2xl p-6 shadow-2xl w-full max-w-sm animate-fadeInUp">
+      <p id="confirm-message" class="text-gray-700 text-sm mb-5">Are you sure?</p>
+      <div class="flex justify-end gap-3">
+        <button id="confirm-cancel" class="btn-ghost text-sm font-medium px-4 py-2 rounded-xl">Cancel</button>
+        <button id="confirm-ok" class="btn-danger text-sm font-medium px-4 py-2 rounded-xl">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── YEAR IN REVIEW PICKER MODAL ── -->
+  <div id="yir-picker-modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4">
+    <div class="glass-strong rounded-2xl shadow-2xl p-6 w-full max-w-sm animate-fadeInUp">
+      <h3 class="text-lg font-bold mb-1" style="background:linear-gradient(135deg,#f59e0b,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Year in Review</h3>
+      <p class="text-xs text-gray-400 mb-4">Relive your best moments from a year.</p>
+      <label class="modal-label">Select a year</label>
+      <select id="yir-year-select" class="sk-input mb-5"></select>
+      <div class="flex justify-end gap-3">
+        <button id="yir-picker-cancel" class="btn-ghost text-sm font-medium px-4 py-2 rounded-xl">Cancel</button>
+        <button id="yir-picker-go" class="text-sm font-medium px-5 py-2.5 rounded-xl text-white"
+          style="background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 14px rgba(245,158,11,0.28);">
+          Generate
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reel Player Overlay -->
+  <div id="reel-player" class="hidden"></div>
 
   <script type="module" src="src/pages/main.js"></script>
-  <!-- Custom Confirm Dialog -->
-<div id="confirm-dialog" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-  <div class="bg-white rounded-xl p-6 shadow-xl w-full max-w-sm animate-fadeInUp">
-    <p id="confirm-message" class="text-gray-800 text-base mb-4">Are you sure?</p>
-    <div class="flex justify-end gap-3">
-      <button id="confirm-cancel" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Cancel</button>
-      <button id="confirm-ok" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Yes, Delete</button>
-    </div>
-  </div>
-</div>
-<!-- Year in Review — year picker modal -->
-<div id="yir-picker-modal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-  <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm animate-fadeInUp">
-    <h3 class="text-lg font-semibold text-amber-700 mb-4">Year in Review</h3>
-    <label class="block text-sm font-medium text-gray-700 mb-1">Select a year</label>
-    <select id="yir-year-select" class="w-full px-3 py-2 border rounded-md focus:ring-amber-500 focus:outline-none mb-5"></select>
-    <div class="flex justify-end gap-3">
-      <button id="yir-picker-cancel" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 text-sm">Cancel</button>
-      <button id="yir-picker-go" class="px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 text-sm font-medium">Generate</button>
-    </div>
-  </div>
-</div>
-
-<!-- Reel Player Overlay -->
-<div id="reel-player" class="hidden"></div>
-
 </body>
 </html>

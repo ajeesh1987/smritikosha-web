@@ -191,17 +191,17 @@ function displaySummary(memoryId, summary) {
   if (!container) {
     const memoryCard = document.querySelector(`[data-memory-id="${memoryId}"]`);
     container = document.createElement('div');
-    container.className = 'mt-3 bg-indigo-50 text-indigo-800 p-3 rounded shadow-sm space-y-2';
+    container.className = 'mt-3 p-3 rounded-xl space-y-2' ; container.style.cssText = 'background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.12);';
     container.setAttribute('data-summary-id', memoryId);
     memoryCard.appendChild(container);
   }
 
   container.innerHTML = `
-  <p class="text-sm text-indigo-900 leading-relaxed">${summary}</p>
-  <div class="flex gap-3 items-center text-sm pt-2">
-    <button class="save-summary-btn bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded" data-id="${memoryId}">Save</button>
-    <button class="retry-summary-btn bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded" data-id="${memoryId}">Regenerate</button>
-    <button class="clear-summary-btn bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded" data-id="${memoryId}">Dismiss</button>
+  <p class="text-sm text-violet-900 leading-relaxed">${summary}</p>
+  <div class="flex gap-2 items-center text-xs pt-2 flex-wrap">
+    <button class="save-summary-btn px-3 py-1.5 rounded-lg text-white font-medium" style="background:linear-gradient(135deg,#7c3aed,#0891b2)" data-id="${memoryId}">Save</button>
+    <button class="retry-summary-btn px-3 py-1.5 rounded-lg text-white font-medium" style="background:#f59e0b" data-id="${memoryId}">Regenerate</button>
+    <button class="clear-summary-btn px-3 py-1.5 rounded-lg font-medium" style="background:rgba(255,255,255,0.7);border:1px solid rgba(124,58,237,0.15);color:#4c1d95" data-id="${memoryId}">Dismiss</button>
     <span class="summary-status text-xs text-gray-500 italic ml-2"></span>
   </div>
 `;
@@ -366,8 +366,8 @@ function setupLocationAutocomplete(inputId, suggestionsId) {
       suggestions.innerHTML = '';
       results.slice(0, 5).forEach((place, i) => {
         const li = document.createElement('li');
-        li.className = 'cursor-pointer px-3 py-2 hover:bg-indigo-50 flex gap-2';
-        li.innerHTML = `<i class='fas fa-map-marker-alt text-indigo-500'></i><span>${place.display_name}</span>`;
+        li.className = 'cursor-pointer px-3 py-2 hover:bg-violet-50 flex gap-2 text-sm text-violet-900 rounded-lg mx-1';
+        li.innerHTML = `<i class='fas fa-map-marker-alt text-violet-400 mt-0.5'></i><span>${place.display_name}</span>`;
         li.dataset.lat = place.lat;
         li.dataset.lon = place.lon;
         li.onclick = () => {
@@ -400,7 +400,7 @@ function setupLocationAutocomplete(inputId, suggestionsId) {
       suggestions.classList.add('hidden');
     }
 
-    items.forEach((el, i) => el.classList.toggle('bg-indigo-100', i === activeIndex));
+    items.forEach((el, i) => el.classList.toggle('bg-violet-100', i === activeIndex));
   });
 
   document.addEventListener('click', e => {
@@ -711,11 +711,11 @@ const related = images.filter(i => String(i.memory_id) === String(memory.id));
     const ids = related.map(i => i.id);
     const card = document.createElement('div');
     card.setAttribute('data-memory-id', memory.id);
-    card.className = 'bg-white p-4 border border-gray-200 rounded-lg shadow-sm';
+    card.className = 'memory-card p-5';
     card.innerHTML = `
-      <div class="flex justify-between items-start mb-2">
-        <h3 class='text-lg font-bold text-indigo-700'>${memory.title}</h3>
-        <div class="flex gap-2">
+      <div class="flex justify-between items-start mb-3">
+        <h3 class='text-base font-bold' style="background:linear-gradient(135deg,#7c3aed,#0891b2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${memory.title}</h3>
+        <div class="flex gap-2 items-center">
   ${
   (() => {
     const hasDescriptiveInfo =
@@ -729,46 +729,44 @@ const related = images.filter(i => String(i.memory_id) === String(memory.id));
 
     if (hasDescriptiveInfo && hasImages) {
       html += `
-        <button class="summarize-btn text-indigo-600 hover:text-indigo-800" 
-                data-memory-id="${memory.id}" 
+        <button class="summarize-btn text-violet-400 hover:text-violet-600 transition-colors"
+                data-memory-id="${memory.id}"
                 title="Summarize this memory">
-          <i class="fas fa-magic"></i>
+          <i class="fas fa-magic text-sm"></i>
         </button>`;
     }
 
     if (hasEnoughForReel) {
       html += `
-        <button class="reel-btn text-purple-600 hover:text-purple-800" 
-                data-memory-id="${memory.id}" 
+        <button class="reel-btn text-violet-400 hover:text-violet-600 transition-colors"
+                data-memory-id="${memory.id}"
                 title="Create Reel">
-          <i class="fas fa-film"></i>
+          <i class="fas fa-film text-sm"></i>
         </button>`;
     }
 
     return html;
   })()
 }
-
-
-<button onclick="openImageUpload('${memory.id}')"><i class="fas fa-plus text-indigo-600 hover:text-indigo-800"></i></button>
-          <button onclick="deleteMemory('${memory.id}')"><i class="fas fa-trash text-red-500 hover:text-red-700"></i></button>
+<button onclick="openImageUpload('${memory.id}')" class="text-violet-400 hover:text-violet-600 transition-colors" title="Add image"><i class="fas fa-plus text-sm"></i></button>
+          <button onclick="deleteMemory('${memory.id}')" class="text-red-400 hover:text-red-600 transition-colors" title="Delete memory"><i class="fas fa-trash text-sm"></i></button>
         </div>
       </div>
-      ${memory.location ? `<p class='text-sm text-gray-600 mb-1'>📍 ${memory.location}</p>` : ''}
-      ${memory.tags ? `<div class="mb-2">${memory.tags.split(/[, ]+/).map(tag => `<span class='inline-block bg-indigo-100 text-indigo-700 text-xs font-medium mr-1 px-2 py-1 rounded-full'>${tag}</span>`).join('')}</div>` : ''}
+      ${memory.location ? `<p class='text-xs text-violet-400 font-medium mb-2'>📍 ${memory.location}</p>` : ''}
+      ${memory.tags ? `<div class="mb-3 flex flex-wrap gap-1">${memory.tags.split(/[, ]+/).filter(Boolean).map(tag => `<span class='inline-block bg-violet-50 text-violet-600 text-xs font-medium px-2.5 py-0.5 rounded-full border border-violet-100'>${tag}</span>`).join('')}</div>` : ''}
       <div class="flex flex-wrap gap-2">
         ${valid.map((url, i) => `
-          <div class="relative w-28 h-28">
-<img 
-  src="${url}" 
-  data-description="${descriptions[i] || ''}" 
-  data-location="${locations[i] || ''}" 
-  data-image-id="${ids[i]}" 
-  class="w-full h-full object-cover rounded-lg cursor-pointer border hover:ring-2 hover:ring-indigo-300"
+          <div class="relative w-24 h-24">
+<img
+  src="${url}"
+  data-description="${descriptions[i] || ''}"
+  data-location="${locations[i] || ''}"
+  data-image-id="${ids[i]}"
+  class="w-full h-full object-cover rounded-xl cursor-pointer hover:ring-2 hover:ring-violet-300 transition-all"
 onclick="openImageModal(event, '${url}', ${i})"
 />
-            <button onclick="deleteImage('${ids[i]}', this)" class="absolute top-0 right-0 mt-1 mr-1 bg-white rounded-full p-1 shadow-md">
-              <i class="fas fa-trash text-red-500 hover:text-red-700"></i>
+            <button onclick="deleteImage('${ids[i]}', this)" class="absolute top-1 right-1 bg-white/80 backdrop-blur rounded-full p-1 shadow-md hover:bg-red-50 transition-colors">
+              <i class="fas fa-trash text-red-400 hover:text-red-600 text-xs"></i>
             </button>
           </div>`).join('')}
       </div>`;
@@ -1001,11 +999,12 @@ function showYirBanner(yirRow) {
       </div>
       <div class="flex items-center gap-2 shrink-0">
         <button id="yir-play-btn"
-          class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+          class="text-white px-4 py-2 rounded-xl text-sm font-medium transition"
+          style="background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);box-shadow:0 4px 14px rgba(245,158,11,0.28);">
           Play Year in Review
         </button>
         <button id="yir-dismiss-btn"
-          class="text-amber-600 hover:text-amber-800 text-sm px-2 underline">
+          class="text-amber-600 hover:text-amber-800 text-xs px-2 underline">
           Not now
         </button>
       </div>
