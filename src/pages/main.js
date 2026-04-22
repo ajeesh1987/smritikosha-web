@@ -662,6 +662,14 @@ async function loadMemories() {
   .from('memory_images')
   .select('*')
   .eq('user_id', user.id); // ✅ filter to only user's images
+
+  // Show Year in Review button only when there's enough content to generate a reel
+  const yirBtn = document.getElementById('yir-trigger-btn');
+  if (yirBtn) {
+    const hasEnough = memories.length >= 1 && (images || []).length >= 3;
+    yirBtn.classList.toggle('hidden', !hasEnough);
+  }
+
   memoryList.innerHTML = '';
 
   for (const memory of memories) {
