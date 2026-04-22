@@ -1,4 +1,4 @@
-import { getMemoryDetails, summarizeText } from './utils.js';
+import { getMemoryDetails, summarizeText } from '../../lib/memoryUtils.js';
 import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {

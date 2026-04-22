@@ -1,7 +1,7 @@
 // /api/memory/reel.js
 import { createClient } from '@supabase/supabase-js';
-import { getMemoryDetails, summarizeText } from './utils.js';
-import { getReelVisualFlow } from './generateReelData.js';
+import { getMemoryDetails, summarizeText } from '../../lib/memoryUtils.js';
+import { getReelVisualFlow } from '../../lib/generateReelData.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
