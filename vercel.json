@@ -9,5 +9,11 @@
       "src": "/pages/(.*)",
       "dest": "/pages/$1"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/yearInReview/cron",
+      "schedule": "0 0 1 1 *"
+    }
   ]
 }
