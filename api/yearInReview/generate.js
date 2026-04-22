@@ -66,8 +66,9 @@ export default async function handler(req, res) {
   const { data: { user }, error: authErr } = await supabase.auth.getUser();
   if (authErr || !user) return res.status(401).json({ error: 'Unauthorized' });
 
-  // Determine target year
+  // Determine target year and whether to prepend a Happy New Year title card
   const requestedYear = req.body?.year;
+  const includeHny    = req.body?.hny === true;
   const targetYear = Number.isInteger(requestedYear)
     ? requestedYear
     : new Date().getFullYear() - 1;
@@ -185,10 +186,11 @@ Your responsibilities:
 4. Mood and Theme
    - Choose one mood (e.g. Grateful, Nostalgic, Joyful) and one theme (e.g. A Year Well Lived).
 
-5. Opening frame
-   - The very first frame MUST be the title card; represent it as the first entry in visualFlow with:
+${includeHny ? `5. Opening frame
+   - The very first frame MUST be a title card; represent it as the first entry in visualFlow with:
      imageUrl: ""  (empty — the player renders it as a text card)
-     caption: "Happy New Year! Here's your ${targetYear} in SmritiKosha."
+     caption: "Happy New Year! Here's your ${targetYear} in SmritiKosha."` : `5. Opening frame
+   - Do NOT add any title card or opening frame. Start directly with the first photo.`}
 
 Respond ONLY with a valid JSON object:
 {

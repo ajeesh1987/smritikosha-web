@@ -1008,7 +1008,7 @@ function showYirBanner(yirRow) {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ year: yirRow.year }),
+        body: JSON.stringify({ year: yirRow.year, hny: true }),
       });
 
       if (!res.ok) throw new Error('Generation failed');
