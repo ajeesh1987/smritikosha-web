@@ -4,47 +4,65 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Edit Memory | SmritiKosha</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          animation: { blob: 'blob 12s infinite ease-in-out', fadeUp: 'fadeUp 0.4s ease-out both' },
+          keyframes: {
+            blob: { '0%,100%': { transform: 'translate(0,0) scale(1)' }, '33%': { transform: 'translate(40px,-28px) scale(1.06)' }, '66%': { transform: 'translate(-18px,18px) scale(0.96)' } },
+            fadeUp: { '0%': { opacity: '0', transform: 'translateY(12px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
           },
         },
       },
     };
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { background-color: #f3f4f6; }
+    .blob-1 { background: radial-gradient(circle, rgba(167,139,250,0.40) 0%, transparent 70%); }
+    .blob-2 { background: radial-gradient(circle, rgba(34,211,238,0.28) 0%, transparent 70%); }
+    .glass-strong { background: rgba(255,255,255,0.78); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border: 1px solid rgba(255,255,255,0.92); }
+    .gradient-text { background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .btn-primary { background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); color: #fff; box-shadow: 0 4px 14px rgba(124,58,237,0.25); transition: opacity 0.2s, transform 0.15s; }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .sk-input { background: rgba(255,255,255,0.70); border: 1px solid rgba(124,58,237,0.15); color: #1e1b4b; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; padding: 0.625rem 1rem; border-radius: 0.75rem; font-size: 0.875rem; }
+    .sk-input::placeholder { color: rgba(100,80,180,0.35); }
+    .sk-input:focus { outline: none; border-color: rgba(124,58,237,0.50); box-shadow: 0 0 0 3px rgba(124,58,237,0.10); background: rgba(255,255,255,0.95); }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 min-h-screen flex items-center justify-center px-4">
+<body class="font-sans min-h-screen flex items-center justify-center px-4">
 
-  <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-lg">
-    <h1 class="text-2xl font-bold text-center mb-6 text-indigo-700">Edit Memory</h1>
-    
+  <!-- Blobs -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+    <div class="blob-1 absolute w-[500px] h-[500px] rounded-full -top-48 -left-32 animate-blob opacity-80"></div>
+    <div class="blob-2 absolute w-[420px] h-[420px] rounded-full -bottom-32 -right-32 animate-blob opacity-60" style="animation-delay:4s"></div>
+  </div>
+
+  <div class="glass-strong rounded-2xl p-8 w-full max-w-lg shadow-xl animate-fadeUp relative z-10 space-y-6">
+    <h1 class="text-2xl font-bold gradient-text text-center">Edit Memory</h1>
+
     <form id="edit-memory-form" class="space-y-4">
-      <div>
-        <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
-        <input type="text" id="title" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:outline-none" />
+      <div class="space-y-1.5">
+        <label for="title" class="block text-xs font-semibold text-violet-500 uppercase tracking-wider">Title</label>
+        <input type="text" id="title" required class="sk-input" placeholder="Memory title" />
       </div>
-
-      <div>
-        <label for="location" class="block text-sm font-medium text-gray-700">Location</label>
-        <input type="text" id="location" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:outline-none" />
+      <div class="space-y-1.5">
+        <label for="location" class="block text-xs font-semibold text-violet-500 uppercase tracking-wider">Location</label>
+        <input type="text" id="location" class="sk-input" placeholder="Where was this?" />
       </div>
-
-      <div>
-        <label for="tags" class="block text-sm font-medium text-gray-700">Tags</label>
-        <input type="text" id="tags" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:outline-none" />
+      <div class="space-y-1.5">
+        <label for="tags" class="block text-xs font-semibold text-violet-500 uppercase tracking-wider">Tags</label>
+        <input type="text" id="tags" class="sk-input" placeholder="travel family summer" />
       </div>
-
-      <div>
-        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-        <textarea id="description" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:outline-none"></textarea>
+      <div class="space-y-1.5">
+        <label for="description" class="block text-xs font-semibold text-violet-500 uppercase tracking-wider">Description</label>
+        <textarea id="description" rows="4" class="sk-input resize-none" placeholder="What made this moment special?"></textarea>
       </div>
-
-      <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 font-medium">Save Changes</button>
+      <button type="submit" class="btn-primary w-full py-2.5 rounded-xl font-medium text-sm">Save Changes</button>
     </form>
   </div>
 

@@ -1,70 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign Up | SmritiKosha</title>
   <link rel="icon" type="image/png" href="/assets/favicon.png" />
-
-  <!-- TailwindCSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          animation: { blob: 'blob 12s infinite ease-in-out', fadeUp: 'fadeUp 0.4s ease-out both' },
+          keyframes: {
+            blob: { '0%,100%': { transform: 'translate(0,0) scale(1)' }, '33%': { transform: 'translate(40px,-28px) scale(1.06)' }, '66%': { transform: 'translate(-18px,18px) scale(0.96)' } },
+            fadeUp: { '0%': { opacity: '0', transform: 'translateY(12px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
           },
         },
       },
     };
   </script>
-
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-
-  <!-- Tom Select CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet" />
-  
-  <body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 min-h-screen flex flex-col items-center justify-center px-4">
-
-    <script type="module">
-      import { redirectIfAuthenticated } from './src/pages/redirectIfAuthenticated.js';
-      redirectIfAuthenticated();
-    </script>
-    
-  
+  <style>
+    body { background-color: #f3f4f6; }
+    .blob-1 { background: radial-gradient(circle, rgba(167,139,250,0.40) 0%, transparent 70%); }
+    .blob-2 { background: radial-gradient(circle, rgba(34,211,238,0.28) 0%, transparent 70%); }
+    .glass-strong { background: rgba(255,255,255,0.78); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border: 1px solid rgba(255,255,255,0.92); }
+    .gradient-text { background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .btn-primary { background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); color: #fff; box-shadow: 0 4px 14px rgba(124,58,237,0.25); transition: opacity 0.2s, transform 0.15s; }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .sk-input { background: rgba(255,255,255,0.70); border: 1px solid rgba(124,58,237,0.15); color: #1e1b4b; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; padding: 0.625rem 1rem; border-radius: 0.75rem; font-size: 0.875rem; }
+    .sk-input::placeholder { color: rgba(100,80,180,0.35); }
+    .sk-input:focus { outline: none; border-color: rgba(124,58,237,0.50); box-shadow: 0 0 0 3px rgba(124,58,237,0.10); background: rgba(255,255,255,0.95); }
+    /* Tom Select overrides */
+    .ts-wrapper .ts-control { background: rgba(255,255,255,0.70) !important; border: 1px solid rgba(124,58,237,0.15) !important; border-radius: 0.75rem !important; color: #1e1b4b !important; box-shadow: none !important; padding: 0.5rem 1rem !important; font-size: 0.875rem !important; }
+    .ts-wrapper.focus .ts-control { border-color: rgba(124,58,237,0.50) !important; box-shadow: 0 0 0 3px rgba(124,58,237,0.10) !important; }
+    .ts-dropdown { border-radius: 0.75rem !important; border: 1px solid rgba(124,58,237,0.15) !important; }
+  </style>
+  <script type="module">
+    import { redirectIfAuthenticated } from './src/pages/redirectIfAuthenticated.js';
+    redirectIfAuthenticated();
+  </script>
 </head>
-<body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 min-h-screen flex items-center justify-center px-4">
+<body class="font-sans min-h-screen flex flex-col items-center justify-center px-4 py-10">
+
+  <!-- Blobs -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+    <div class="blob-1 absolute w-[500px] h-[500px] rounded-full -top-48 -left-32 animate-blob opacity-80"></div>
+    <div class="blob-2 absolute w-[420px] h-[420px] rounded-full -bottom-32 -right-32 animate-blob opacity-60" style="animation-delay:4s"></div>
+  </div>
+
   <div id="global-logo"></div>
   <script>
-    fetch('/components/logo.html')
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById('global-logo').innerHTML = html;
-      });
+    fetch('/components/logo.html').then(r => r.text()).then(h => { document.getElementById('global-logo').innerHTML = h; });
   </script>
-  
-  <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
-    <h1 class="text-2xl font-bold text-center mb-6 text-indigo-700">Create an Account</h1>
-    
+
+  <div class="glass-strong rounded-2xl p-8 w-full max-w-md shadow-xl animate-fadeUp relative z-10 space-y-6">
+    <div class="text-center space-y-1">
+      <h1 class="text-2xl font-bold gradient-text">Create an Account</h1>
+      <p class="text-sm text-gray-400">Start preserving your memories</p>
+    </div>
+
     <form id="signup-form" class="space-y-4">
-      <div>
-        <label for="first-name" class="block text-sm font-medium text-gray-700">First Name</label>
-        <input type="text" id="first-name" name="first_name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      <div class="space-y-1.5">
+        <label for="first-name" class="block text-xs font-semibold text-violet-500 uppercase tracking-wider">First Name</label>
+        <input type="text" id="first-name" name="first_name" required class="sk-input" placeholder="Your first name" />
       </div>
-
-      <div>
-        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-        <input type="email" id="email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      <div class="space-y-1.5">
+        <label for="email" class="block text-xs font-semibold text-violet-500 uppercase tracking-wider">Email</label>
+        <input type="email" id="email" name="email" required class="sk-input" placeholder="you@example.com" />
       </div>
-
-      <div>
-        <label for="country" class="block text-sm font-medium text-gray-700">Country / Region</label>
-        <select id="country" name="country" required class="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
+      <div class="space-y-1.5">
+        <label for="country" class="block text-xs font-semibold text-violet-500 uppercase tracking-wider">Country / Region</label>
+        <select id="country" name="country" required>
           <option value="">Select your country</option>
           <option value="Germany">Germany</option>
           <option value="United States">United States</option>
@@ -76,53 +87,38 @@
           <option value="Brazil">Brazil</option>
           <option value="Japan">Japan</option>
           <option value="South Africa">South Africa</option>
-          <!-- Add more countries if needed -->
         </select>
       </div>
-
-      <div>
-        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-        <input type="password" id="password" name="password" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      <div class="space-y-1.5">
+        <label for="password" class="block text-xs font-semibold text-violet-500 uppercase tracking-wider">Password</label>
+        <input type="password" id="password" name="password" required class="sk-input" placeholder="••••••••" />
       </div>
-
-      <div>
-        <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
-        <input type="password" id="confirm-password" name="confirm-password" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      <div class="space-y-1.5">
+        <label for="confirm-password" class="block text-xs font-semibold text-violet-500 uppercase tracking-wider">Confirm Password</label>
+        <input type="password" id="confirm-password" name="confirm-password" required class="sk-input" placeholder="••••••••" />
       </div>
-
-      <div class="flex items-start">
-        <input type="checkbox" id="terms" name="terms" required class="mt-1 mr-2">
-        <label for="terms" class="text-sm text-gray-700">
-          I agree to the 
-          <a href="#" class="text-indigo-600 hover:underline">Terms & Conditions</a> and 
-          <a href="#" class="text-indigo-600 hover:underline">Privacy Policy</a>.
+      <div class="flex items-start gap-2 pt-1">
+        <input type="checkbox" id="terms" name="terms" required class="mt-1 accent-violet-600" />
+        <label for="terms" class="text-sm text-gray-500">
+          I agree to the
+          <a href="#" class="text-violet-500 hover:text-violet-600">Terms &amp; Conditions</a> and
+          <a href="#" class="text-violet-500 hover:text-violet-600">Privacy Policy</a>.
         </label>
       </div>
-
-      <p id="error-msg" class="text-red-500 text-sm text-center"></p>
-
-      <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition font-medium">Sign Up</button>
+      <p id="error-msg" class="text-red-400 text-sm text-center"></p>
+      <button type="submit" class="btn-primary w-full py-2.5 rounded-xl font-medium text-sm">Sign Up</button>
     </form>
 
-    <div class="mt-6 text-center">
-      <span class="text-sm text-gray-600">Already have an account?</span>
-      <a href="login.html" class="ml-1 text-sm text-indigo-600 font-medium hover:underline">Log in</a>
-    </div>
+    <p class="text-center text-sm text-gray-400">
+      Already have an account?
+      <a href="login.html" class="text-violet-500 font-medium hover:text-violet-600">Log in</a>
+    </p>
   </div>
 
-  <!-- Signup script -->
   <script type="module" src="/src/pages/signup-page.js"></script>
-
-  <!-- Tom Select JS -->
   <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
   <script>
-    new TomSelect("#country", {
-      create: false,
-      sortField: {
-        field: "text",
-        direction: "asc"
-      }
-    });
+    new TomSelect("#country", { create: false, sortField: { field: "text", direction: "asc" } });
   </script>
 </body>
 </html>

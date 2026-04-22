@@ -5,71 +5,87 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Email Verification | SmritiKosha</title>
   <link rel="icon" type="image/png" href="/assets/favicon.png" />
-
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          animation: { blob: 'blob 12s infinite ease-in-out', fadeUp: 'fadeUp 0.4s ease-out both' },
+          keyframes: {
+            blob: { '0%,100%': { transform: 'translate(0,0) scale(1)' }, '33%': { transform: 'translate(40px,-28px) scale(1.06)' }, '66%': { transform: 'translate(-18px,18px) scale(0.96)' } },
+            fadeUp: { '0%': { opacity: '0', transform: 'translateY(12px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
           },
         },
       },
     };
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { background-color: #f3f4f6; }
+    .blob-1 { background: radial-gradient(circle, rgba(167,139,250,0.40) 0%, transparent 70%); }
+    .blob-2 { background: radial-gradient(circle, rgba(34,211,238,0.28) 0%, transparent 70%); }
+    .glass-strong { background: rgba(255,255,255,0.78); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border: 1px solid rgba(255,255,255,0.92); }
+    .gradient-text { background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .btn-primary { background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); color: #fff; box-shadow: 0 4px 14px rgba(124,58,237,0.25); transition: opacity 0.2s, transform 0.15s; }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 flex items-center justify-center min-h-screen px-4">
+<body class="font-sans min-h-screen flex items-center justify-center px-4">
+
+  <!-- Blobs -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+    <div class="blob-1 absolute w-[500px] h-[500px] rounded-full -top-48 -left-32 animate-blob opacity-80"></div>
+    <div class="blob-2 absolute w-[420px] h-[420px] rounded-full -bottom-32 -right-32 animate-blob opacity-60" style="animation-delay:4s"></div>
+  </div>
+
   <div id="global-logo"></div>
   <script>
-    fetch('/components/logo.html')
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById('global-logo').innerHTML = html;
-      });
+    fetch('/components/logo.html').then(r => r.text()).then(h => { document.getElementById('global-logo').innerHTML = h; });
   </script>
-  
-  <div id="verify-card" class="bg-white p-8 rounded-xl shadow-xl max-w-md text-center w-full hidden">
-    <h1 id="status-title" class="text-3xl font-bold mb-2"></h1>
-    <p id="status-message" class="text-gray-600 mb-6"></p>
-    <button id="go-login-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition font-medium hidden">Go to Login</button>
+
+  <div id="verify-card" class="glass-strong rounded-2xl p-8 max-w-md w-full text-center shadow-xl animate-fadeUp relative z-10 space-y-4 hidden">
+    <h1 id="status-title" class="text-2xl font-bold"></h1>
+    <p id="status-message" class="text-gray-500 text-sm leading-relaxed"></p>
+    <button id="go-login-btn"
+      class="btn-primary px-6 py-2.5 rounded-xl font-medium text-sm hidden">
+      Go to Login
+    </button>
   </div>
 
   <script type="module">
     import { supabase } from '../lib/supabaseClient.js';
 
-    const card = document.getElementById('verify-card');
-    const title = document.getElementById('status-title');
-    const msg = document.getElementById('status-message');
+    const card     = document.getElementById('verify-card');
+    const title    = document.getElementById('status-title');
+    const msg      = document.getElementById('status-message');
     const loginBtn = document.getElementById('go-login-btn');
 
     (async () => {
       const hash = window.location.hash;
 
-      // Show error if there's no token
       if (!hash.includes('access_token')) {
-        title.textContent = '⚠ Verification Failed';
+        title.textContent = 'Verification Failed';
+        title.classList.add('text-red-500');
         msg.textContent = 'No access token found. Please use the link sent to your email.';
         card.classList.remove('hidden');
         return;
       }
 
-      // Exchange token and verify user
       const { error } = await supabase.auth.getSession();
 
       if (error) {
-        title.textContent = '⚠ Verification Failed';
+        title.textContent = 'Verification Failed';
+        title.classList.add('text-red-500');
         msg.textContent = `Something went wrong: ${error.message}`;
       } else {
-        title.textContent = '✔ Email Verified';
-        title.classList.add('text-green-600');
+        title.textContent = 'Email Verified';
+        title.classList.add('gradient-text');
         msg.textContent = 'Your email has been verified successfully. You may now log in and start preserving your memories.';
         loginBtn.classList.remove('hidden');
         loginBtn.onclick = () => window.location.href = './login.html';
       }
 
-      // Hide access token from URL
       history.replaceState({}, document.title, window.location.pathname);
       card.classList.remove('hidden');
     })();
