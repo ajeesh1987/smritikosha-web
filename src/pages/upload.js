@@ -25,9 +25,10 @@ let currentMemoryId = null;
 export function openImageUpload(memoryId) {
     currentMemoryId = memoryId;
     imageForm.reset();
-    fileInput.value = ''; // <--  this is important!
+    fileInput.value = '';
+    window.resetUploadZone?.();
     document.getElementById('image-upload-modal').classList.remove('hidden');
-    submitBtn.textContent = 'Upload';
+    submitBtn.textContent = 'Upload Image';
     submitBtn.disabled = false;
   }
   
@@ -35,7 +36,8 @@ export function openImageUpload(memoryId) {
 export function closeImageUpload() {
   document.getElementById('image-upload-modal').classList.add('hidden');
   imageForm.reset();
-  submitBtn.textContent = 'Upload';
+  window.resetUploadZone?.();
+  submitBtn.textContent = 'Upload Image';
   submitBtn.disabled = false;
 }
 const uploadModal = document.getElementById('image-upload-modal');
@@ -141,7 +143,7 @@ const filePath = `${user.id}/${currentMemoryId}/${Date.now()}_${safeName}`;
     showToast(err.message || 'Upload failed', false);
   } finally {
     submitBtn.disabled = false;
-    submitBtn.textContent = 'Upload';
+    submitBtn.textContent = 'Upload Image';
   }
 });
 

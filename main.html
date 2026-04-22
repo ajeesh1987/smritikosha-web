@@ -71,11 +71,32 @@
     /* Toast */
     #toast { transition: opacity 0.3s; }
 
-    /* Modal label style */
-    .modal-label { display: block; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: #7c3aed; margin-bottom: 0.25rem; }
+    /* Modal label */
+    .modal-label { display: block; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: #7c3aed; margin-bottom: 0.3rem; }
+
+    /* Modal accent bar at top */
+    .modal-accent { height: 3px; background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); }
+
+    /* Modal icon badge */
+    .modal-badge { width: 36px; height: 36px; min-width: 36px; border-radius: 10px; background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+    /* Icon-prefixed inputs */
+    .field-wrap { position: relative; }
+    .field-wrap .field-icon { position: absolute; left: 0.875rem; top: 50%; transform: translateY(-50%); color: rgba(124,58,237,0.38); font-size: 0.75rem; pointer-events: none; z-index: 1; }
+    .field-wrap.ta-wrap .field-icon { top: 0.7rem; transform: none; }
+    .field-wrap .sk-input { padding-left: 2.25rem; }
+
+    /* Drag-and-drop upload zone */
+    .upload-zone { border: 2px dashed rgba(124,58,237,0.22); border-radius: 1rem; padding: 1.75rem 1rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; background: rgba(124,58,237,0.025); }
+    .upload-zone:hover { border-color: rgba(124,58,237,0.45); background: rgba(124,58,237,0.05); }
+    .upload-zone.drag-over { border-color: #7c3aed; background: rgba(124,58,237,0.09); }
+    .upload-zone.has-file { border-style: solid; border-color: rgba(124,58,237,0.40); background: rgba(124,58,237,0.06); }
+
+    /* Modal footer separator */
+    .modal-footer { border-top: 1px solid rgba(124,58,237,0.08); padding-top: 1rem; margin-top: 0.5rem; }
 
     /* Scrollable modal body */
-    .modal-scroll { max-height: 80vh; overflow-y: auto; }
+    .modal-scroll { max-height: 88vh; overflow-y: auto; }
   </style>
 </head>
 <body class="font-sans min-h-screen">
@@ -153,30 +174,81 @@
 
   <!-- ── MEMORY MODAL ── -->
   <div id="memory-modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4">
-    <div class="glass-strong rounded-2xl shadow-2xl p-6 w-full max-w-lg animate-fadeInUp">
-      <h3 class="text-lg font-bold gradient-text mb-5">Add a Memory</h3>
+    <div class="glass-strong rounded-2xl shadow-2xl w-full max-w-lg animate-fadeInUp overflow-hidden">
+
+      <!-- Accent bar -->
+      <div class="modal-accent"></div>
+
+      <!-- Header -->
+      <div class="flex items-center gap-3 px-6 pt-5 pb-4">
+        <div class="modal-badge">
+          <i class="fas fa-book-open text-white text-xs"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-sm font-bold text-gray-800">Add a Memory</h3>
+          <p class="text-xs text-gray-400">Capture a moment to remember forever</p>
+        </div>
+        <button type="button" id="cancel-memory-btn"
+          class="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition text-lg leading-none">
+          &times;
+        </button>
+      </div>
+
       <input type="hidden" id="memory-id" />
-      <form id="memory-form" class="space-y-4">
+
+      <form id="memory-form" class="px-6 pb-6 space-y-3.5">
+
+        <!-- Title -->
         <div>
-          <label class="modal-label">Memory Title <span class="text-red-400 normal-case">*</span></label>
-          <input type="text" id="memory-title" maxlength="50" required class="sk-input" placeholder="What will you call this memory?" />
+          <label class="modal-label">Title <span class="text-red-400 normal-case font-normal">*</span></label>
+          <div class="field-wrap">
+            <i class="fas fa-pen field-icon"></i>
+            <input type="text" id="memory-title" maxlength="50" required class="sk-input"
+              placeholder="What will you call this memory?" />
+          </div>
         </div>
-        <div class="relative">
+
+        <!-- Location -->
+        <div>
           <label class="modal-label">Location</label>
-          <input type="text" id="memory-location" maxlength="30" class="sk-input" placeholder="Where was this?" autocomplete="off" />
-          <ul id="memory-location-suggestions" class="absolute glass-strong border border-violet-100 rounded-xl shadow-lg hidden z-50 w-full max-h-48 overflow-y-auto mt-1"></ul>
+          <div class="field-wrap relative">
+            <i class="fas fa-map-marker-alt field-icon"></i>
+            <input type="text" id="memory-location" maxlength="30" class="sk-input"
+              placeholder="Where was this?" autocomplete="off" />
+            <ul id="memory-location-suggestions"
+              class="absolute glass-strong border border-violet-100 rounded-xl shadow-lg hidden z-50 w-full max-h-48 overflow-y-auto mt-1 top-full"></ul>
+          </div>
         </div>
+
+        <!-- Tags -->
         <div>
           <label class="modal-label">Tags</label>
-          <input type="text" id="memory-tags" class="sk-input" placeholder="vacation family summer" />
+          <div class="field-wrap">
+            <i class="fas fa-tag field-icon"></i>
+            <input type="text" id="memory-tags" class="sk-input" placeholder="vacation family summer" />
+          </div>
         </div>
+
+        <!-- Description -->
         <div>
           <label class="modal-label">Description</label>
-          <textarea id="memory-description" rows="3" class="sk-input resize-none" placeholder="What made this moment special?"></textarea>
+          <div class="field-wrap ta-wrap">
+            <i class="fas fa-align-left field-icon"></i>
+            <textarea id="memory-description" rows="3" class="sk-input resize-none"
+              placeholder="What made this moment special?"></textarea>
+          </div>
         </div>
-        <div class="flex justify-end gap-3 pt-1">
-          <button type="button" id="cancel-memory-btn" class="btn-ghost text-sm font-medium px-4 py-2 rounded-xl">Cancel</button>
-          <button type="submit" id="memory-submit-btn" class="btn-primary text-sm font-medium px-5 py-2.5 rounded-xl">Create</button>
+
+        <!-- Footer -->
+        <div class="modal-footer flex items-center justify-between">
+          <button type="button" onclick="window.closeMemoryModal()"
+            class="text-sm text-gray-400 hover:text-gray-600 font-medium transition px-2 py-1">
+            Cancel
+          </button>
+          <button type="submit" id="memory-submit-btn"
+            class="btn-primary text-sm font-semibold px-6 py-2.5 rounded-xl">
+            Save Memory
+          </button>
         </div>
       </form>
     </div>
@@ -184,42 +256,100 @@
 
   <!-- ── IMAGE UPLOAD MODAL ── -->
   <div id="image-upload-modal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center z-50 p-4">
-    <div class="glass-strong rounded-2xl shadow-2xl p-6 w-full max-w-lg animate-fadeInUp modal-scroll">
-      <h3 class="text-lg font-bold gradient-text mb-5">Add Image to Memory</h3>
-      <form id="image-form" class="space-y-4">
-        <div>
-          <label class="modal-label">Upload Image <span class="text-red-400 normal-case">*</span></label>
-          <input type="file" id="upload-image" accept="image/*" required class="sk-input cursor-pointer" />
+    <div class="glass-strong rounded-2xl shadow-2xl w-full max-w-lg animate-fadeInUp overflow-hidden modal-scroll">
+
+      <!-- Accent bar -->
+      <div class="modal-accent"></div>
+
+      <!-- Header -->
+      <div class="flex items-center gap-3 px-6 pt-5 pb-4">
+        <div class="modal-badge">
+          <i class="fas fa-images text-white text-xs"></i>
         </div>
-        <div class="relative">
+        <div class="flex-1 min-w-0">
+          <h3 class="text-sm font-bold text-gray-800">Add Image</h3>
+          <p class="text-xs text-gray-400">Attach a photo to this memory</p>
+        </div>
+        <button type="button" onclick="closeImageUpload()"
+          class="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition text-lg leading-none">
+          &times;
+        </button>
+      </div>
+
+      <form id="image-form" class="px-6 pb-6 space-y-3.5">
+
+        <!-- Drop zone -->
+        <div>
+          <input type="file" id="upload-image" accept="image/*" required class="hidden" />
+          <div id="upload-zone" class="upload-zone"
+            onclick="document.getElementById('upload-image').click()"
+            ondragover="event.preventDefault();this.classList.add('drag-over')"
+            ondragleave="this.classList.remove('drag-over')"
+            ondrop="event.preventDefault();this.classList.remove('drag-over');const f=event.dataTransfer.files[0];if(f){const dt=new DataTransfer();dt.items.add(f);document.getElementById('upload-image').files=dt.files;document.getElementById('upload-image').dispatchEvent(new Event('input'));updateUploadZone(f.name);}">
+            <i id="upload-zone-icon" class="fas fa-cloud-upload-alt text-3xl text-violet-300 mb-2 block"></i>
+            <p id="upload-zone-text" class="text-sm font-medium text-violet-600">Drop image here or <span class="underline">click to browse</span></p>
+            <p id="upload-zone-hint" class="text-xs text-gray-400 mt-1">JPG, PNG, WEBP — max 5 MB</p>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div>
           <label class="modal-label">Location</label>
-          <input type="text" id="image-location" maxlength="50" class="sk-input" placeholder="Search for a location…" autocomplete="off" />
-          <ul id="location-suggestions" class="glass-strong border border-violet-100 rounded-xl shadow-lg mt-1 absolute z-50 hidden max-h-60 overflow-y-auto w-full"></ul>
+          <div class="field-wrap relative">
+            <i class="fas fa-map-marker-alt field-icon"></i>
+            <input type="text" id="image-location" maxlength="50" class="sk-input"
+              placeholder="Search for a location…" autocomplete="off" />
+            <ul id="location-suggestions"
+              class="glass-strong border border-violet-100 rounded-xl shadow-lg mt-1 absolute z-50 hidden max-h-60 overflow-y-auto w-full top-full"></ul>
+          </div>
         </div>
-        <div>
-          <label class="modal-label">Tags</label>
-          <input type="text" id="image-tags" class="sk-input" placeholder="sunset beach" />
+
+        <!-- Tags + Date (two-column) -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="modal-label">Tags</label>
+            <div class="field-wrap">
+              <i class="fas fa-tag field-icon"></i>
+              <input type="text" id="image-tags" class="sk-input" placeholder="sunset beach" />
+            </div>
+          </div>
+          <div>
+            <label class="modal-label flex items-center gap-1">
+              Capture Date
+              <span class="relative group cursor-pointer normal-case font-normal">
+                <i class="fas fa-info-circle text-violet-200 hover:text-violet-400 text-[10px]"></i>
+                <div class="absolute right-0 top-5 z-10 hidden group-hover:block w-56 glass-strong text-xs text-gray-500 border border-violet-100 p-2.5 rounded-xl shadow-md">
+                  Extracted from image metadata. Falls back to today if unavailable.
+                </div>
+              </span>
+            </label>
+            <div class="field-wrap">
+              <i class="fas fa-calendar field-icon"></i>
+              <input type="date" id="image-capture-date" name="image-capture-date" class="sk-input" max="" />
+            </div>
+          </div>
         </div>
+
+        <!-- Description -->
         <div>
           <label class="modal-label">Description</label>
-          <textarea id="image-description" rows="3" class="sk-input resize-none" placeholder="Describe this moment…"></textarea>
+          <div class="field-wrap ta-wrap">
+            <i class="fas fa-align-left field-icon"></i>
+            <textarea id="image-description" rows="3" class="sk-input resize-none"
+              placeholder="Describe this moment…"></textarea>
+          </div>
         </div>
-        <div>
-          <label class="modal-label flex items-center gap-1.5">
-            Capture Date
-            <span class="relative group cursor-pointer normal-case font-normal">
-              <i class="fas fa-info-circle text-violet-300 hover:text-violet-500 text-xs"></i>
-              <div class="absolute left-5 top-0 z-10 hidden group-hover:block w-64 glass-strong text-xs text-gray-600 border border-violet-100 p-2.5 rounded-xl shadow-md">
-                Extracted from image metadata. If unavailable, today's date is used. You can manually edit it.
-              </div>
-            </span>
-          </label>
-          <input type="date" id="image-capture-date" name="image-capture-date" class="sk-input mt-0.5" max="" />
-          <small class="text-xs text-violet-400 mt-1 block">You can adjust the date if needed.</small>
-        </div>
-        <div class="flex justify-end gap-3 pt-1">
-          <button type="button" onclick="closeImageUpload()" class="btn-ghost text-sm font-medium px-4 py-2 rounded-xl">Cancel</button>
-          <button type="submit" id="image-submit-btn" class="btn-primary text-sm font-medium px-5 py-2.5 rounded-xl">Upload</button>
+
+        <!-- Footer -->
+        <div class="modal-footer flex items-center justify-between">
+          <button type="button" onclick="closeImageUpload()"
+            class="text-sm text-gray-400 hover:text-gray-600 font-medium transition px-2 py-1">
+            Cancel
+          </button>
+          <button type="submit" id="image-submit-btn"
+            class="btn-primary text-sm font-semibold px-6 py-2.5 rounded-xl">
+            Upload Image
+          </button>
         </div>
       </form>
     </div>
@@ -297,5 +427,39 @@
   <div id="reel-player" class="hidden"></div>
 
   <script type="module" src="src/pages/main.js"></script>
+
+  <!-- Upload zone visual feedback -->
+  <script>
+    function updateUploadZone(filename) {
+      const zone = document.getElementById('upload-zone');
+      const icon = document.getElementById('upload-zone-icon');
+      const text = document.getElementById('upload-zone-text');
+      const hint = document.getElementById('upload-zone-hint');
+      if (!zone) return;
+      zone.classList.add('has-file');
+      icon.className = 'fas fa-check-circle text-3xl text-violet-500 mb-2 block';
+      text.innerHTML = `<span class="font-semibold text-violet-700">${filename}</span>`;
+      hint.textContent = 'Click to change';
+    }
+
+    function resetUploadZone() {
+      const zone = document.getElementById('upload-zone');
+      const icon = document.getElementById('upload-zone-icon');
+      const text = document.getElementById('upload-zone-text');
+      const hint = document.getElementById('upload-zone-hint');
+      if (!zone) return;
+      zone.classList.remove('has-file', 'drag-over');
+      icon.className = 'fas fa-cloud-upload-alt text-3xl text-violet-300 mb-2 block';
+      text.innerHTML = 'Drop image here or <span class="underline">click to browse</span>';
+      hint.textContent = 'JPG, PNG, WEBP — max 5 MB';
+    }
+
+    // Wire file-selected feedback (both click-to-browse and drag-drop paths)
+    document.addEventListener('input', e => {
+      if (e.target.id === 'upload-image' && e.target.files[0]) {
+        updateUploadZone(e.target.files[0].name);
+      }
+    });
+  </script>
 </body>
 </html>
