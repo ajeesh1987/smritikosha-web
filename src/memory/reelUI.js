@@ -14,6 +14,9 @@ async function saveReelApi({ memoryId, title, summary, previewData }) {
   const token = await getToken();
   if (!token) throw new Error("Not authenticated");
 
+  // 'year_in_review' is a synthetic key used client-side — never send it to the API
+  const isYiR = memoryId === 'year_in_review' || previewData?.reel_type === 'year_in_review';
+
   const res = await fetch("/api/memory/saveReel", {
     method: "POST",
     headers: {
@@ -21,7 +24,8 @@ async function saveReelApi({ memoryId, title, summary, previewData }) {
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
-      memoryId,
+      memoryId:  isYiR ? null : memoryId,
+      reelType:  isYiR ? 'year_in_review' : 'memory',
       title,
       summary,
       reelData: previewData,

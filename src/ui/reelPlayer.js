@@ -3,7 +3,9 @@ import { gsap } from "gsap";
 import { mountReelActionsForReel, unmountReelActionsForMemory } from "../memory/reelUI.js";
 
 export function playReel(previewData) {
-  const { memoryId, title, theme, mood, musicStyle, visualFlow } = previewData;
+  const { memoryId, title, theme, mood, musicStyle, visualFlow, reel_type } = previewData;
+  // For year_in_review reels there is no memoryId — use a stable string key instead
+  const reelKey = memoryId || (reel_type === 'year_in_review' ? 'year_in_review' : null);
 
   const container = document.getElementById("reel-player");
   container.innerHTML = "";
@@ -28,8 +30,8 @@ export function playReel(previewData) {
   overlay.appendChild(controlsBar);
 
   // 1) Mount Save / Share / Download into the controls bar
-  if (memoryId) {
-    mountReelActionsForReel(memoryId, previewData, controlsBar);
+  if (reelKey) {
+    mountReelActionsForReel(reelKey, previewData, controlsBar);
   }
 
   // 2) Then add Close so it appears AFTER Download
@@ -53,13 +55,14 @@ export function playReel(previewData) {
       onComplete: () => audio.pause(),
     });
     container.classList.add("hidden");
-    if (memoryId) unmountReelActionsForMemory(memoryId);
+    if (reelKey) unmountReelActionsForMemory(reelKey);
   };
 
   closeBtn.onclick = closeReel;
 
   let index = 0;
   const preloadImages = visualFlow.map((v) => {
+    if (!v.imageUrl) return Promise.resolve(null);
     const img = new Image();
     img.src = v.imageUrl;
     return img.decode().catch(() => null);
@@ -84,35 +87,52 @@ export function playReel(previewData) {
       frame.className =
         "absolute inset-0 flex items-center justify-center transition-all duration-1000";
 
-      const img = document.createElement("img");
-      img.src = block.imageUrl;
-      img.className =
-        "max-w-[90%] max-h-[80%] object-contain rounded-2xl shadow-xl opacity-0";
+      let animTarget;
 
-      if (block.effect === "ghibli") {
-        img.classList.add("saturate-150", "contrast-125", "brightness-105");
-      }
+      if (!block.imageUrl) {
+        // HNY / text-only title card frame
+        const card = document.createElement("div");
+        card.className =
+          "flex flex-col items-center justify-center text-center px-12 opacity-0 bg-amber-50 absolute inset-0";
+        card.innerHTML = `
+          <h2 class="text-3xl md:text-5xl font-bold text-amber-800 leading-snug">
+            ${block.caption || ""}
+          </h2>`;
+        frame.appendChild(card);
+        animTarget = card;
+      } else {
+        const img = document.createElement("img");
+        img.src = block.imageUrl;
+        img.className =
+          "max-w-[90%] max-h-[80%] object-contain rounded-2xl shadow-xl opacity-0";
 
-      frame.appendChild(img);
+        if (block.effect === "ghibli") {
+          img.classList.add("saturate-150", "contrast-125", "brightness-105");
+        }
 
-      if (block.caption) {
-        const caption = document.createElement("p");
-        caption.textContent = block.caption;
-        caption.className =
-          "absolute bottom-8 w-full text-center text-xl font-medium text-gray-700 italic drop-shadow-sm";
-        frame.appendChild(caption);
+        frame.appendChild(img);
+
+        if (block.caption) {
+          const caption = document.createElement("p");
+          caption.textContent = block.caption;
+          caption.className =
+            "absolute bottom-8 w-full text-center text-xl font-medium text-gray-700 italic drop-shadow-sm";
+          frame.appendChild(caption);
+        }
+
+        animTarget = img;
       }
 
       frameLayer.appendChild(frame);
 
-      gsap.to(img, {
+      gsap.to(animTarget, {
         opacity: 1,
         scale: 1,
         duration: 1.2,
         ease: "power2.out",
         onComplete: () => {
           setTimeout(() => {
-            gsap.to(img, {
+            gsap.to(animTarget, {
               opacity: 0,
               scale: 1.05,
               duration: 1.2,

@@ -96,6 +96,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   // ✅ Load memories before binding cancel, so DOM is guaranteed ready
   await loadMemories();
 
+  // Year in Review — only relevant on Jan 1st
+  await checkYearInReview(user);
+
   // ✅ Fix: Cancel button listener must be attached *after* DOM load
   const cancelBtn = document.getElementById('cancel-memory-btn');
 
@@ -838,6 +841,102 @@ bindSummarizeButtonEvents();
 
 }
 window.loadMemories = loadMemories;
+
+// ─── Year in Review ──────────────────────────────────────────────────────────
+
+async function checkYearInReview(user) {
+  const today = new Date();
+  if (today.getMonth() !== 0 || today.getDate() !== 1) return; // Jan 1st only
+
+  const { data } = await supabase
+    .from('year_in_review')
+    .select('id, year, pending')
+    .eq('user_id', user.id)
+    .eq('pending', true)
+    .order('year', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (data) showYirBanner(data);
+}
+
+function showYirBanner(yirRow) {
+  const banner = document.getElementById('yir-banner');
+  if (!banner) return;
+
+  banner.innerHTML = `
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <p class="font-bold text-amber-800 text-base">Happy New Year!</p>
+        <p class="text-sm text-amber-700">Your ${yirRow.year} highlights reel is ready to watch.</p>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="yir-play-btn"
+          class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+          Play Year in Review
+        </button>
+        <button id="yir-dismiss-btn"
+          class="text-amber-600 hover:text-amber-800 text-sm px-2 underline">
+          Not now
+        </button>
+      </div>
+    </div>`;
+  banner.classList.remove('hidden');
+
+  document.getElementById('yir-dismiss-btn').onclick = async () => {
+    banner.classList.add('hidden');
+    await supabase
+      .from('year_in_review')
+      .update({ pending: false })
+      .eq('id', yirRow.id);
+  };
+
+  document.getElementById('yir-play-btn').onclick = async () => {
+    const btn = document.getElementById('yir-play-btn');
+    btn.textContent = 'Generating...';
+    btn.disabled = true;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      const res = await fetch('/api/yearInReview/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ year: yirRow.year }),
+      });
+
+      if (!res.ok) throw new Error('Generation failed');
+      const reelData = await res.json();
+
+      if (reelData.empty) {
+        showToast('No memories found for last year', false);
+        banner.classList.add('hidden');
+        return;
+      }
+
+      // Mark viewed before playing so a refresh doesn't re-show the banner
+      await supabase
+        .from('year_in_review')
+        .update({ pending: false, viewed_at: new Date().toISOString() })
+        .eq('id', yirRow.id);
+
+      banner.classList.add('hidden');
+
+      import('../ui/reelPlayer.js').then(({ playReel }) => {
+        playReel(reelData);
+      });
+    } catch (err) {
+      console.error('Year in Review error:', err);
+      showToast('Could not load Year in Review', false);
+      btn.textContent = 'Play Year in Review';
+      btn.disabled = false;
+    }
+  };
+}
 
 // Close memory modal on Escape key or outside click
 document.addEventListener('keydown', e => {
