@@ -623,7 +623,10 @@ window.deleteImage = async (id, btn) => {
   // Remove thumbnail from DOM
   const card = btn.closest('.relative');
   card?.classList.add('opacity-0');
-  setTimeout(() => card?.remove(), 300);
+  setTimeout(() => {
+    card?.remove();
+    refreshButtonStates();
+  }, 300);
 
   // Remove from modal arrays
   const deletedIndex = modalIds.findIndex(imgId => imgId === id);
@@ -866,6 +869,28 @@ bindSummarizeButtonEvents();
 
 
 }
+// Re-evaluates YiR button and per-card reel buttons from current DOM state.
+// Called after any image deletion so thresholds stay accurate without a full reload.
+function refreshButtonStates() {
+  const memoryCards = document.querySelectorAll('#memory-list [data-memory-id]');
+  const totalImages = document.querySelectorAll('#memory-list [data-image-id]').length;
+
+  // Year in Review button — needs 1+ memory card and 3+ images total
+  const yirBtn = document.getElementById('yir-trigger-btn');
+  if (yirBtn) {
+    yirBtn.classList.toggle('hidden', !(memoryCards.length >= 1 && totalImages >= 3));
+  }
+
+  // Reel button per memory card — needs 3+ images in that card
+  memoryCards.forEach(card => {
+    const reelBtn = card.querySelector('.reel-btn');
+    if (reelBtn) {
+      const count = card.querySelectorAll('[data-image-id]').length;
+      reelBtn.classList.toggle('hidden', count < 3);
+    }
+  });
+}
+
 window.loadMemories = loadMemories;
 
 // ─── Year in Review — ad-hoc trigger ─────────────────────────────────────────
