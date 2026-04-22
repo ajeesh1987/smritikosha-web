@@ -668,6 +668,24 @@ async function loadMemories() {
   if (yirBtn) {
     const hasEnough = memories.length >= 1 && (images || []).length >= 3;
     yirBtn.classList.toggle('hidden', !hasEnough);
+
+    // Populate year dropdown from actual memory dates — most recent first
+    if (hasEnough) {
+      const years = [...new Set(
+        memories.map(m => new Date(m.created_at).getFullYear())
+      )].sort((a, b) => b - a);
+
+      const yirSelect = document.getElementById('yir-year-select');
+      if (yirSelect) {
+        yirSelect.innerHTML = '';
+        years.forEach(y => {
+          const opt = document.createElement('option');
+          opt.value = y;
+          opt.textContent = y;
+          yirSelect.appendChild(opt);
+        });
+      }
+    }
   }
 
   memoryList.innerHTML = '';
@@ -860,14 +878,7 @@ window.loadMemories = loadMemories;
   const goBtn      = document.getElementById('yir-picker-go');
   if (!triggerBtn || !modal) return;
 
-  // Populate year options: last 5 years, most recent first
-  const currentYear = new Date().getFullYear();
-  for (let y = currentYear - 1; y >= currentYear - 5; y--) {
-    const opt = document.createElement('option');
-    opt.value = y;
-    opt.textContent = y;
-    select.appendChild(opt);
-  }
+  // Years are populated dynamically in loadMemories() once memory data is available
 
   triggerBtn.onclick = () => {
     modal.classList.remove('hidden');
