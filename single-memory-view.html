@@ -4,54 +4,83 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Memory Detail | SmritiKosha</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif']
-          }
-        }
-      }
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          animation: { blob: 'blob 12s infinite ease-in-out', fadeUp: 'fadeUp 0.4s ease-out both' },
+          keyframes: {
+            blob: { '0%,100%': { transform: 'translate(0,0) scale(1)' }, '33%': { transform: 'translate(40px,-28px) scale(1.06)' }, '66%': { transform: 'translate(-18px,18px) scale(0.96)' } },
+            fadeUp: { '0%': { opacity: '0', transform: 'translateY(12px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+          },
+        },
+      },
     };
   </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { background-color: #f3f4f6; }
+    .blob-1 { background: radial-gradient(circle, rgba(167,139,250,0.35) 0%, transparent 70%); }
+    .blob-2 { background: radial-gradient(circle, rgba(34,211,238,0.22) 0%, transparent 70%); }
+    .glass-strong { background: rgba(255,255,255,0.78); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border: 1px solid rgba(255,255,255,0.92); }
+    .gradient-text { background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .btn-primary { background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); color: #fff; box-shadow: 0 4px 14px rgba(124,58,237,0.25); transition: opacity 0.2s, transform 0.15s; }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-ghost { background: rgba(255,255,255,0.60); border: 1px solid rgba(124,58,237,0.15); color: #4c1d95; transition: background 0.2s; }
+    .btn-ghost:hover { background: rgba(255,255,255,0.90); }
+    .btn-danger { background: #ef4444; color: #fff; transition: opacity 0.2s; }
+    .btn-danger:hover { opacity: 0.88; }
+  </style>
 </head>
-<body class="bg-white font-sans text-gray-800">
-  <!-- Navbar -->
-  <nav class="sticky top-0 bg-white shadow-sm z-50 px-6 py-4 flex items-center justify-between">
-    <button onclick="history.back()" class="text-indigo-600 hover:text-indigo-800 font-medium">&larr; Back</button>
-    <span class="text-sm text-gray-400">Memory View</span>
+<body class="font-sans min-h-screen">
+
+  <!-- Background blobs -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+    <div class="blob-1 absolute w-[500px] h-[500px] rounded-full -top-48 -left-32 animate-blob opacity-70"></div>
+    <div class="blob-2 absolute w-[420px] h-[420px] rounded-full -bottom-32 -right-32 animate-blob opacity-50" style="animation-delay:4s"></div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="sticky top-0 z-50 glass-strong px-6 py-3 flex items-center justify-between shadow-sm">
+    <button onclick="history.back()"
+      class="btn-ghost flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl">
+      &larr; Back
+    </button>
+    <span class="text-xs text-gray-400 font-medium uppercase tracking-wider">Memory View</span>
+    <div class="w-20"></div>
   </nav>
 
-  <!-- Hero Image -->
-  <div class="max-w-5xl mx-auto p-6">
-    <img id="hero-image" src="" alt="Hero Image" class="w-full rounded-xl shadow-md object-cover max-h-[400px]" />
+  <div class="relative max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6 animate-fadeUp">
 
-    <!-- Meta -->
-    <div class="mt-6">
-      <h1 id="memory-title" class="text-3xl font-bold text-indigo-700 mb-2">Memory Title</h1>
-      <div class="flex items-center text-sm text-gray-500 mb-2">
-        <span id="memory-location" class="mr-4">📍 Location</span>
+    <!-- Hero Image -->
+    <img id="hero-image" src="" alt="Hero Image"
+      class="w-full rounded-2xl shadow-lg object-cover max-h-[400px]" />
+
+    <!-- Meta card -->
+    <div class="glass-strong rounded-2xl p-6 shadow-lg space-y-3">
+      <h1 id="memory-title" class="text-3xl font-bold gradient-text">Memory Title</h1>
+      <div class="flex items-center gap-4 text-sm text-violet-400 font-medium">
+        <span id="memory-location">📍 Location</span>
         <span id="memory-timestamp">🕓 Date</span>
       </div>
-      <p id="memory-description" class="text-gray-700 text-base leading-relaxed mt-4">
-        This is a personal note or description associated with the memory. Could be a short journal entry or message.
+      <p id="memory-description" class="text-gray-600 text-sm leading-relaxed mt-2">
+        Description will appear here.
       </p>
     </div>
 
     <!-- Action buttons -->
-    <div class="mt-6 flex gap-3">
-      <button id="edit-memory" class="text-sm px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Edit</button>
-      <button id="delete-memory" class="text-sm px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">Delete</button>
-      <button id="add-image" class="text-sm px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">Add Image</button>
+    <div class="flex gap-3 flex-wrap">
+      <button id="edit-memory" class="btn-primary text-sm font-medium px-5 py-2.5 rounded-xl">Edit</button>
+      <button id="delete-memory" class="btn-danger text-sm font-medium px-5 py-2.5 rounded-xl">Delete</button>
+      <button id="add-image" class="btn-ghost text-sm font-medium px-5 py-2.5 rounded-xl">+ Add Image</button>
     </div>
 
     <!-- Image Gallery -->
-    <div id="gallery" class="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-      <!-- Images inserted dynamically here -->
-    </div>
+    <div id="gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+
   </div>
 
   <script type="module">
@@ -65,8 +94,8 @@
       const { data: images } = await supabase.from('memory_images').select('*').eq('memory_id', memoryId);
 
       document.getElementById('memory-title').textContent = memory.title;
-      document.getElementById('memory-location').textContent = memory.location || '';
-      document.getElementById('memory-timestamp').textContent = new Date(memory.created_at).toLocaleDateString();
+      document.getElementById('memory-location').textContent = memory.location ? `📍 ${memory.location}` : '';
+      document.getElementById('memory-timestamp').textContent = `🕓 ${new Date(memory.created_at).toLocaleDateString()}`;
       document.getElementById('memory-description').textContent = memory.description || '';
 
       const gallery = document.getElementById('gallery');
@@ -76,7 +105,7 @@
         const { data: urlData } = await supabase.storage.from('memory-images').createSignedUrl(images[i].image_path, 3600);
         const img = document.createElement('img');
         img.src = urlData?.signedUrl || '';
-        img.className = 'rounded-lg object-cover h-40 w-full cursor-pointer hover:scale-105 transition';
+        img.className = 'rounded-xl object-cover h-40 w-full cursor-pointer hover:scale-105 hover:ring-2 hover:ring-violet-300 transition-all shadow-sm';
         gallery.appendChild(img);
       }
 

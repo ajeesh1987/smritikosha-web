@@ -3,74 +3,114 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Myazora Mode - SmritiKosha</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <title>Myazora Mode | SmritiKosha</title>
   <link rel="icon" type="image/png" href="/assets/favicon.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          animation: { blob: 'blob 12s infinite ease-in-out', fadeUp: 'fadeUp 0.4s ease-out both' },
+          keyframes: {
+            blob: { '0%,100%': { transform: 'translate(0,0) scale(1)' }, '33%': { transform: 'translate(40px,-28px) scale(1.06)' }, '66%': { transform: 'translate(-18px,18px) scale(0.96)' } },
+            fadeUp: { '0%': { opacity: '0', transform: 'translateY(12px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+          },
+        },
+      },
+    };
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { background-color: #f3f4f6; }
+    .blob-1 { background: radial-gradient(circle, rgba(167,139,250,0.38) 0%, transparent 70%); }
+    .blob-2 { background: radial-gradient(circle, rgba(34,211,238,0.25) 0%, transparent 70%); }
+    .glass-strong { background: rgba(255,255,255,0.78); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border: 1px solid rgba(255,255,255,0.92); }
+    .gradient-text { background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .btn-primary { background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); color: #fff; box-shadow: 0 4px 14px rgba(124,58,237,0.25); transition: opacity 0.2s, transform 0.15s; }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-ghost { background: rgba(255,255,255,0.60); border: 1px solid rgba(124,58,237,0.15); color: #4c1d95; transition: background 0.2s; }
+    .btn-ghost:hover { background: rgba(255,255,255,0.90); }
+    .sk-input { background: rgba(255,255,255,0.70); border: 1px solid rgba(124,58,237,0.15); color: #1e1b4b; width: 100%; padding: 0.5rem 0.875rem; border-radius: 0.75rem; font-size: 0.875rem; transition: border-color 0.2s; }
+    .sk-input:focus { outline: none; border-color: rgba(124,58,237,0.50); box-shadow: 0 0 0 3px rgba(124,58,237,0.10); }
+    .section-label { display: block; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: #7c3aed; margin-bottom: 0.35rem; }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800 min-h-screen p-6">
+<body class="font-sans min-h-screen">
+
+  <!-- Background blobs -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+    <div class="blob-1 absolute w-[500px] h-[500px] rounded-full -top-48 -left-32 animate-blob opacity-70"></div>
+    <div class="blob-2 absolute w-[420px] h-[420px] rounded-full -bottom-32 -right-32 animate-blob opacity-50" style="animation-delay:4s"></div>
+  </div>
 
   <!-- Logo -->
-  <div id="global-logo" class="mb-6"></div>
+  <div id="global-logo" class="mb-2"></div>
   <script>
-    fetch('/components/logo.html')
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById('global-logo').innerHTML = html;
-      });
+    fetch('/components/logo.html').then(r => r.text()).then(h => { document.getElementById('global-logo').innerHTML = h; });
   </script>
 
-  <div class="max-w-5xl mx-auto space-y-10">
+  <div class="relative max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8 animate-fadeUp">
 
     <!-- Header -->
-    <div class="flex justify-between items-center">
-      <a href="main.html" class="text-indigo-700 font-medium hover:underline text-sm">&larr; Back to Memories</a>
-      <h1 class="text-2xl font-bold text-indigo-700">Myazora Mode</h1>
-      <div></div>
+    <div class="flex items-center justify-between">
+      <a href="main.html" class="text-violet-500 hover:text-violet-700 text-sm font-medium transition">&larr; Back to Memories</a>
+      <h1 class="text-2xl font-bold gradient-text">Myazora Mode</h1>
+      <div class="w-28"></div>
     </div>
 
     <!-- Image Selection -->
-    <section id="image-select" class="bg-white p-6 rounded-xl shadow space-y-4">
-      <h2 class="text-lg font-semibold text-indigo-700">Choose an Image</h2>
+    <section id="image-select" class="glass-strong rounded-2xl p-6 shadow-lg space-y-4">
+      <h2 class="text-base font-bold gradient-text">Choose an Image</h2>
       <div class="flex gap-4 items-center">
-        <select id="memory-picker" class="border border-gray-300 rounded px-3 py-2 w-1/2">
-          <option value="">Select memory...</option>
-        </select>
+        <div class="flex-1">
+          <label class="section-label">Memory</label>
+          <select id="memory-picker" class="sk-input">
+            <option value="">Select memory…</option>
+          </select>
+        </div>
       </div>
-      <div id="thumbnails" class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
+      <div id="thumbnails" class="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
     </section>
 
     <!-- Generation Button -->
     <section class="text-center">
-      <button id="generate-myazora" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded disabled:opacity-50 transition">
+      <button id="generate-myazora"
+        class="btn-primary px-7 py-3 rounded-2xl font-semibold text-sm disabled:opacity-50">
         ✨ Myazorify an Image
       </button>
     </section>
 
     <!-- Output Preview -->
-    <section id="preview" class="hidden bg-white p-6 rounded-xl shadow space-y-6">
-      <h2 class="text-lg font-semibold text-indigo-700">Preview</h2>
+    <section id="preview" class="hidden glass-strong rounded-2xl p-6 shadow-lg space-y-6">
+      <h2 class="text-base font-bold gradient-text">Preview</h2>
       <div class="flex flex-col md:flex-row gap-6 items-start justify-center">
         <div>
-          <p class="text-sm text-gray-500 mb-1">Original</p>
-          <img id="original-image" class="max-w-xs rounded shadow border" />
+          <p class="section-label mb-2">Original</p>
+          <img id="original-image" class="max-w-xs rounded-xl shadow border border-white/80" />
         </div>
         <div>
-          <p class="text-sm text-gray-500 mb-1">Myazora Style</p>
-          <img id="myazora-image" class="max-w-xs rounded shadow border border-indigo-300" />
+          <p class="section-label mb-2">Myazora Style</p>
+          <img id="myazora-image" class="max-w-xs rounded-xl shadow border-2 border-violet-200" />
         </div>
       </div>
       <div class="text-center">
-        <button id="retry" class="text-sm text-indigo-600 hover:underline">Try Another Style</button>
+        <button id="retry" class="text-sm text-violet-500 hover:text-violet-700 hover:underline font-medium transition">Try Another Style</button>
       </div>
     </section>
 
     <!-- Save Options -->
-    <section id="save-options" class="hidden bg-white p-6 rounded-xl shadow space-y-4">
-      <h2 class="text-lg font-semibold text-indigo-700">Save Your Creation</h2>
-      <div class="flex flex-col sm:flex-row gap-4">
-        <button id="save-to-existing" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition">Add to Existing Memory</button>
-        <button id="save-new-memory" class="border border-gray-300 px-4 py-2 rounded hover:bg-gray-50 transition">Save as New Memory</button>
+    <section id="save-options" class="hidden glass-strong rounded-2xl p-6 shadow-lg space-y-4">
+      <h2 class="text-base font-bold gradient-text">Save Your Creation</h2>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button id="save-to-existing"
+          class="btn-primary text-sm font-medium px-5 py-2.5 rounded-xl">
+          Add to Existing Memory
+        </button>
+        <button id="save-new-memory"
+          class="btn-ghost text-sm font-medium px-5 py-2.5 rounded-xl">
+          Save as New Memory
+        </button>
       </div>
     </section>
 

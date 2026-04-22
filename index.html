@@ -4,13 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SmritiKosha – Your Memory Sanctuary</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          animation: {
+            blob: 'blob 12s infinite ease-in-out',
+            fadeUp: 'fadeUp 0.6s ease-out both',
+            pulse2: 'pulse2 4s ease-in-out infinite',
+          },
+          keyframes: {
+            blob: { '0%,100%': { transform: 'translate(0,0) scale(1)' }, '33%': { transform: 'translate(40px,-28px) scale(1.06)' }, '66%': { transform: 'translate(-18px,18px) scale(0.96)' } },
+            fadeUp: { '0%': { opacity: '0', transform: 'translateY(18px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+            pulse2: { '0%,100%': { opacity: '0.5' }, '50%': { opacity: '0.8' } },
           },
         },
       },
@@ -18,76 +27,72 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    .slide-fade {
-      transition: opacity 1s ease-in-out;
-      opacity: 0;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .slide-fade.active {
-      opacity: 1;
-      position: relative;
-    }
+    body { background-color: #f3f4f6; }
+    .blob-1 { background: radial-gradient(circle, rgba(167,139,250,0.38) 0%, transparent 70%); }
+    .blob-2 { background: radial-gradient(circle, rgba(34,211,238,0.25) 0%, transparent 70%); }
+    .blob-3 { background: radial-gradient(circle, rgba(167,139,250,0.20) 0%, transparent 70%); }
+    .glass { background: rgba(255,255,255,0.62); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.82); }
+    .glass-strong { background: rgba(255,255,255,0.78); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border: 1px solid rgba(255,255,255,0.92); }
+    .gradient-text { background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .btn-primary { background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); color: #fff; box-shadow: 0 4px 20px rgba(124,58,237,0.30); transition: opacity 0.2s, transform 0.15s; }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-2px); }
+    .slide-fade { transition: opacity 1s ease-in-out; opacity: 0; position: absolute; top: 0; left: 0; right: 0; margin-left: auto; margin-right: auto; }
+    .slide-fade.active { opacity: 1; position: relative; }
+    .feature-card { transition: transform 0.2s, box-shadow 0.2s; }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(124,58,237,0.12); }
   </style>
-  
-  
 </head>
-<body class="bg-gradient-to-br from-white to-blue-100 font-sans text-gray-800">
+<body class="font-sans text-gray-800 min-h-screen">
+
+  <!-- Background blobs -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+    <div class="blob-1 absolute w-[700px] h-[700px] rounded-full -top-80 -left-56 animate-blob opacity-70"></div>
+    <div class="blob-2 absolute w-[500px] h-[500px] rounded-full top-1/2 -right-56 animate-blob opacity-50" style="animation-delay:4s"></div>
+    <div class="blob-3 absolute w-[400px] h-[400px] rounded-full -bottom-48 left-1/3 animate-blob opacity-40" style="animation-delay:8s"></div>
+  </div>
+
   <div id="global-logo"></div>
   <script>
-    fetch('/components/logo.html')
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById('global-logo').innerHTML = html;
-      });
+    fetch('/components/logo.html').then(r => r.text()).then(h => { document.getElementById('global-logo').innerHTML = h; });
   </script>
-  
+
   <!-- Hero Section -->
-  <section class="min-h-screen flex items-center justify-center text-center px-4 md:px-0 relative overflow-hidden">
-    <div class="z-10">
-      <h1 class="text-5xl md:text-7xl font-bold text-indigo-900 leading-tight">SmritiKosha</h1>
-      <p class="mt-6 text-lg md:text-xl max-w-xl mx-auto text-gray-600">
+  <section class="relative min-h-screen flex items-center justify-center text-center px-6 overflow-hidden">
+    <div class="z-10 animate-fadeUp">
+      <h1 class="text-6xl md:text-8xl font-extrabold gradient-text leading-none mb-6">SmritiKosha</h1>
+      <p class="text-lg md:text-xl max-w-lg mx-auto text-gray-500 mb-10 leading-relaxed">
         Your sanctuary of memories. Written, remembered, rediscovered.
       </p>
-      <button id="start-btn" class="mt-8 px-6 py-3 bg-indigo-600 text-white rounded-xl text-lg font-medium shadow-lg hover:bg-indigo-700 transition">
+      <button id="start-btn"
+        class="btn-primary px-8 py-3.5 rounded-2xl text-base font-semibold">
         Start Remembering
       </button>
-      
-      
     </div>
-    <div class="absolute w-[600px] h-[600px] bg-indigo-300 opacity-20 blur-3xl rounded-full top-20 left-1/2 transform -translate-x-1/2 animate-pulse"></div>
   </section>
 
   <!-- Nostalgia Slideshow Section -->
-  <section class="relative h-[500px] bg-white flex items-center justify-center overflow-hidden">
-    <div class="relative w-full max-w-md h-full">
-      <div class="slide-fade active" id="slide-1">
-        <img src="./assets/img1.jpg" class="rounded-xl shadow-lg w-full h-auto mb-4" alt="India 90s">
-        <p class="text-lg text-center text-gray-700">Memories we didn't know we missed. Now, remembered.</p>
-      </div>
-      <div class="slide-fade" id="slide-2">
-        <img src="./assets/img2.jpg" class="rounded-xl shadow-lg w-full h-auto mb-4" alt="US 90s">
-      </div>
-      <div class="slide-fade" id="slide-3">
-        <img src="./assets/img3.jpg" class="rounded-xl shadow-lg w-full h-auto mb-4" alt="Shared Vibes">
+  <section class="relative py-20 px-6 flex items-center justify-center overflow-hidden">
+    <div class="glass-strong rounded-3xl shadow-xl p-6 w-full max-w-lg">
+      <div class="relative min-h-[340px]">
+        <div class="slide-fade active" id="slide-1">
+          <img src="./assets/img1.jpg" class="rounded-2xl shadow-md w-full h-auto mb-4 object-cover" alt="Memory 1" />
+          <p class="text-base text-center text-gray-500 italic">Memories we didn't know we missed. Now, remembered.</p>
+        </div>
+        <div class="slide-fade" id="slide-2">
+          <img src="./assets/img2.jpg" class="rounded-2xl shadow-md w-full h-auto mb-4 object-cover" alt="Memory 2" />
+        </div>
+        <div class="slide-fade" id="slide-3">
+          <img src="./assets/img3.jpg" class="rounded-2xl shadow-md w-full h-auto mb-4 object-cover" alt="Memory 3" />
+        </div>
       </div>
     </div>
   </section>
 
   <script>
-    const slides = [
-      document.getElementById('slide-1'),
-      document.getElementById('slide-2'),
-      document.getElementById('slide-3')
-    ];
+    const slides = [document.getElementById('slide-1'), document.getElementById('slide-2'), document.getElementById('slide-3')];
     let current = 0;
-
     setInterval(() => {
       slides[current].classList.remove('active');
       current = (current + 1) % slides.length;
@@ -95,52 +100,52 @@
     }, 3500);
   </script>
 
-  <!-- Story Section -->
-  <section class="py-24 px-6 md:px-20 bg-white text-center">
-    <h2 class="text-3xl md:text-4xl font-semibold mb-8">What is SmritiKosha?</h2>
-    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-      SmritiKosha is your personal vault of memories. A calm, elegant space to preserve your thoughts, journal your experiences, and reflect on the journey of your life.
+  <!-- Story / Feature Section -->
+  <section class="py-24 px-6 md:px-20 text-center relative">
+    <h2 class="text-3xl md:text-4xl font-bold gradient-text mb-4">What is SmritiKosha?</h2>
+    <p class="text-base text-gray-500 max-w-2xl mx-auto mb-14 leading-relaxed">
+      Your personal vault of memories — a calm, elegant space to preserve your thoughts, journal your experiences, and reflect on the journey of your life.
     </p>
-    <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-10">
-      <div class="p-6 rounded-xl shadow-md bg-indigo-50">
-        <h3 class="text-xl font-bold mb-2">📝 Write</h3>
-        <p class="text-gray-600">Capture your thoughts, moments, and reflections — from the mundane to the meaningful.</p>
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+      <div class="glass-strong feature-card p-7 rounded-2xl text-left">
+        <div class="text-3xl mb-3">📝</div>
+        <h3 class="text-lg font-bold gradient-text mb-2">Write</h3>
+        <p class="text-sm text-gray-500 leading-relaxed">Capture your thoughts, moments, and reflections — from the mundane to the meaningful.</p>
       </div>
-      <div class="p-6 rounded-xl shadow-md bg-blue-50">
-        <h3 class="text-xl font-bold mb-2">📦 Keep</h3>
-        <p class="text-gray-600">Every memory is safe and secure, beautifully organized in a digital sanctuary.</p>
+      <div class="glass-strong feature-card p-7 rounded-2xl text-left">
+        <div class="text-3xl mb-3">📦</div>
+        <h3 class="text-lg font-bold gradient-text mb-2">Keep</h3>
+        <p class="text-sm text-gray-500 leading-relaxed">Every memory is safe and secure, beautifully organized in a digital sanctuary.</p>
       </div>
-      <div class="p-6 rounded-xl shadow-md bg-indigo-50">
-        <h3 class="text-xl font-bold mb-2">🔁 Revisit</h3>
-        <p class="text-gray-600">Scroll back through your journey. See how far you've come. Remember what matters.</p>
+      <div class="glass-strong feature-card p-7 rounded-2xl text-left">
+        <div class="text-3xl mb-3">🔁</div>
+        <h3 class="text-lg font-bold gradient-text mb-2">Revisit</h3>
+        <p class="text-sm text-gray-500 leading-relaxed">Scroll back through your journey. See how far you've come. Remember what matters.</p>
       </div>
     </div>
   </section>
 
   <!-- Quote Section -->
-  <section class="py-32 px-6 bg-gradient-to-br from-indigo-100 to-blue-200 text-center">
-    <blockquote class="text-2xl md:text-3xl italic font-medium text-gray-800 max-w-3xl mx-auto">
-      “We do not remember days, we remember moments.” <br/><span class="block mt-4 text-sm font-normal text-gray-600">— Cesare Pavese</span>
-    </blockquote>
+  <section class="py-28 px-6 relative overflow-hidden">
+    <div class="glass-strong max-w-3xl mx-auto rounded-3xl p-12 text-center shadow-xl">
+      <blockquote class="text-2xl md:text-3xl italic font-medium text-gray-700 leading-relaxed">
+        "We do not remember days, we remember moments."
+      </blockquote>
+      <p class="mt-6 text-sm text-gray-400">— Cesare Pavese</p>
+    </div>
   </section>
 
- 
-  
-
   <!-- Footer -->
-  <footer class="bg-white py-6 text-center text-sm text-gray-500">
-    &copy; 2025 SmritiKosha. Built for those who remember.
-
-     <!-- Photo Credits -->
-  <p class="text-xs text-gray-500 text-center mt-4">
-    Photos by 
-    <a href="https://unsplash.com/@karthikchandrasekar?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" class="underline hover:text-indigo-600" target="_blank">Karthik Chandran</a> and 
-    <a href="https://unsplash.com/@rcsalbum?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" class="underline hover:text-indigo-600" target="_blank">Debashis RC Biswas</a> on 
-    <a href="https://unsplash.com" class="underline hover:text-indigo-600" target="_blank">Unsplash</a>
-  </p>
+  <footer class="py-8 text-center text-sm text-gray-400 border-t border-white/60">
+    <p>&copy; 2025 SmritiKosha. Built for those who remember.</p>
+    <p class="text-xs mt-2">
+      Photos by
+      <a href="https://unsplash.com/@karthikchandrasekar?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" class="underline hover:text-violet-500" target="_blank">Karthik Chandran</a> and
+      <a href="https://unsplash.com/@rcsalbum?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash" class="underline hover:text-violet-500" target="_blank">Debashis RC Biswas</a> on
+      <a href="https://unsplash.com" class="underline hover:text-violet-500" target="_blank">Unsplash</a>
+    </p>
   </footer>
-  <script type="module" src="/src/pages/index.js"></script>
 
-  
+  <script type="module" src="/src/pages/index.js"></script>
 </body>
 </html>

@@ -2,28 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Memory Map | SmritiKosha</title>
   <link rel="icon" type="image/png" href="/assets/favicon.png" />
 
   <!-- MapLibre -->
-  <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet"/>
+  <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
   <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
 
   <!-- Tailwind & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
 
   <style>
     html, body { margin: 0; padding: 0; height: 100%; }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; }
     .pin-marker {
-      width: 24px;
-      height: 24px;
+      width: 24px; height: 24px;
       background-image: url('https://cdn-icons-png.flaticon.com/512/2776/2776067.png');
-      background-size: cover;
-      cursor: pointer;
+      background-size: cover; cursor: pointer;
     }
+    .glass-strong {
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.92);
+    }
+    .sk-input {
+      background: rgba(255,255,255,0.70);
+      border: 1px solid rgba(124,58,237,0.15);
+      color: #1e1b4b;
+      width: 100%;
+      padding: 0.45rem 0.75rem;
+      border-radius: 0.625rem;
+      font-size: 0.8125rem;
+      transition: border-color 0.2s;
+    }
+    .sk-input:focus { outline: none; border-color: rgba(124,58,237,0.45); box-shadow: 0 0 0 2px rgba(124,58,237,0.08); }
+    .modal-label { display: block; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #7c3aed; margin-bottom: 0.2rem; }
   </style>
 </head>
 <body class="relative font-sans">
@@ -33,80 +49,80 @@
 
   <!-- Back Button -->
   <a href="/main.html"
-     class="fixed top-6 left-6 z-50 bg-white/90 text-indigo-700 px-4 py-2 rounded-full shadow-lg hover:bg-white hover:shadow-xl transition duration-200 flex items-center gap-2 text-sm font-semibold backdrop-blur-md">
-    <i class="fas fa-arrow-left"></i>
+    class="fixed top-5 left-5 z-50 glass-strong text-violet-700 px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition duration-200 flex items-center gap-2 text-sm font-semibold">
+    <i class="fas fa-arrow-left text-xs"></i>
     Back to Memories
   </a>
 
   <!-- Mobile Toggle Button -->
-  <button id="toggle-filter"
-          type="button"
-          class="fixed top-20 left-4 z-50 bg-indigo-600 text-white px-3 py-1.5 rounded-full shadow hover:bg-indigo-700 block md:hidden">
+  <button id="toggle-filter" type="button"
+    class="fixed top-[72px] left-4 z-50 text-white text-sm px-3 py-1.5 rounded-xl shadow block md:hidden font-medium"
+    style="background:linear-gradient(135deg,#7c3aed,#0891b2);">
     <i class="fas fa-sliders-h mr-1"></i> Filters
   </button>
 
   <!-- Filter Panel -->
   <div id="filter-panel"
-       class="hidden md:block fixed top-20 left-4 w-72 bg-white shadow-xl rounded-xl p-4 z-50 space-y-4 max-h-[80vh] overflow-auto">
-    <h2 class="text-lg font-semibold text-indigo-800">Filter Memories</h2>
+    class="hidden md:block fixed top-20 left-4 w-72 glass-strong shadow-xl rounded-2xl p-5 z-50 space-y-4 max-h-[80vh] overflow-auto">
+    <h2 class="text-sm font-bold" style="background:linear-gradient(135deg,#7c3aed,#0891b2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+      Filter Memories
+    </h2>
 
     <div>
-      <label for="filter-memory" class="block text-sm font-medium text-gray-700">Memory</label>
-      <select id="filter-memory" class="mt-1 block w-48 rounded-md border border-gray-300 shadow-sm p-2">
+      <label class="modal-label">Memory</label>
+      <select id="filter-memory" class="sk-input">
         <option value="">All</option>
       </select>
     </div>
 
     <div>
-      <label for="filter-country" class="block text-sm font-medium text-gray-700">Country</label>
-      <select id="filter-country" class="mt-1 block w-40 rounded-md border border-gray-300 shadow-sm p-2">
+      <label class="modal-label">Country</label>
+      <select id="filter-country" class="sk-input">
         <option value="">All</option>
       </select>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-700">Date Range</label>
-      <div class="flex gap-2 mt-2">
-        <input type="date" id="date-from" class="w-full px-2 py-1 border rounded text-sm"/>
-        <input type="date" id="date-to" class="w-full px-2 py-1 border rounded text-sm"/>
+      <label class="modal-label">Date Range</label>
+      <div class="flex gap-2 mt-1">
+        <input type="date" id="date-from" class="sk-input" />
+        <input type="date" id="date-to" class="sk-input" />
       </div>
     </div>
 
-    <div class="flex justify-between pt-3 border-t mt-4">
-      <button type="button" id="reset-filters" class="text-sm text-gray-500 hover:underline">Reset</button>
-      <button type="button" id="apply-filters" class="bg-indigo-600 text-white text-sm px-4 py-1.5 rounded hover:bg-indigo-700">
+    <div class="flex justify-between pt-3 border-t border-violet-100 mt-2">
+      <button type="button" id="reset-filters" class="text-xs text-violet-400 hover:text-violet-600 hover:underline">Reset</button>
+      <button type="button" id="apply-filters"
+        class="text-white text-xs font-medium px-4 py-1.5 rounded-lg"
+        style="background:linear-gradient(135deg,#7c3aed,#0891b2);">
         Apply
       </button>
     </div>
   </div>
 
-  <!-- Inline Image Modal -->
-  <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
-    <div class="relative max-w-3xl bg-white p-4 rounded-lg shadow-lg" id="modal-box">
-      <button id="modal-close" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl">
+  <!-- Image Modal -->
+  <div id="image-modal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
+    <div class="relative max-w-3xl w-full mx-4 glass-strong p-5 rounded-2xl shadow-2xl" id="modal-box">
+      <button id="modal-close"
+        class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
         &times;
       </button>
-      <img id="modal-image" src="" class="max-w-full max-h-[75vh] mx-auto rounded" />
-      <div id="modal-info-panel" class="mt-4 text-center">
-        <p id="modal-location" class="text-sm text-gray-600 mb-1"></p>
-        <p id="modal-description" class="text-sm text-gray-800"></p>
+      <img id="modal-image" src="" class="max-w-full max-h-[70vh] mx-auto rounded-xl" />
+      <div id="modal-info-panel" class="mt-4 text-center space-y-1">
+        <p id="modal-location" class="text-xs text-violet-400 font-medium"></p>
+        <p id="modal-description" class="text-sm text-gray-600"></p>
       </div>
     </div>
   </div>
 
-  
-  
-
   <!-- Filter Toggle -->
   <script>
     document.getElementById('toggle-filter')?.addEventListener('click', () => {
-      const panel = document.getElementById('filter-panel');
-      panel.classList.toggle('hidden');
+      document.getElementById('filter-panel').classList.toggle('hidden');
     });
   </script>
 
   <!-- Map Logic -->
   <script type="module" src="/src/pages/map-page.js"></script>
-
 </body>
 </html>
