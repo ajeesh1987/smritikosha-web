@@ -3,117 +3,322 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Myazora Mode | SmritiKosha</title>
-  <link rel="icon" type="image/png" href="/assets/favicon.png" />
+  <title>Myazora — SmritiKosha</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: { sans: ['Inter', 'sans-serif'] },
-          animation: { blob: 'blob 12s infinite ease-in-out', fadeUp: 'fadeUp 0.4s ease-out both' },
+          animation: {
+            blob:    'blob 12s infinite ease-in-out',
+            fadeUp:  'fadeUp 0.4s ease-out both',
+            shimmer: 'shimmer 1.8s infinite linear',
+            pulse2:  'pulse2 2s cubic-bezier(0.4,0,0.6,1) infinite',
+          },
           keyframes: {
-            blob: { '0%,100%': { transform: 'translate(0,0) scale(1)' }, '33%': { transform: 'translate(40px,-28px) scale(1.06)' }, '66%': { transform: 'translate(-18px,18px) scale(0.96)' } },
-            fadeUp: { '0%': { opacity: '0', transform: 'translateY(12px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+            blob: {
+              '0%,100%': { transform: 'translate(0,0) scale(1)' },
+              '33%':     { transform: 'translate(40px,-28px) scale(1.06)' },
+              '66%':     { transform: 'translate(-18px,18px) scale(0.96)' },
+            },
+            fadeUp: {
+              '0%':   { opacity: '0', transform: 'translateY(12px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            shimmer: {
+              '0%':   { backgroundPosition: '-400px 0' },
+              '100%': { backgroundPosition: '400px 0' },
+            },
+            pulse2: {
+              '0%,100%': { opacity: '1' },
+              '50%':     { opacity: '.4' },
+            },
           },
         },
       },
-    };
+    }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
   <style>
-    body { background-color: #f3f4f6; }
-    .blob-1 { background: radial-gradient(circle, rgba(167,139,250,0.38) 0%, transparent 70%); }
-    .blob-2 { background: radial-gradient(circle, rgba(34,211,238,0.25) 0%, transparent 70%); }
-    .glass-strong { background: rgba(255,255,255,0.78); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border: 1px solid rgba(255,255,255,0.92); }
-    .gradient-text { background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .btn-primary { background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%); color: #fff; box-shadow: 0 4px 14px rgba(124,58,237,0.25); transition: opacity 0.2s, transform 0.15s; }
-    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
-    .btn-ghost { background: rgba(255,255,255,0.60); border: 1px solid rgba(124,58,237,0.15); color: #4c1d95; transition: background 0.2s; }
-    .btn-ghost:hover { background: rgba(255,255,255,0.90); }
-    .sk-input { background: rgba(255,255,255,0.70); border: 1px solid rgba(124,58,237,0.15); color: #1e1b4b; width: 100%; padding: 0.5rem 0.875rem; border-radius: 0.75rem; font-size: 0.875rem; transition: border-color 0.2s; }
-    .sk-input:focus { outline: none; border-color: rgba(124,58,237,0.50); box-shadow: 0 0 0 3px rgba(124,58,237,0.10); }
-    .section-label { display: block; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: #7c3aed; margin-bottom: 0.35rem; }
+    .glass {
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.80);
+    }
+    .glass-strong {
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255,255,255,0.92);
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(124,58,237,0.25);
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover:not(:disabled) { opacity: 0.87; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+    .btn-ghost {
+      background: rgba(255,255,255,0.60);
+      border: 1px solid rgba(124,58,237,0.15);
+      color: #4c1d95;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.90); transform: translateY(-1px); }
+    .sk-select {
+      background: rgba(255,255,255,0.70);
+      border: 1px solid rgba(124,58,237,0.15);
+      color: #1e1b4b;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237c3aed' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+    .sk-select:focus {
+      outline: none;
+      border-color: rgba(124,58,237,0.50);
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.10);
+      background-color: rgba(255,255,255,0.95);
+    }
+    .blob-1 { background: radial-gradient(circle, rgba(167,139,250,0.40) 0%, transparent 70%); }
+    .blob-2 { background: radial-gradient(circle, rgba(34,211,238,0.28) 0%, transparent 70%); }
+    .blob-3 { background: radial-gradient(circle, rgba(236,72,153,0.16) 0%, transparent 70%); }
+    .thumb-img {
+      cursor: pointer;
+      border-radius: 0.75rem;
+      border: 2px solid transparent;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      object-fit: cover;
+      aspect-ratio: 1;
+      width: 100%;
+    }
+    .thumb-img:hover { transform: scale(1.04); box-shadow: 0 8px 24px rgba(124,58,237,0.18); }
+    .thumb-img.selected {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.25);
+    }
+    .shimmer-box {
+      background: linear-gradient(90deg, rgba(200,180,255,0.15) 25%, rgba(200,180,255,0.35) 50%, rgba(200,180,255,0.15) 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.8s infinite linear;
+      border-radius: 0.75rem;
+    }
+    .style-chip {
+      cursor: pointer;
+      border: 1.5px solid rgba(124,58,237,0.18);
+      background: rgba(255,255,255,0.55);
+      color: #5b21b6;
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 999px;
+      transition: background 0.18s, border-color 0.18s, color 0.18s;
+      white-space: nowrap;
+    }
+    .style-chip:hover { background: rgba(124,58,237,0.08); border-color: rgba(124,58,237,0.4); }
+    .style-chip.active {
+      background: linear-gradient(135deg, #7c3aed 0%, #0891b2 100%);
+      border-color: transparent;
+      color: #fff;
+    }
+    .compare-slider-wrap { position: relative; overflow: hidden; border-radius: 0.75rem; }
+    .compare-before, .compare-after { position: absolute; inset: 0; }
+    .compare-after { clip-path: inset(0 50% 0 0); }
+    .compare-handle {
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 50%;
+      width: 3px;
+      background: white;
+      cursor: ew-resize;
+      box-shadow: 0 0 8px rgba(0,0,0,0.3);
+    }
+    .compare-handle::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    }
   </style>
 </head>
-<body class="font-sans min-h-screen">
+<body class="font-sans min-h-screen" style="background:#f3f4f6;">
 
-  <!-- Background blobs -->
+  <!-- Animated blobs -->
   <div class="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-    <div class="blob-1 absolute w-[500px] h-[500px] rounded-full -top-48 -left-32 animate-blob opacity-70"></div>
-    <div class="blob-2 absolute w-[420px] h-[420px] rounded-full -bottom-32 -right-32 animate-blob opacity-50" style="animation-delay:4s"></div>
+    <div class="blob-1 absolute w-[580px] h-[580px] rounded-full -top-48 -left-36 animate-blob opacity-60"></div>
+    <div class="blob-2 absolute w-[460px] h-[460px] rounded-full top-1/3 -right-40 animate-blob opacity-50" style="animation-delay:4s"></div>
+    <div class="blob-3 absolute w-[380px] h-[380px] rounded-full bottom-0 left-1/3 animate-blob opacity-40" style="animation-delay:8s"></div>
   </div>
 
-  <!-- Logo -->
-  <div id="global-logo" class="mb-2"></div>
-  <script>
-    fetch('/components/logo.html').then(r => r.text()).then(h => { document.getElementById('global-logo').innerHTML = h; });
-  </script>
+  <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
-  <div class="relative max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8 animate-fadeUp">
-
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-      <a href="main.html" class="text-violet-500 hover:text-violet-700 text-sm font-medium transition">&larr; Back to Memories</a>
-      <h1 class="text-2xl font-bold gradient-text">Myazora Mode</h1>
-      <div class="w-28"></div>
+    <!-- Top nav bar -->
+    <div class="glass rounded-2xl px-5 py-3 flex items-center justify-between shadow-sm animate-fadeUp">
+      <a href="/pages/main.html" class="btn-ghost flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-xl">
+        <i class="fas fa-arrow-left text-xs"></i> Back
+      </a>
+      <div class="flex flex-col items-center">
+        <h1 class="text-base font-bold gradient-text tracking-tight">Myazora Mode</h1>
+        <p class="text-xs text-gray-400 font-light hidden sm:block">Transform your memories into art</p>
+      </div>
+      <div class="w-20"></div><!-- spacer -->
     </div>
 
-    <!-- Image Selection -->
-    <section id="image-select" class="glass-strong rounded-2xl p-6 shadow-lg space-y-4">
-      <h2 class="text-base font-bold gradient-text">Choose an Image</h2>
-      <div class="flex gap-4 items-center">
-        <div class="flex-1">
-          <label class="section-label">Memory</label>
-          <select id="memory-picker" class="sk-input">
-            <option value="">Select memory…</option>
-          </select>
-        </div>
-      </div>
-      <div id="thumbnails" class="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
-    </section>
+    <!-- Step 1 — Pick a memory & image -->
+    <div class="glass rounded-2xl p-6 shadow-sm animate-fadeUp space-y-5" style="animation-delay:0.05s">
 
-    <!-- Generation Button -->
-    <section class="text-center">
-      <button id="generate-myazora"
-        class="btn-primary px-7 py-3 rounded-2xl font-semibold text-sm disabled:opacity-50">
-        ✨ Myazorify an Image
+      <div class="flex items-center gap-3">
+        <span class="w-6 h-6 rounded-full btn-primary flex items-center justify-center text-xs font-bold shrink-0">1</span>
+        <h2 class="font-semibold text-gray-800">Choose an image</h2>
+      </div>
+
+      <!-- Memory picker -->
+      <div class="relative">
+        <select id="memory-picker" class="sk-select w-full sm:w-72 px-3 py-2.5 rounded-xl text-sm">
+          <option value="">Select a memory...</option>
+        </select>
+      </div>
+
+      <!-- Thumbnail grid -->
+      <div id="thumbnails-wrap" class="hidden space-y-2">
+        <p class="text-xs text-gray-400 font-medium tracking-wide uppercase">Select a photo</p>
+        <div id="thumbnails" class="grid grid-cols-3 sm:grid-cols-5 gap-3"></div>
+      </div>
+
+      <!-- Empty state -->
+      <div id="no-images-msg" class="hidden text-sm text-gray-400 italic">No images found in this memory.</div>
+
+    </div>
+
+    <!-- Step 2 — Style -->
+    <div class="glass rounded-2xl p-6 shadow-sm animate-fadeUp space-y-4" style="animation-delay:0.10s">
+
+      <div class="flex items-center gap-3">
+        <span class="w-6 h-6 rounded-full btn-primary flex items-center justify-center text-xs font-bold shrink-0">2</span>
+        <h2 class="font-semibold text-gray-800">Choose a style</h2>
+      </div>
+
+      <div id="style-chips" class="flex flex-wrap gap-2">
+        <button class="style-chip active" data-style="ghibli">Studio Ghibli</button>
+        <button class="style-chip" data-style="watercolor">Watercolour</button>
+        <button class="style-chip" data-style="oilpainting">Oil Painting</button>
+        <button class="style-chip" data-style="vintage">Vintage Film</button>
+        <button class="style-chip" data-style="sketch">Pencil Sketch</button>
+        <button class="style-chip" data-style="dreamy">Dreamy Pastel</button>
+      </div>
+
+    </div>
+
+    <!-- Generate button -->
+    <div class="flex justify-center animate-fadeUp" style="animation-delay:0.15s">
+      <button id="generate-btn" disabled
+        class="btn-primary flex items-center gap-2 px-8 py-3 rounded-2xl font-semibold text-sm shadow-lg">
+        <i class="fas fa-wand-magic-sparkles"></i>
+        <span id="generate-label">Myazorify</span>
       </button>
-    </section>
+    </div>
 
-    <!-- Output Preview -->
-    <section id="preview" class="hidden glass-strong rounded-2xl p-6 shadow-lg space-y-6">
-      <h2 class="text-base font-bold gradient-text">Preview</h2>
-      <div class="flex flex-col md:flex-row gap-6 items-start justify-center">
-        <div>
-          <p class="section-label mb-2">Original</p>
-          <img id="original-image" class="max-w-xs rounded-xl shadow border border-white/80" />
+    <!-- Loading state -->
+    <div id="loading-section" class="hidden glass rounded-2xl p-8 shadow-sm animate-fadeUp">
+      <div class="flex flex-col items-center gap-5">
+        <div class="relative w-20 h-20">
+          <div class="absolute inset-0 rounded-full" style="background: linear-gradient(135deg,#7c3aed,#0891b2); opacity:0.15; animation: pulse2 2s ease-in-out infinite;"></div>
+          <div class="absolute inset-2 rounded-full" style="background: linear-gradient(135deg,#7c3aed,#0891b2); opacity:0.25; animation: pulse2 2s ease-in-out infinite; animation-delay:0.3s;"></div>
+          <div class="absolute inset-4 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg,#7c3aed,#0891b2);">
+            <i class="fas fa-wand-magic-sparkles text-white text-lg animate-pulse2"></i>
+          </div>
         </div>
-        <div>
-          <p class="section-label mb-2">Myazora Style</p>
-          <img id="myazora-image" class="max-w-xs rounded-xl shadow border-2 border-violet-200" />
+        <div class="text-center space-y-1">
+          <p class="font-semibold text-gray-800">Crafting your artwork…</p>
+          <p id="loading-msg" class="text-sm text-gray-400">Analysing your image</p>
+        </div>
+        <!-- Shimmer placeholder for result -->
+        <div class="w-full grid grid-cols-2 gap-4 mt-2">
+          <div class="shimmer-box h-48"></div>
+          <div class="shimmer-box h-48"></div>
         </div>
       </div>
-      <div class="text-center">
-        <button id="retry" class="text-sm text-violet-500 hover:text-violet-700 hover:underline font-medium transition">Try Another Style</button>
-      </div>
-    </section>
+    </div>
 
-    <!-- Save Options -->
-    <section id="save-options" class="hidden glass-strong rounded-2xl p-6 shadow-lg space-y-4">
-      <h2 class="text-base font-bold gradient-text">Save Your Creation</h2>
-      <div class="flex flex-col sm:flex-row gap-3">
-        <button id="save-to-existing"
-          class="btn-primary text-sm font-medium px-5 py-2.5 rounded-xl">
-          Add to Existing Memory
-        </button>
-        <button id="save-new-memory"
-          class="btn-ghost text-sm font-medium px-5 py-2.5 rounded-xl">
-          Save as New Memory
+    <!-- Result -->
+    <div id="result-section" class="hidden glass rounded-2xl p-6 shadow-sm animate-fadeUp space-y-6">
+
+      <div class="flex items-center justify-between">
+        <h2 class="font-semibold text-gray-800">Your artwork is ready</h2>
+        <button id="retry-btn" class="btn-ghost flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl">
+          <i class="fas fa-rotate-left text-xs"></i> Try again
         </button>
       </div>
-    </section>
 
+      <!-- Side-by-side -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="space-y-2">
+          <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Original</p>
+          <img id="original-img" src="" alt="Original"
+            class="w-full rounded-xl object-cover shadow border border-white/60" style="max-height:340px;" />
+        </div>
+        <div class="space-y-2">
+          <p class="text-xs font-medium gradient-text uppercase tracking-wide font-semibold">Myazora Style</p>
+          <img id="result-img" src="" alt="Myazora result"
+            class="w-full rounded-xl object-cover shadow border border-white/60" style="max-height:340px;" />
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex flex-wrap gap-3 pt-2">
+        <a id="download-btn" href="#" download="myazora.png"
+          class="btn-primary flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium">
+          <i class="fas fa-download text-xs"></i> Download
+        </a>
+        <button id="save-existing-btn"
+          class="btn-ghost flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium">
+          <i class="fas fa-folder-plus text-xs"></i> Save to memory
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Error banner -->
+    <div id="error-banner" class="hidden glass rounded-2xl px-5 py-4 shadow-sm animate-fadeUp"
+      style="border-color:rgba(239,68,68,0.25); background:rgba(255,240,240,0.65);">
+      <div class="flex items-start gap-3">
+        <i class="fas fa-circle-exclamation text-red-400 mt-0.5"></i>
+        <div>
+          <p class="text-sm font-medium text-red-700">Something went wrong</p>
+          <p id="error-detail" class="text-xs text-red-500 mt-0.5"></p>
+        </div>
+        <button onclick="document.getElementById('error-banner').classList.add('hidden')"
+          class="ml-auto text-red-300 hover:text-red-500 text-lg leading-none">&times;</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"
+    class="fixed bottom-5 right-5 glass-strong text-gray-800 text-sm px-4 py-2.5 rounded-xl shadow-lg
+           opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-2">
+    <i class="fas fa-check-circle text-violet-500"></i>
+    <span id="toast-msg"></span>
   </div>
 
   <script type="module" src="/src/pages/myazora.js"></script>
